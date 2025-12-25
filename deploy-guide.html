@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare Pages 部署指南</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #f38020;
+            border-bottom: 3px solid #f38020;
+            padding-bottom: 10px;
+        }
+        .step {
+            background: #fff9f0;
+            border-left: 4px solid #f38020;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .step h2 {
+            margin-top: 0;
+            color: #f38020;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .important {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .link-box {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .link-box a {
+            color: #2196F3;
+            font-size: 1.2em;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link-box a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            line-height: 2;
+        }
+        .success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Cloudflare Pages 部署指南</h1>
+
+        <p><strong>目标：</strong>將 DSE RAG 系統部署到 Cloudflare Pages，讓全世界都能訪問！</p>
+
+        <div class="link-box">
+            <p><strong>第一步：打開 Cloudflare Dashboard</strong></p>
+            <a href="https://dash.cloudflare.com/" target="_blank">
+                👉 點擊這裡打開 Cloudflare Dashboard
+            </a>
+        </div>
+
+        <div class="step">
+            <h2>步驟 1: 登錄 Cloudflare</h2>
+            <ul>
+                <li>使用你的 Cloudflare 帳號登錄</li>
+                <li>如果沒有帳號，點擊 "Sign Up" 免費註冊</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>步驟 2: 進入 Workers & Pages</h2>
+            <ul>
+                <li>在左側菜單中，找到並點擊 <code>Workers & Pages</code></li>
+                <li>如果看不到，點擊左上角的 ☰ 菜單圖標</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>步驟 3: 創建 Pages 項目</h2>
+            <ul>
+                <li>點擊右上角的藍色按鈕 <code>Create application</code></li>
+                <li><strong>重要！選擇 Pages 標籤（不是 Workers）</strong></li>
+                <li>點擊 <code>Connect to Git</code></li>
+            </ul>
+        </div>
+
+        <div class="important">
+            ⚠️ <strong>注意：</strong>一定要選擇 <strong>Pages</strong> 標籤，不是 Workers！
+        </div>
+
+        <div class="step">
+            <h2>步驟 4: 連接 GitHub</h2>
+            <ul>
+                <li>點擊 <code>Connect GitHub</code> 或 <code>Connect account</code></li>
+                <li>授權 Cloudflare 訪問你的 GitHub（如果首次使用）</li>
+                <li>在倉庫列表中找到：<code>yhliang1648-cmyk/auto-knowledge-point</code></li>
+                <li>點擊倉庫旁邊的 <code>Begin setup</code></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>步驟 5: 配置構建設置</h2>
+            <p>填寫以下信息：</p>
+            <ul>
+                <li><strong>Project name:</strong> <code>dse-rag-system</code> （或任何你喜歡的名字）</li>
+                <li><strong>Production branch:</strong> <code>claude/connect-github-repo-Y7Rcj</code></li>
+                <li><strong>Framework preset:</strong> <code>None</code></li>
+                <li><strong>Build command:</strong> 留空（不填）</li>
+                <li><strong>Build output directory:</strong> <code>.</code> （只輸入一個點）</li>
+            </ul>
+        </div>
+
+        <div class="important">
+            💡 <strong>提示：</strong>Build output directory 填寫一個點 <code>.</code> 表示根目錄
+        </div>
+
+        <div class="step">
+            <h2>步驟 6: 部署！</h2>
+            <ul>
+                <li>點擊底部的 <code>Save and Deploy</code> 按鈕</li>
+                <li>等待 1-2 分鐘，系統會自動構建和部署</li>
+                <li>看到綠色的 "Success" 就表示完成了！</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h3>🎉 部署成功後</h3>
+            <p>你會看到一個網址，類似於：</p>
+            <p><code>https://dse-rag-system.pages.dev</code></p>
+            <p>或者 <code>https://你的項目名.pages.dev</code></p>
+            <p><strong>點擊這個網址就能訪問你的 DSE RAG 系統了！</strong></p>
+        </div>
+
+        <div class="step">
+            <h2>步驟 7: 測試網站</h2>
+            <ul>
+                <li>打開部署完成的網址</li>
+                <li>嘗試搜索一些關鍵詞，如 "氣候變化"、"數學"</li>
+                <li>查看搜索結果（目前使用模擬數據）</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 40px 0;">
+
+        <h2>📋 常見問題</h2>
+
+        <div class="step">
+            <h3>Q: 找不到我的 GitHub 倉庫？</h3>
+            <p><strong>A:</strong> 點擊 "Configure GitHub App" 重新配置權限，確保 Cloudflare 可以訪問該倉庫。</p>
+        </div>
+
+        <div class="step">
+            <h3>Q: 部署失敗怎麼辦？</h3>
+            <p><strong>A:</strong> 檢查以下幾點：</p>
+            <ul>
+                <li>Build output directory 是否填寫為 <code>.</code></li>
+                <li>Production branch 是否正確</li>
+                <li>查看部署日誌中的錯誤信息</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>Q: 部署後網站是空白的？</h3>
+            <p><strong>A:</strong> 確認：</p>
+            <ul>
+                <li>Build output directory 設置為 <code>.</code></li>
+                <li>index.html 在倉庫的根目錄</li>
+                <li>重新部署一次試試</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 40px 0;">
+
+        <h2>🔄 自動部署</h2>
+        <p>配置完成後，每次你推送代碼到 GitHub，Cloudflare 會自動重新部署！</p>
+        <p>非常方便！🚀</p>
+
+        <div class="link-box" style="margin-top: 40px;">
+            <p><strong>準備好了嗎？</strong></p>
+            <a href="https://dash.cloudflare.com/" target="_blank">
+                🚀 立即開始部署！
+            </a>
+        </div>
+    </div>
+</body>
+</html>
