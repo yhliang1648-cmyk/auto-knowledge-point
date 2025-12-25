@@ -412,8 +412,13 @@
     </div>
 
     <script>
-        // API 端點配置
-        const API_URL = '/api/search'; // 將由 Cloudflare Workers 處理
+        // Google Gemini API 配置
+        const GEMINI_API_KEY = 'AIzaSyCwagWVu6Lu6IhshnRF83x8-6XD3duwJ_8';
+        const GEMINI_EMBEDDING_MODEL = 'models/text-embedding-004';
+        const GEMINI_CHAT_MODEL = 'models/gemini-1.5-flash';
+
+        // 考題數據（將從 JSON 文件加載）
+        let questionsData = [];
 
         // 處理回車鍵搜索
         function handleKeyPress(event) {
@@ -422,11 +427,99 @@
             }
         }
 
+        /**
+         * 使用 Gemini API 生成文本嵌入
+         */
+        async function generateEmbedding(text) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/${GEMINI_EMBEDDING_MODEL}:embedContent?key=${GEMINI_API_KEY}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: GEMINI_EMBEDDING_MODEL,
+                    content: {
+                        parts: [{ text: text }]
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Gemini API 錯誤: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.embedding.values;
+        }
+
+        /**
+         * 計算余弦相似度
+         */
+        function cosineSimilarity(vec1, vec2) {
+            let dotProduct = 0;
+            let norm1 = 0;
+            let norm2 = 0;
+
+            for (let i = 0; i < vec1.length; i++) {
+                dotProduct += vec1[i] * vec2[i];
+                norm1 += vec1[i] * vec1[i];
+                norm2 += vec2[i] * vec2[i];
+            }
+
+            return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+        }
+
+        /**
+         * 使用 Gemini 生成 AI 回答
+         */
+        async function generateAIAnswer(query, relatedQuestions) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/${GEMINI_CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+            const context = relatedQuestions.slice(0, 3).map((q, i) =>
+                `[${i + 1}] ${q.year} ${q.subject} ${q.paper} Q${q.number}: ${q.content}`
+            ).join('\n\n');
+
+            const prompt = `你是一位資深的香港 DSE 考試輔導專家。根據以下檢索到的歷屆 DSE 考題，為學生的問題提供專業的解答和建議。
+
+學生問題：${query}
+
+相關歷屆考題：
+${context}
+
+請提供：
+1. 對學生問題的專業解答
+2. 這些考題之間的關聯性
+3. 學習建議和要點
+
+請用繁體中文回答，語氣要專業且易於理解。回答要簡潔，控制在 200 字以內。`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Gemini API 錯誤: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+
         // 主搜索函數
         async function search() {
             const query = document.getElementById('searchInput').value.trim();
-            const subject = document.getElementById('subjectFilter').value;
-            const year = document.getElementById('yearFilter').value;
+            const subjectFilter = document.getElementById('subjectFilter').value;
+            const yearFilter = document.getElementById('yearFilter').value;
 
             if (!query) {
                 alert('請輸入搜索關鍵詞');
@@ -437,12 +530,52 @@
             showLoading();
 
             try {
-                // 調用 API（暫時使用模擬數據）
-                const results = await mockSearch(query, subject, year);
-                displayResults(results);
+                // 1. 生成查詢的嵌入向量
+                console.log('生成查詢嵌入向量...');
+                const queryEmbedding = await generateEmbedding(query);
+
+                // 2. 為每道題目生成嵌入並計算相似度
+                console.log('計算與考題的相似度...');
+                const scoredQuestions = [];
+
+                for (const question of questionsData) {
+                    // 應用篩選
+                    if (subjectFilter !== 'all' && question.subjectCode !== subjectFilter) continue;
+                    if (yearFilter !== 'all' && question.year !== yearFilter) continue;
+
+                    // 生成題目嵌入
+                    const questionText = `${question.subject} ${question.content} ${question.keywords.join(' ')}`;
+                    const questionEmbedding = await generateEmbedding(questionText);
+
+                    // 計算相似度
+                    const similarity = cosineSimilarity(queryEmbedding, questionEmbedding);
+
+                    scoredQuestions.push({
+                        ...question,
+                        similarity: similarity
+                    });
+
+                    // 避免 API 限流，每題後延遲 100ms
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                // 3. 按相似度排序
+                scoredQuestions.sort((a, b) => b.similarity - a.similarity);
+                const topQuestions = scoredQuestions.slice(0, 5);
+
+                // 4. 生成 AI 回答
+                console.log('生成 AI 回答...');
+                const aiAnswer = await generateAIAnswer(query, topQuestions);
+
+                // 5. 顯示結果
+                displayResults({
+                    aiAnswer: aiAnswer,
+                    questions: topQuestions
+                });
+
             } catch (error) {
                 console.error('搜索錯誤:', error);
-                showError('搜索失敗，請稍後再試');
+                showError('搜索失敗：' + error.message);
             }
         }
 
@@ -496,43 +629,39 @@
             alert(message);
         }
 
-        // 模擬搜索（測試用）
-        async function mockSearch(query, subject, year) {
-            // 模擬 API 延遲
-            await new Promise(resolve => setTimeout(resolve, 1500));
+        /**
+         * 加載考題數據
+         */
+        async function loadQuestionsData() {
+            try {
+                const response = await fetch('data/questions/all-questions.json');
+                if (!response.ok) {
+                    throw new Error('無法加載考題數據');
+                }
+                questionsData = await response.json();
+                console.log(`✅ 已加載 ${questionsData.length} 道考題`);
 
-            return {
-                aiAnswer: `根據您的查詢「${query}」，我為您找到了以下相關的 DSE 考題。這些題目涵蓋了相關概念的不同考查角度，建議您仔細研讀每道題目的出題方式和考點。`,
-                questions: [
-                    {
-                        year: '2024',
-                        subject: '通識教育',
-                        paper: 'Paper 1',
-                        number: '1',
-                        content: '氣候變化對香港的影響及應對措施。試從環境、經濟和社會三個角度分析...'
-                    },
-                    {
-                        year: '2023',
-                        subject: '通識教育',
-                        paper: 'Paper 2',
-                        number: '3',
-                        content: '全球暖化對極地生態系統的影響。解釋溫室氣體如何導致...'
-                    },
-                    {
-                        year: '2022',
-                        subject: '地理',
-                        paper: 'Paper 1',
-                        number: '5',
-                        content: '討論氣候變化對全球農業生產的影響，並建議可持續發展策略...'
-                    }
-                ]
-            };
+                // 更新統計數據
+                document.getElementById('totalQuestions').textContent = questionsData.length;
+
+                return questionsData;
+            } catch (error) {
+                console.error('加載考題數據失敗:', error);
+                alert('無法加載考題數據，請刷新頁面重試');
+                return [];
+            }
         }
 
         // 頁面加載時初始化
-        window.addEventListener('load', () => {
-            // 可以在這裡加載統計數據
-            document.getElementById('totalQuestions').textContent = '1,247';
+        window.addEventListener('load', async () => {
+            console.log('🚀 DSE RAG 系統啟動中...');
+            console.log('🔑 Gemini API 已配置');
+
+            // 加載考題數據
+            await loadQuestionsData();
+
+            console.log('✅ 系統就緒！');
+            console.log('💡 提示：搜索會使用 Google Gemini API 進行智能語義匹配');
         });
     </script>
 </body>
