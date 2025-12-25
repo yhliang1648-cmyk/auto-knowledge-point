@@ -1,0 +1,24 @@
+name = "dse-rag-api"
+main = "src/workers/index.js"
+compatibility_date = "2024-01-01"
+
+# Vectorize 向量数据库绑定
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "dse-questions-index"
+
+# Workers AI 绑定
+[ai]
+binding = "AI"
+
+# KV 存储（用于缓存和元数据）
+[[kv_namespaces]]
+binding = "DSE_KV"
+id = "your-kv-namespace-id"  # 部署时需要创建并填入
+
+# CORS 设置
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.development]
+vars = { ENVIRONMENT = "development" }

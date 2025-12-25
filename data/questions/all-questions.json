@@ -1,0 +1,46 @@
+[
+  {
+    "id": "dse-2024-liberal-p1-q1",
+    "year": "2024",
+    "subject": "通識教育",
+    "paper": "Paper 1",
+    "number": "1",
+    "content": "氣候變化對香港的影響及應對措施。試從環境、經濟和社會三個角度分析香港面對氣候變化的挑戰，並建議政府和市民可以採取的行動。",
+    "keywords": [
+      "氣候變化",
+      "環境",
+      "經濟",
+      "社會",
+      "可持續發展"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "dse-2024-math-p1-q15",
+    "year": "2024",
+    "subject": "數學",
+    "paper": "Paper 1",
+    "number": "15",
+    "content": "已知函數 f(x) = 2x² - 4x + 3。求 f(x) 的最小值及其對應的 x 值。",
+    "keywords": [
+      "二次函數",
+      "最小值",
+      "配方法"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "dse-2023-english-p3-q1",
+    "year": "2023",
+    "subject": "English",
+    "paper": "Paper 3",
+    "number": "1",
+    "content": "Write an article for your school magazine discussing the impact of social media on teenagers.",
+    "keywords": [
+      "social media",
+      "teenagers",
+      "article writing"
+    ],
+    "difficulty": "medium"
+  }
+]

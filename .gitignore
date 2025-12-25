@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+.output/
+.wrangler/
+worker-output/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Data files (考題數據可能較大)
+data/questions/*.pdf
+data/questions/*.docx
+data/raw/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Test coverage
+coverage/
+.nyc_output/
