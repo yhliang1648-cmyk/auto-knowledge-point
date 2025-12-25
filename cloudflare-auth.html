@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare 授权</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .step {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f7f7f7;
+            border-radius: 10px;
+        }
+        .step h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .auth-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 30px 0;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+    <script>
+        function copyToken() {
+            const token = document.getElementById('token-input').value;
+            navigator.clipboard.writeText(token).then(() => {
+                alert('Token 已複製到剪貼板！');
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="card">
+        <h1>🔐 Cloudflare 授權</h1>
+        <p style="font-size: 1.1em; color: #666;">
+            為了將 DSE RAG 系統部署到 Cloudflare Pages，需要您授權訪問權限
+        </p>
+
+        <div class="step">
+            <h3>📌 步驟 1: 點擊授權按鈕</h3>
+            <p>點擊下方按鈕，將在新標籤頁打開 Cloudflare 授權頁面</p>
+        </div>
+
+        <a href="https://dash.cloudflare.com/oauth2/auth?response_type=code&client_id=54d11594-84e4-41aa-b438-e81b8fa78ee7&redirect_uri=http%3A%2F%2Flocalhost%3A8976%2Foauth%2Fcallback&scope=account%3Aread%20user%3Aread%20workers%3Awrite%20workers_kv%3Awrite%20workers_routes%3Awrite%20workers_scripts%3Awrite%20workers_tail%3Aread%20d1%3Awrite%20pages%3Awrite%20zone%3Aread%20ssl_certs%3Awrite%20ai%3Awrite%20queues%3Awrite%20pipelines%3Awrite%20secrets_store%3Awrite%20containers%3Awrite%20cloudchamber%3Awrite%20connectivity%3Aadmin%20offline_access&state=lXMzy~T7GRL-2e-yh1eC9oU5mj1f02rx&code_challenge=KPnipaTdrtDPf5DJi3wv8ZUFsJc2QzkPrbtuYlOGKbE&code_challenge_method=S256"
+           class="auth-button"
+           target="_blank">
+            🚀 立即授權 Cloudflare
+        </a>
+
+        <div class="warning">
+            ⚠️ <strong>重要提示：</strong>授權後，頁面可能會顯示"無法訪問此網站"或重定向錯誤。這是正常的！請忽略錯誤信息。
+        </div>
+
+        <div class="step">
+            <h3>📌 步驟 2: 使用 API Token（替代方案）</h3>
+            <p>如果上述 OAuth 方式不工作，可以使用 API Token：</p>
+            <ol style="text-align: left; line-height: 2;">
+                <li>訪問: <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank">Cloudflare API Tokens</a></li>
+                <li>點擊 <code>Create Token</code></li>
+                <li>選擇 <code>Edit Cloudflare Workers</code> 模板</li>
+                <li>點擊 <code>Continue to summary</code> → <code>Create Token</code></li>
+                <li>複製生成的 Token</li>
+                <li>告訴我這個 Token（我會用來部署）</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>📌 方案 3: 直接使用 Cloudflare Dashboard（最簡單）</h3>
+            <p>如果命令行授權有困難，建議使用瀏覽器手動部署：</p>
+            <ol style="text-align: left; line-height: 2;">
+                <li>訪問: <a href="https://dash.cloudflare.com/" target="_blank">Cloudflare Dashboard</a></li>
+                <li>Workers & Pages → Create → Pages → Connect to Git</li>
+                <li>選擇倉庫: <code>yhliang1648-cmyk/auto-knowledge-point</code></li>
+                <li>配置並部署（參考之前的部署指南）</li>
+            </ol>
+        </div>
+
+        <hr style="margin: 40px 0;">
+
+        <p style="color: #999;">
+            需要幫助？告訴我你選擇了哪種方案，我會繼續協助！
+        </p>
+    </div>
+</body>
+</html>
