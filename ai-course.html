@@ -558,17 +558,61 @@
         <!-- 下載區域 -->
         <div class="download-section">
             <h2>📥 下載課程資料</h2>
-            <p style="margin: 20px 0;">所有課程大綱、詳細教案和參考資料均可免費下載</p>
+
+            <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="margin-bottom: 15px;">💡 資料說明</h3>
+                <p style="margin: 10px 0;">✅ <strong>我整理的課程總結</strong>（Markdown 格式，.md 文件）</p>
+                <p style="margin: 10px 0; font-size: 0.95rem;">• 斯坦福課程總結（11 KB）- 8週課程大綱和要點</p>
+                <p style="margin: 10px 0; font-size: 0.95rem;">• 香港課程大綱（18 KB）- 三級完整教案</p>
+                <p style="margin: 15px 0; font-size: 0.9rem; opacity: 0.9;">
+                    📝 <strong>Markdown (.md) 文件如何打開？</strong><br>
+                    • 用記事本/文本編輯器直接打開<br>
+                    • 用 VS Code、Typora 等 Markdown 編輯器（更美觀）<br>
+                    • 在線預覽：<a href="https://markdownlivepreview.com/" target="_blank" style="color: white; text-decoration: underline;">markdownlivepreview.com</a>
+                </p>
+            </div>
+
             <div class="download-buttons">
                 <button class="download-btn" onclick="downloadFile('stanford')">
-                    📚 斯坦福課程總結
+                    📚 斯坦福課程總結 (.md)
                 </button>
                 <button class="download-btn" onclick="downloadFile('hk')">
-                    🎓 香港課程大綱
+                    🎓 香港課程大綱 (.md)
                 </button>
                 <button class="download-btn" onclick="downloadFile('all')">
-                    📦 下載全部資料
+                    📦 下載全部總結
                 </button>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; margin: 30px 0;">
+                <h3 style="margin-bottom: 15px;">🏛️ 斯坦福完整課程資料</h3>
+                <p style="margin: 10px 0;">如需斯坦福的<strong>完整教材和作業代碼</strong>，請訪問：</p>
+                <div style="margin-top: 20px;">
+                    <a href="https://github.com/mihail911/modern-software-dev-assignments" target="_blank"
+                       style="display: inline-block; background: white; color: #667eea; padding: 12px 30px;
+                              border-radius: 25px; text-decoration: none; font-weight: bold; margin: 5px;">
+                        🔗 GitHub 課程倉庫
+                    </a>
+                    <a href="https://themodernsoftware.dev" target="_blank"
+                       style="display: inline-block; background: white; color: #667eea; padding: 12px 30px;
+                              border-radius: 25px; text-decoration: none; font-weight: bold; margin: 5px;">
+                        🌐 官方網站
+                    </a>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.9;">
+                    包含：8週詳細作業、示例代碼、項目模板、技術文檔
+                </p>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; margin: 30px 0;">
+                <h3 style="margin-bottom: 15px;">📂 更多資源</h3>
+                <div style="margin-top: 15px;">
+                    <a href="https://github.com/yhliang1648-cmyk/auto-knowledge-point/tree/claude/connect-github-repo-Y7Rcj/course-materials" target="_blank"
+                       style="display: inline-block; background: white; color: #667eea; padding: 12px 30px;
+                              border-radius: 25px; text-decoration: none; font-weight: bold; margin: 5px;">
+                        📁 在 GitHub 上查看課程資料
+                    </a>
+                </div>
             </div>
         </div>
     </div>
