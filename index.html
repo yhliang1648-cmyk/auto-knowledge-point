@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DSE 考題智能檢索系統 | RAG 知識庫</title>
+
+    <!-- PDF.js for reading PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- jsPDF for generating PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -640,9 +647,14 @@
                 <button class="mgmt-btn upload" onclick="toggleUploadArea()">
                     📤 上传试卷
                 </button>
-                <button class="mgmt-btn download" onclick="downloadDatabase()">
-                    📥 下载数据库
-                </button>
+                <div style="flex: 1; min-width: 200px; display: flex; gap: 5px;">
+                    <button class="mgmt-btn download" style="flex: 1; min-width: auto;" onclick="downloadDatabase('json')">
+                        📥 下载 JSON
+                    </button>
+                    <button class="mgmt-btn download" style="flex: 1; min-width: auto;" onclick="downloadDatabase('pdf')">
+                        📄 下载 PDF
+                    </button>
+                </div>
                 <button class="mgmt-btn crawl" onclick="toggleCrawlForm()">
                     🤖 添加考题
                 </button>
@@ -650,15 +662,23 @@
 
             <!-- Upload Area -->
             <div class="upload-area" id="uploadArea">
-                <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
-                <p style="font-size: 1.1rem; margin-bottom: 15px;">📁 上传考题 JSON 文件</p>
-                <p style="color: #666; margin-bottom: 20px;">支持格式：JSON（符合题库格式）</p>
+                <input type="file" id="fileInput" accept=".json,.pdf" onchange="handleFileUpload(event)">
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">📁 上传考题文件</p>
+                <p style="color: #666; margin-bottom: 20px;">支持格式：JSON 或 PDF</p>
                 <button class="submit-btn" onclick="document.getElementById('fileInput').click()">
                     选择文件
                 </button>
                 <p style="color: #999; margin-top: 15px; font-size: 0.9rem;">
                     或拖拽文件到此区域
                 </p>
+                <div id="uploadProgress" style="display: none; margin-top: 20px;">
+                    <div style="background: #e0e0e0; border-radius: 10px; height: 30px; overflow: hidden;">
+                        <div id="progressBar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                            0%
+                        </div>
+                    </div>
+                    <p id="progressText" style="margin-top: 10px; color: #666; text-align: center;">准备上传...</p>
+                </div>
             </div>
 
             <!-- Crawl Form -->
@@ -1061,15 +1081,26 @@ ${context}
         /**
          * 处理文件上传
          */
-        function handleFileUpload(event) {
+        async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            if (!file.name.endsWith('.json')) {
-                alert('请上传 JSON 格式文件');
+            const fileType = file.name.split('.').pop().toLowerCase();
+
+            if (fileType === 'json') {
+                handleJSONUpload(file, event);
+            } else if (fileType === 'pdf') {
+                await handlePDFUpload(file, event);
+            } else {
+                alert('请上传 JSON 或 PDF 格式文件');
                 return;
             }
+        }
 
+        /**
+         * 处理 JSON 文件上传
+         */
+        function handleJSONUpload(file, event) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -1119,14 +1150,221 @@ ${context}
         }
 
         /**
+         * 处理 PDF 文件上传
+         */
+        async function handlePDFUpload(file, event) {
+            try {
+                // 显示进度条
+                document.getElementById('uploadProgress').style.display = 'block';
+                updateProgress(10, '正在读取 PDF 文件...');
+
+                // 提取 PDF 文本
+                const pdfText = await extractTextFromPDF(file);
+                updateProgress(40, 'PDF 文本提取完成，正在使用 AI 解析...');
+
+                // 使用 AI 解析文本，提取题目信息
+                const parsedQuestions = await parsePDFTextWithAI(pdfText);
+                updateProgress(80, `AI 解析完成，识别到 ${parsedQuestions.length} 道题目...`);
+
+                if (parsedQuestions.length === 0) {
+                    alert('PDF 中未识别到有效的题目信息');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    return;
+                }
+
+                // 合并数据（去重）
+                const existingIds = new Set(questionsData.map(q => q.id));
+                const newQuestions = parsedQuestions.filter(q => !existingIds.has(q.id));
+
+                if (newQuestions.length === 0) {
+                    alert('PDF 中的题目都已存在，没有新题目需要添加');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    return;
+                }
+
+                // 添加新题目
+                questionsData = questionsData.concat(newQuestions);
+
+                // 保存到本地存储
+                localStorage.setItem('questionsData', JSON.stringify(questionsData));
+
+                // 更新上传计数
+                const currentCount = parseInt(localStorage.getItem('uploadedCount') || '0');
+                localStorage.setItem('uploadedCount', (currentCount + newQuestions.length).toString());
+
+                // 更新统计
+                updateStats();
+                updateProgress(100, '上传完成！');
+
+                setTimeout(() => {
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    alert(`✅ 成功从 PDF 中提取并上传 ${newQuestions.length} 道新题目！\n总题目数：${questionsData.length}`);
+                }, 1000);
+
+                // 清空文件选择
+                event.target.value = '';
+
+                console.log(`✅ PDF 上传成功: ${newQuestions.length} 道新题目`);
+            } catch (error) {
+                console.error('PDF 处理失败:', error);
+                document.getElementById('uploadProgress').style.display = 'none';
+                alert('PDF 处理失败：' + error.message);
+            }
+        }
+
+        /**
+         * 更新上传进度
+         */
+        function updateProgress(percent, text) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent + '%';
+            progressText.textContent = text;
+        }
+
+        /**
+         * 从 PDF 文件提取文本
+         */
+        async function extractTextFromPDF(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = async function(e) {
+                    try {
+                        const typedarray = new Uint8Array(e.target.result);
+
+                        // 配置 PDF.js
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+                        // 加载 PDF
+                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                        let fullText = '';
+
+                        // 提取每一页的文本
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            const pageText = textContent.items.map(item => item.str).join(' ');
+                            fullText += pageText + '\n\n';
+                        }
+
+                        resolve(fullText);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        /**
+         * 使用 DeepSeek AI 解析 PDF 文本，提取题目信息
+         */
+        async function parsePDFTextWithAI(pdfText) {
+            const prompt = `你是一位专业的香港 DSE 考题识别专家。请从以下 PDF 文本中提取 DSE 考题信息。
+
+PDF 文本：
+${pdfText.substring(0, 8000)}
+
+请识别并提取以下信息，以 JSON 数组格式返回：
+- 年份 (year): 如 "2024"
+- 科目中文名 (subject): 如 "數學"、"英國語文"
+- 科目代码 (subjectCode): chinese/english/math/liberal/biology/chemistry/physics/history/geography/economics/bafs/ict
+- 试卷编号 (paper): 如 "Paper 1"
+- 题号 (number): 如 "1"、"2a"
+- 题目内容 (content): 完整题目文本
+- 关键词 (keywords): 数组格式，如 ["概率", "统计"]
+- 难度 (difficulty): easy/medium/hard
+- 来源 (source): 如 "HKEAA 2024"
+
+返回格式示例：
+[
+  {
+    "year": "2024",
+    "subject": "數學",
+    "subjectCode": "math",
+    "paper": "Paper 1",
+    "number": "1",
+    "content": "题目内容...",
+    "keywords": ["关键词1", "关键词2"],
+    "difficulty": "medium",
+    "source": "HKEAA 2024"
+  }
+]
+
+只返回 JSON 数组，不要其他文字。如果无法识别到题目，返回空数组 []。`;
+
+            try {
+                const response = await fetch(DEEPSEEK_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: DEEPSEEK_MODEL,
+                        messages: [{
+                            role: 'user',
+                            content: prompt
+                        }],
+                        max_tokens: 2000,
+                        temperature: 0.3
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`DeepSeek API 错误: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+
+                // 提取 JSON 部分
+                let jsonStr = aiResponse.trim();
+                if (jsonStr.startsWith('```json')) {
+                    jsonStr = jsonStr.replace(/```json\n/, '').replace(/```$/, '');
+                } else if (jsonStr.startsWith('```')) {
+                    jsonStr = jsonStr.replace(/```\n/, '').replace(/```$/, '');
+                }
+
+                const parsedQuestions = JSON.parse(jsonStr);
+
+                // 为每个题目生成 ID
+                parsedQuestions.forEach(q => {
+                    q.id = `dse-${q.year}-${q.subjectCode}-${q.paper.toLowerCase().replace(/\s+/g, '-')}-q${q.number}`;
+                    q.copyright = 'PDF 上传';
+                });
+
+                return parsedQuestions;
+            } catch (error) {
+                console.error('AI 解析失败:', error);
+                throw new Error('AI 解析 PDF 文本失败：' + error.message);
+            }
+        }
+
+        /**
          * 下载数据库
          */
-        function downloadDatabase() {
+        function downloadDatabase(format = 'json') {
             if (questionsData.length === 0) {
                 alert('题库为空，无法下载');
                 return;
             }
 
+            if (format === 'json') {
+                downloadDatabaseAsJSON();
+            } else if (format === 'pdf') {
+                downloadDatabaseAsPDF();
+            }
+        }
+
+        /**
+         * 下载为 JSON 文件
+         */
+        function downloadDatabaseAsJSON() {
             // 创建 JSON 数据
             const dataStr = JSON.stringify(questionsData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -1145,8 +1383,95 @@ ${context}
             // 释放 URL
             URL.revokeObjectURL(url);
 
-            console.log(`✅ 下载数据库: ${questionsData.length} 道题目`);
-            alert(`✅ 已下载 ${questionsData.length} 道题目到本地！`);
+            console.log(`✅ 下载 JSON 数据库: ${questionsData.length} 道题目`);
+            alert(`✅ 已下载 ${questionsData.length} 道题目到本地 (JSON 格式)！`);
+        }
+
+        /**
+         * 下载为 PDF 文件
+         */
+        function downloadDatabaseAsPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // 添加中文字体支持 (使用内置字体)
+                doc.setFont('helvetica');
+
+                let yPosition = 20;
+                const pageHeight = doc.internal.pageSize.height;
+                const lineHeight = 7;
+                const marginBottom = 20;
+
+                // 标题
+                doc.setFontSize(18);
+                doc.text('DSE Exam Questions Database', 105, yPosition, { align: 'center' });
+                yPosition += 15;
+
+                doc.setFontSize(12);
+                doc.text(`Total Questions: ${questionsData.length}`, 105, yPosition, { align: 'center' });
+                doc.text(`Generated: ${new Date().toLocaleDateString('zh-CN')}`, 105, yPosition + 7, { align: 'center' });
+                yPosition += 20;
+
+                // 遍历所有题目
+                questionsData.forEach((q, index) => {
+                    // 检查是否需要新页面
+                    if (yPosition > pageHeight - marginBottom) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+
+                    // 题目编号
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'bold');
+                    const questionHeader = `Question ${index + 1}`;
+                    doc.text(questionHeader, 20, yPosition);
+                    yPosition += lineHeight;
+
+                    // 题目元信息
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    const metadata = `Year: ${q.year} | Subject: ${q.subject} | Paper: ${q.paper} | Q${q.number}`;
+                    doc.text(metadata, 20, yPosition);
+                    yPosition += lineHeight;
+
+                    // 题目内容
+                    doc.setFontSize(10);
+                    const contentLines = doc.splitTextToSize(`Content: ${q.content}`, 170);
+                    contentLines.forEach(line => {
+                        if (yPosition > pageHeight - marginBottom) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+                        doc.text(line, 20, yPosition);
+                        yPosition += lineHeight;
+                    });
+
+                    // 关键词
+                    if (q.keywords && q.keywords.length > 0) {
+                        doc.setFontSize(9);
+                        doc.setFont('helvetica', 'italic');
+                        doc.text(`Keywords: ${q.keywords.join(', ')}`, 20, yPosition);
+                        yPosition += lineHeight;
+                    }
+
+                    // 分隔线
+                    yPosition += 3;
+                    doc.setDrawColor(200);
+                    doc.line(20, yPosition, 190, yPosition);
+                    yPosition += 7;
+                });
+
+                // 保存 PDF
+                const filename = `dse-questions-${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(filename);
+
+                console.log(`✅ 下载 PDF 数据库: ${questionsData.length} 道题目`);
+                alert(`✅ 已下载 ${questionsData.length} 道题目到本地 (PDF 格式)！`);
+            } catch (error) {
+                console.error('生成 PDF 失败:', error);
+                alert('生成 PDF 失败：' + error.message);
+            }
         }
 
         /**
@@ -1232,7 +1557,9 @@ ${context}
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
                     const file = files[0];
-                    if (file.name.endsWith('.json')) {
+                    const fileType = file.name.split('.').pop().toLowerCase();
+
+                    if (fileType === 'json' || fileType === 'pdf') {
                         // 模拟文件输入
                         const fileInput = document.getElementById('fileInput');
                         const dataTransfer = new DataTransfer();
@@ -1242,7 +1569,7 @@ ${context}
                         // 触发文件上传处理
                         handleFileUpload({ target: fileInput });
                     } else {
-                        alert('请上传 JSON 格式文件');
+                        alert('请上传 JSON 或 PDF 格式文件');
                     }
                 }
             });
