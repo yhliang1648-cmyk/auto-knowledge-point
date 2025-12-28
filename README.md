@@ -1,6 +1,6 @@
 # 🎓 香港AI教育平台
 
-> 集成多个教育项目的综合平台 - DSE智能检索 + AI课程展示
+> 集成多個教育項目的綜合平台 - DSE智能檢索 + AI課程展示 + 科學史探索
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Cloudflare](https://img.shields.io/badge/Powered%20by-Cloudflare-orange)](https://cloudflare.com)
@@ -9,7 +9,7 @@
 
 ## 📋 平台概述
 
-本平台整合了三大教育项目，为香港学生提供全方位的AI学习体验：
+本平台整合了**四大創新教育項目**，為香港學生提供全方位的AI學習體驗：
 
 ### 🔍 1. DSE 考題智能檢索系統
 基於 RAG（檢索增強生成）的香港中學文憑試歷屆考題知識庫 (2012-2025)
@@ -20,6 +20,9 @@
 ### 🚀 3. AI創客小達人課程
 12週項目制學習(PBL)課程，專為香港中小學生設計，強調炫酷成果展示
 
+### 🌌 4. 認知邊界探索者
+基於吳國盛《科學的歷程》，用AI技術重構科學史教育，探索人類認知突破的關鍵節點
+
 ---
 
 ## 🌐 在線訪問
@@ -29,19 +32,20 @@
 | **DSE RAG 系統** | [index.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/index.html) | DSE 考題智能搜索 |
 | **斯坦福AI課程** | [ai-course.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/ai-course.html) | 三級AI課程大綱 |
 | **AI創客小達人** | [hk-ai-maker.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/hk-ai-maker.html) | 12週PBL課程 |
+| **認知邊界探索者** | [cognitive-explorer.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/cognitive-explorer.html) | 科學史AI導師 |
 
 ---
 
 ## 📊 項目對比
 
-| 特性 | DSE RAG 系統 | 斯坦福AI課程 | AI創客小達人 |
-|------|-------------|-------------|-------------|
-| **目標用戶** | DSE考生 | 中小學生 | 中小學生 |
-| **課程時長** | - | 8-16週 | 12週 |
-| **學習方式** | 智能檢索 | 理論+實踐 | 項目制學習 |
-| **技術難度** | 使用系統 | 中-高 | 低-中 |
-| **成果展示** | - | 作品集+證書 | 3-5個應用+證書 |
-| **特色** | RAG技術 | 斯坦福標準 | 炫酷+遊戲化 |
+| 特性 | DSE RAG | 斯坦福課程 | AI創客 | 認知探索者 |
+|------|---------|-----------|--------|-----------|
+| **目標用戶** | DSE考生 | 中小學生 | 中小學生 | 中學生-大學生 |
+| **課程時長** | 按需 | 8-16週 | 12週 | 55-67學時 |
+| **學習方式** | 智能檢索 | 理論+實踐 | PBL | 沉浸式體驗 |
+| **技術難度** | 使用系統 | 中-高 | 低-中 | 中 |
+| **成果展示** | - | 作品集+證書 | 3-5個應用 | 認知博物館 |
+| **特色** | RAG技術 | 斯坦福標準 | 炫酷遊戲化 | AI歷史對話 |
 
 ---
 
@@ -150,34 +154,94 @@
 
 ---
 
+## 🌌 項目四：認知邊界探索者
+
+### 課程理念
+
+**基於吳國盛《科學的歷程》** - 用AI技術重構科學史教育，讓學習者「重走」人類認知突破的關鍵節點
+
+### 核心特色
+
+1. **🕰️ 時間卷軸式學習** - 在科學史時間線上自由穿梭，親歷2500年認知演進
+2. **🎯 認知邊界具象化** - 可視化每個時代的「已知世界」與「未知邊界」
+3. **🤖 AI歷史導師對話** - 與泰勒斯、伽利略、牛頓、愛因斯坦的AI人格深度對話
+4. **🔬 思想實驗工坊** - 重演芝諾悖論、伽利略斜面、薛定諤的貓等經典實驗
+
+### 課程五階段（55-67學時）
+
+#### 📖 模組一：認知的覺醒（8-10學時）
+- 神話思維到理性思維
+- 柏拉圖學園與亞里士多德傳統
+- 數理科學傳統的確立
+
+#### 🌍 模組二：科學革命（10-12學時）
+- 宇宙中心的消解（托勒密→哥白尼）
+- 新工具的誕生（伽利略實驗）
+- 牛頓的「重構世界」
+
+#### 🧪 模組三：認知的分化與專業化（12-15學時）
+- 化學革命中的認知重構
+- 生命科學的範式革命（達爾文）
+- 電磁世界的統一（麥克斯韋）
+
+#### 🌀 模組四：認知基礎的震盪（15-18學時）
+- 相對論：時空觀的顛覆
+- 量子革命：確定性的終結
+- 宇宙學與複雜性
+
+#### 🔮 模組五：當代認知前沿與反思（10-12學時）
+- 認知科學革命
+- 科學、技術與人類世
+- 終極大作業：個人認知邊界突破圖譜
+
+### 學習成果
+
+- 🏛️ **個人認知博物館** - 收集科學思想「標本」，認知突破時間線
+- 🗺️ **認知邊界地圖** - 個人「已知-未知-不可知」動態地圖
+- 🔬 **思想實驗作品集** - 原創思想實驗設計與分享
+- 🧠 **科學思維能力** - 理解科學突破本質，培養認知勇氣
+
+### 技術架構
+
+- **多模態AI導師系統** - 為每位科學家構建獨特AI人格
+- **認知邊界可視化引擎** - 動態知識圖譜與突破瞬間再現
+- **沉浸式體驗平台** - Unity/Unreal + WebGL，支持VR/AR
+- **知識圖譜系統** - 科學史本體構建，中西科學對比
+
+📖 [查看詳細內容](./COGNITIVE_EXPLORER_README.md)
+
+---
+
 ## 📁 項目結構
 
 ```
 auto-knowledge-point/
-├── index.html                 # DSE RAG 系統主頁
-├── ai-course.html            # 斯坦福AI課程展示頁
-├── hk-ai-maker.html          # AI創客小達人展示頁
-├── course-materials/         # 課程資料
+├── index.html                       # DSE RAG 系統主頁
+├── ai-course.html                   # 斯坦福AI課程展示頁
+├── hk-ai-maker.html                 # AI創客小達人展示頁
+├── cognitive-explorer.html          # 認知邊界探索者展示頁
+├── course-materials/                # 課程資料
 │   ├── Stanford_CS146S_Course_Summary.md
 │   └── HK_Students_AI_Curriculum.md
 ├── src/
 │   └── workers/
-│       └── index.js          # Cloudflare Workers API
+│       └── index.js                 # Cloudflare Workers API
 ├── data/
 │   └── questions/
-│       └── all-questions.json # DSE考題數據
+│       └── all-questions.json       # DSE考題數據
 ├── scripts/
-│   └── import-questions.js   # 數據導入腳本
-├── docs/                     # 文檔
+│   └── import-questions.js          # 數據導入腳本
+├── docs/                            # 文檔
 │   ├── DEPLOYMENT_GUIDE.md
 │   ├── API_SETUP_GUIDE.md
 │   ├── DATA_MANAGEMENT_GUIDE.md
 │   └── MANUAL_DEPLOY.md
-├── AI_COURSE_README.md       # 斯坦福課程文檔
-├── AI_MAKER_README.md        # 創客課程文檔
+├── AI_COURSE_README.md              # 斯坦福課程文檔
+├── AI_MAKER_README.md               # 創客課程文檔
+├── COGNITIVE_EXPLORER_README.md     # 認知探索者文檔
 ├── package.json
 ├── wrangler.toml
-└── README.md                 # 本文檔
+└── README.md                        # 本文檔
 ```
 
 ---
