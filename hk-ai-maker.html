@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI創客小達人 | 香港中小學生AI課程</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 背景动画粒子 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 10s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 炫酷标题 */
+        header {
+            text-align: center;
+            color: white;
+            padding: 80px 20px 60px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        header h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(255,255,255,0.3);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(255,255,255,0.3); }
+            to { text-shadow: 0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.5); }
+        }
+
+        header .subtitle {
+            font-size: 1.8rem;
+            margin: 20px 0;
+            opacity: 0.95;
+            animation: slideInUp 1s ease-out 0.3s both;
+        }
+
+        header .tagline {
+            font-size: 1.2rem;
+            background: rgba(255,255,255,0.2);
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 20px;
+            animation: slideInUp 1s ease-out 0.6s both;
+        }
+
+        /* 炫酷统计卡片 */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            animation: popIn 0.6s ease-out backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-card .number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        /* 课程阶段卡片 */
+        .phase-section {
+            margin: 60px 0;
+        }
+
+        .phase-card {
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+            border-left: 8px solid transparent;
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .phase-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+
+        .phase-card.phase-1 { border-left-color: #ff6b6b; }
+        .phase-card.phase-2 { border-left-color: #4ecdc4; }
+        .phase-card.phase-3 { border-left-color: #ffe66d; }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .phase-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .phase-title {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .phase-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .week-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .week-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .week-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .week-item h4 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .week-item .activities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .activity-tag {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .outcome-box {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .outcome-box strong {
+            color: #4caf50;
+        }
+
+        /* 特色功能区 */
+        .features-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 60px 0;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* CTA按钮 */
+        .cta-section {
+            text-align: center;
+            margin: 60px 0;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            animation: wiggle 3s infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            animation: none;
+        }
+
+        /* 成果展示区 */
+        .showcase-section {
+            background: white;
+            border-radius: 25px;
+            padding: 50px;
+            margin: 60px 0;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .showcase-item {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .showcase-item:hover {
+            transform: scale(1.05);
+        }
+
+        .showcase-item h4 {
+            color: #d63031;
+            margin-bottom: 15px;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-top: 60px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.5rem; }
+            header .subtitle { font-size: 1.3rem; }
+            .stat-card .number { font-size: 2rem; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .section-title-dark {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景粒子效果 -->
+    <div class="particles" id="particles"></div>
+
+    <header>
+        <h1>🚀 AI創客小達人</h1>
+        <div class="subtitle">香港中小學生AI課程</div>
+        <div class="tagline">✨ 學中做，做中學 | 每週炫酷成果 | 家長看得見的進步 ✨</div>
+    </header>
+
+    <div class="container">
+        <!-- 炫酷统计 -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="number">12</div>
+                <div class="label">週精彩課程</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">3-5</div>
+                <div class="label">個AI應用作品</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">100%</div>
+                <div class="label">動手實踐</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">∞</div>
+                <div class="label">創意可能</div>
+            </div>
+        </div>
+
+        <!-- 课程阶段 -->
+        <h2 class="section-title">📚 課程三階段</h2>
+
+        <!-- 第一阶段 -->
+        <div class="phase-card phase-1">
+            <div class="phase-header">
+                <div class="phase-icon">🎯</div>
+                <div>
+                    <div class="phase-title">第一階段：AI初體驗</div>
+                    <div class="phase-subtitle">第1-3週 | 與AI第一次握手</div>
+                </div>
+            </div>
+
+            <div class="week-list">
+                <div class="week-item">
+                    <h4>📱 第1週：AI就在我身邊</h4>
+                    <div class="activities">
+                        <span class="activity-tag">🎪 AI魔術秀</span>
+                        <span class="activity-tag">📸 人臉識別體驗</span>
+                        <span class="activity-tag">🎨 AI繪畫演示</span>
+                    </div>
+                    <p>動手實踐：用手機APP體驗AI拍照趣味功能</p>
+                    <div class="outcome-box">
+                        <strong>✨ 本週成果：</strong>製作「我發現的AI」海報/短視頻
+                    </div>
+                </div>
+
+                <div class="week-item">
+                    <h4>💬 第2週：和AI聊天真有趣</h4>
+                    <div class="activities">
+                        <span class="activity-tag">🤖 認識聊天機器人</span>
+                        <span class="activity-tag">🎮 簡易平台創建</span>
+                        <span class="activity-tag">🇭🇰 香港特色問答</span>
+                    </div>
+                    <p>動手實踐：創建個性化聊天機器人</p>
+                    <div class="outcome-box">
+                        <strong>✨ 本週成果：</strong>展示自己設計的聊天機器人
+                    </div>
+                </div>
+
+                <div class="week-item">
+                    <h4>🎨 第3週：AI小畫家</h4>
+                    <div class="activities">
+                        <span class="activity-tag">🖼️ AI繪畫工具</span>
+                        <span class="activity-tag">🏙️ 香港地標</span>
+                        <span class="activity-tag">📝 文字生成圖像</span>
+                    </div>
+                    <p>動手實踐：用文字生成香港地標繪畫</p>
+                    <div class="outcome-box">
+                        <strong>✨ 本週成果：</strong>舉辦「AI眼中的香港」微型畫展
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二阶段 -->
+        <div class="phase-card phase-2">
+            <div class="phase-header">
+                <div class="phase-icon">🛠️</div>
+                <div>
+                    <div class="phase-title">第二階段：AI小工程師</div>
+                    <div class="phase-subtitle">第4-8週 | 動手創造AI應用</div>
+                </div>
+            </div>
+
+            <div class="week-list">
+                <div class="week-item">
+                    <h4>🔍 第4-5週：智能識別小專家</h4>
+                    <div class="activities">
+                        <span class="activity-tag">👁️ 圖像識別原理</span>
+                        <span class="activity-tag">🥟 香港點心識別</span>
+                        <span class="activity-tag">🗼 地標識別</span>
+                    </div>
+                    <p>動手實踐：訓練識別香港特色物品的模型</p>
+                    <div class="outcome-box">
+                        <strong>✨ 階段成果：</strong>展示「香港特色識別器」
+                    </div>
+                </div>
+
+                <div class="week-item">
+                    <h4>🎮 第6-7週：遊戲AI設計師</h4>
+                    <div class="activities">
+                        <span class="activity-tag">🎲 遊戲AI原理</span>
+                        <span class="activity-tag">✊✋✌️ AI猜拳</span>
+                        <span class="activity-tag">⚔️ 簡單對戰AI</span>
+                    </div>
+                    <p>動手實踐：製作AI猜拳遊戲或簡單對戰AI</p>
+                    <div class="outcome-box">
+                        <strong>✨ 階段成果：</strong>與家長對戰AI遊戲展示
+                    </div>
+                </div>
+
+                <div class="week-item">
+                    <h4>🎤 第8週：語音AI小助手</h4>
+                    <div class="activities">
+                        <span class="activity-tag">🗣️ 語音識別</span>
+                        <span class="activity-tag">🔊 語音合成</span>
+                        <span class="activity-tag">🇭🇰 粵語/英語</span>
+                    </div>
+                    <p>動手實踐：製作會說粵語/英語的問候機器人</p>
+                    <div class="outcome-box">
+                        <strong>✨ 階段成果：</strong>個性化語音助手演示
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三阶段 -->
+        <div class="phase-card phase-3">
+            <div class="phase-header">
+                <div class="phase-icon">🏆</div>
+                <div>
+                    <div class="phase-title">第三階段：AI創新項目</div>
+                    <div class="phase-subtitle">第9-12週 | 我的AI畢業項目</div>
+                </div>
+            </div>
+
+            <div class="week-list">
+                <div class="week-item">
+                    <h4>💡 第9週：項目構思工作坊</h4>
+                    <p>🧠 頭腦風暴：解決身邊小問題的AI方案<br>
+                    📋 項目規劃指導</p>
+                </div>
+
+                <div class="week-item">
+                    <h4>⚡ 第10-11週：項目開發衝刺</h4>
+                    <p>👥 分組/個人項目實施<br>
+                    🎯 導師一對一指導<br>
+                    🚀 快速迭代優化</p>
+                </div>
+
+                <div class="week-item">
+                    <h4>🎉 第12週：成果展示日</h4>
+                    <div class="activities">
+                        <span class="activity-tag">📊 準備展示材料</span>
+                        <span class="activity-tag">🎤 正式成果展示</span>
+                        <span class="activity-tag">👨‍👩‍👧 邀請家長</span>
+                        <span class="activity-tag">🏅 頒發證書</span>
+                    </div>
+                    <div class="outcome-box">
+                        <strong>🎊 終極成果：</strong>獲得「AI小創客」證書 + 完整作品集
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 炫酷特色 -->
+        <div class="features-section">
+            <h2 class="section-title-dark">✨ 六大炫酷特色</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-title">視覺衝擊</div>
+                    <p>色彩鲜明界面<br>流暢動畫效果<br>AR/VR體驗</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">即時反馈</div>
+                    <p>每個任務完成<br>視覺/聲音獎勵<br>成就感爆棚</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <div class="feature-title">遊戲化學習</div>
+                    <p>積分系統<br>徽章收集<br>排行榜競技</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">作品集系統</div>
+                    <p>在線作品集<br>隨時查看<br>一鍵分享</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍👩‍👧</div>
+                    <div class="feature-title">家長可見</div>
+                    <p>過程記錄<br>展示日活動<br>成長報告</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🇭🇰</div>
+                    <div class="feature-title">本地化適配</div>
+                    <p>中英粵三語<br>香港元素<br>DSE相關</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预期成果 -->
+        <div class="showcase-section">
+            <h2 class="section-title-dark">🎁 學生將帶走</h2>
+            <div class="showcase-grid">
+                <div class="showcase-item">
+                    <h4>📂 個人AI作品集</h4>
+                    <p>數字版作品集 + 精彩展示視頻，記錄每一個炫酷瞬間</p>
+                </div>
+                <div class="showcase-item">
+                    <h4>💻 3-5個AI應用</h4>
+                    <p>可運行的AI小應用，展示給家人朋友超有面子</p>
+                </div>
+                <div class="showcase-item">
+                    <h4>🧠 AI基本理解</h4>
+                    <p>對AI的科學認知和濃厚興趣，為未來學習打基礎</p>
+                </div>
+                <div class="showcase-item">
+                    <h4>🏆 成就感與自信</h4>
+                    <p>在展示會上的掌聲中建立自信，愛上創造的快樂</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2 style="color: white; font-size: 2.5rem; margin-bottom: 30px;">
+                準備好成為AI創客了嗎？
+            </h2>
+            <button class="cta-button" onclick="alert('🎉 報名功能即將開放！敬請期待！')">
+                🚀 立即報名
+            </button>
+            <p style="color: white; margin-top: 30px; font-size: 1.2rem;">
+                💬 查詢課程詳情請聯繫我們
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <p style="font-size: 1.2rem; margin-bottom: 10px;">🌟 AI創客小達人 | 讓每個孩子都能創造未來</p>
+        <p>© 2025 香港AI教育計劃 | 適合中小學生</p>
+    </footer>
+
+    <script>
+        // 创建背景粒子
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = Math.random() * 10 + 5;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+
+                container.appendChild(particle);
+            }
+        }
+
+        // 页面加载时创建粒子
+        window.addEventListener('load', createParticles);
+
+        // 为week-item添加点击效果
+        document.querySelectorAll('.week-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
