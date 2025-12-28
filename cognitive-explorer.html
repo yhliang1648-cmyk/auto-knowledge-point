@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>認知邊界探索者 | 科學史AI導師</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', Georgia, serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: #0a0e27;
+            overflow-x: hidden;
+        }
+
+        /* 宇宙星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 头部 */
+        header {
+            text-align: center;
+            padding: 100px 20px 80px;
+            background: linear-gradient(135deg, rgba(16, 12, 67, 0.9) 0%, rgba(42, 32, 95, 0.9) 100%);
+            border-radius: 30px;
+            margin-bottom: 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        header h1 {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        header .subtitle {
+            font-size: 1.8rem;
+            color: #b8b8ff;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header .tagline {
+            font-size: 1.2rem;
+            color: #9090ff;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 核心理念区 */
+        .vision-section {
+            background: linear-gradient(135deg, rgba(30, 25, 80, 0.6) 0%, rgba(50, 40, 100, 0.6) 100%);
+            border-radius: 25px;
+            padding: 60px;
+            margin: 60px 0;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .vision-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-box {
+            background: rgba(20, 20, 60, 0.6);
+            padding: 35px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .feature-desc {
+            color: #c0c0ff;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* 时间线 */
+        .timeline-section {
+            margin: 80px 0;
+        }
+
+        .timeline-title {
+            text-align: center;
+            font-size: 2.8rem;
+            color: #ffd700;
+            margin-bottom: 60px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg,
+                #ffd700 0%,
+                #4a90e2 25%,
+                #9b59b6 50%,
+                #e74c3c 75%,
+                #f39c12 100%);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 60px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: linear-gradient(135deg, rgba(30, 25, 80, 0.8) 0%, rgba(50, 40, 100, 0.8) 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s;
+        }
+
+        .timeline-content:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 15px 50px rgba(255, 215, 0, 0.2);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: #ffd700;
+            border-radius: 50%;
+            border: 4px solid #0a0e27;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #0a0e27;
+        }
+
+        .module-title {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .module-subtitle {
+            font-size: 1.2rem;
+            color: #b8b8ff;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .module-hours {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .unit-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .unit-item {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            color: #c0c0ff;
+        }
+
+        .unit-item:last-child {
+            border-bottom: none;
+        }
+
+        .unit-item strong {
+            color: #ffd700;
+        }
+
+        /* 技术架构 */
+        .tech-section {
+            background: linear-gradient(135deg, rgba(20, 15, 50, 0.8) 0%, rgba(40, 30, 80, 0.8) 100%);
+            border-radius: 25px;
+            padding: 60px;
+            margin: 80px 0;
+            border: 2px solid rgba(74, 144, 226, 0.3);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .tech-card {
+            background: rgba(30, 25, 70, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(74, 144, 226, 0.3);
+            transition: all 0.3s;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(74, 144, 226, 0.6);
+            box-shadow: 0 10px 30px rgba(74, 144, 226, 0.2);
+        }
+
+        .tech-card h3 {
+            color: #4a90e2;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .tech-list {
+            list-style: none;
+            color: #b0b0ff;
+        }
+
+        .tech-list li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .tech-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #4a90e2;
+        }
+
+        /* 成果展示 */
+        .outcomes-section {
+            margin: 80px 0;
+        }
+
+        .outcomes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .outcome-card {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.2) 0%, rgba(231, 76, 60, 0.2) 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(155, 89, 182, 0.3);
+            text-align: center;
+            transition: all 0.4s;
+        }
+
+        .outcome-card:hover {
+            transform: scale(1.05) rotate(1deg);
+            border-color: rgba(155, 89, 182, 0.8);
+            box-shadow: 0 15px 40px rgba(155, 89, 182, 0.3);
+        }
+
+        .outcome-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(155, 89, 182, 0.5));
+        }
+
+        .outcome-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .outcome-desc {
+            color: #c0c0ff;
+            line-height: 1.6;
+        }
+
+        /* CTA区域 */
+        .cta-section {
+            text-align: center;
+            padding: 80px 40px;
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.2) 0%, rgba(155, 89, 182, 0.2) 100%);
+            border-radius: 30px;
+            margin: 80px 0;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .cta-subtitle {
+            font-size: 1.5rem;
+            color: #b8b8ff;
+            margin-bottom: 40px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            color: #808080;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            margin-top: 80px;
+        }
+
+        footer p {
+            margin: 10px 0;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.5rem; }
+            .timeline::before { left: 20px; }
+            .timeline-item { flex-direction: column !important; }
+            .timeline-content { width: 100%; margin-left: 40px; }
+            .timeline-marker { left: 20px; }
+            .vision-section, .tech-section { padding: 30px 20px; }
+        }
+
+        /* 引用样式 */
+        .quote-section {
+            background: rgba(30, 25, 80, 0.4);
+            border-left: 4px solid #ffd700;
+            padding: 30px 40px;
+            margin: 40px 0;
+            border-radius: 10px;
+            font-style: italic;
+            color: #b8b8ff;
+            font-size: 1.2rem;
+        }
+
+        .quote-author {
+            text-align: right;
+            margin-top: 20px;
+            color: #ffd700;
+            font-style: normal;
+        }
+
+        /* 滚动动画 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s, transform 0.6s;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <header>
+        <h1>認知邊界探索者</h1>
+        <div class="subtitle">科學史AI導師</div>
+        <div class="tagline">重走人類認知突破的關鍵節點，理解科學思維的形成與演進</div>
+    </header>
+
+    <div class="container">
+        <!-- 核心理念 -->
+        <section class="vision-section fade-in">
+            <h2 class="vision-title">🌌 產品核心理念</h2>
+
+            <div class="quote-section">
+                「科學不僅是知識的積累，更是人類認知邊界的不斷突破。
+                每一次科學革命，都是一次認知範式的轉換，都是人類理解世界方式的根本改變。」
+                <div class="quote-author">— 基於吳國盛《科學的歷程》</div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-box">
+                    <div class="feature-icon">🕰️</div>
+                    <h3 class="feature-title">時間卷軸式學習</h3>
+                    <p class="feature-desc">在科學史時間線上自由穿梭，親歷從古希臘到量子時代的認知革命</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">認知邊界具象化</h3>
+                    <p class="feature-desc">可視化呈現每個時代的「已知世界」與「未知邊界」，理解科學突破的本質</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI歷史導師對話</h3>
+                    <p class="feature-desc">與泰勒斯、伽利略、牛頓、愛因斯坦的AI人格深度對話，體驗科學家的思維方式</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon">🔬</div>
+                    <h3 class="feature-title">思想實驗工坊</h3>
+                    <p class="feature-desc">在虛擬環境中重演芝諾悖論、伽利略斜面、薛定諤的貓等經典思想實驗</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 课程时间线 -->
+        <section class="timeline-section fade-in">
+            <h2 class="timeline-title">📜 科學認知演進時間線</h2>
+
+            <div class="timeline">
+                <!-- 模块一 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-content">
+                        <h3 class="module-title">認知的覺醒</h3>
+                        <p class="module-subtitle">科學精神的起源</p>
+                        <span class="module-hours">⏱️ 8-10學時</span>
+
+                        <ul class="unit-list">
+                            <li class="unit-item">
+                                <strong>神話思維到理性思維</strong><br>
+                                體驗從神話解釋到自然解釋的認知轉換，與泰勒斯、阿那克西曼德的AI靈魂對話
+                            </li>
+                            <li class="unit-item">
+                                <strong>柏拉圖學園與亞里士多德傳統</strong><br>
+                                虛擬雅典學園辯論，芝諾悖論互動體驗
+                            </li>
+                            <li class="unit-item">
+                                <strong>數理科學傳統的確立</strong><br>
+                                歐幾里得幾何公理系統構建遊戲，理解「證明」的革命性
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 模块二 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-content">
+                        <h3 class="module-title">科學革命</h3>
+                        <p class="module-subtitle">認知範式的轉換</p>
+                        <span class="module-hours">⏱️ 10-12學時</span>
+
+                        <ul class="unit-list">
+                            <li class="unit-item">
+                                <strong>宇宙中心的消解</strong><br>
+                                從托勒密到哥白尼的「認知震顫」，多重宇宙模擬
+                            </li>
+                            <li class="unit-item">
+                                <strong>新工具的誕生</strong><br>
+                                重做伽利略斜面實驗，突破亞里士多德物理學的思維限制
+                            </li>
+                            <li class="unit-item">
+                                <strong>牛頓的「重構世界」</strong><br>
+                                沉浸體驗《原理》的誕生，經典力學「完美世界」的疆域與盲區
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 模块三 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-content">
+                        <h3 class="module-title">認知的分化與專業化</h3>
+                        <p class="module-subtitle">18-19世紀科學發展</p>
+                        <span class="module-hours">⏱️ 12-15學時</span>
+
+                        <ul class="unit-list">
+                            <li class="unit-item">
+                                <strong>化學革命中的認知重構</strong><br>
+                                從燃素說到氧化說的認知轉換，元素周期律的「認知飛躍」
+                            </li>
+                            <li class="unit-item">
+                                <strong>生命科學的範式革命</strong><br>
+                                隨「小獵犬號」的認知冒險，設計自己的「自然選擇」模擬系統
+                            </li>
+                            <li class="unit-item">
+                                <strong>電磁世界的統一</strong><br>
+                                從法拉第力線到麥克斯韋方程，場概念的認知突破
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 模块四 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">4</div>
+                    <div class="timeline-content">
+                        <h3 class="module-title">認知基礎的震盪</h3>
+                        <p class="module-subtitle">20世紀科學革命</p>
+                        <span class="module-hours">⏱️ 15-18學時</span>
+
+                        <ul class="unit-list">
+                            <li class="unit-item">
+                                <strong>相對論：時空觀的顛覆</strong><br>
+                                四維時空體驗，愛因斯坦追光實驗的沉浸重演
+                            </li>
+                            <li class="unit-item">
+                                <strong>量子革命：確定性的終結</strong><br>
+                                哥本哈根爭論，與玻爾、愛因斯坦的AI論戰，薛定諤的貓參與式實驗
+                            </li>
+                            <li class="unit-item">
+                                <strong>宇宙學與複雜性</strong><br>
+                                大爆炸模擬，可視化的「可觀測宇宙」與「未知宇宙」
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 模块五 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">5</div>
+                    <div class="timeline-content">
+                        <h3 class="module-title">當代認知前沿與反思</h3>
+                        <p class="module-subtitle">未來科學的邊界</p>
+                        <span class="module-hours">⏱️ 10-12學時</span>
+
+                        <ul class="unit-list">
+                            <li class="unit-item">
+                                <strong>認知科學革命</strong><br>
+                                腦機接口體驗，圖靈測試的現代版本
+                            </li>
+                            <li class="unit-item">
+                                <strong>科學、技術與人類世</strong><br>
+                                科技進步的認知加速與倫理邊界，未來科學革命的展望
+                            </li>
+                            <li class="unit-item">
+                                <strong>終極大作業</strong><br>
+                                繪製個人「認知邊界突破圖譜」
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 技术架构 -->
+        <section class="tech-section fade-in">
+            <h2 class="vision-title">🛠️ 技術架構</h2>
+
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h3>🤖 多模態AI導師系統</h3>
+                    <ul class="tech-list">
+                        <li>為每位科學家構建獨特AI人格</li>
+                        <li>深度學習科學著作、書信、傳記</li>
+                        <li>蘇格拉底式提問教學策略</li>
+                        <li>個性化認知軌跡分析</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <h3>🎨 認知邊界可視化引擎</h3>
+                    <ul class="tech-list">
+                        <li>動態知識圖譜展示概念演進</li>
+                        <li>認知局限模擬系統</li>
+                        <li>突破瞬間的情感化呈現</li>
+                        <li>個人認知風格分析報告</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <h3>🌐 沉浸式體驗平台</h3>
+                    <ul class="tech-list">
+                        <li>Unity/Unreal引擎 + WebGL</li>
+                        <li>支持VR/AR/桌面/移動多端</li>
+                        <li>歷史情境多感官重構</li>
+                        <li>思想實驗交互工坊</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <h3>📊 知識圖譜系統</h3>
+                    <ul class="tech-list">
+                        <li>科學史本體構建</li>
+                        <li>關係數據庫+圖數據庫</li>
+                        <li>模塊化科學事件與概念庫</li>
+                        <li>中西科學傳統對比模組</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 成果展示 -->
+        <section class="outcomes-section fade-in">
+            <h2 class="vision-title">🎁 學習成果</h2>
+
+            <div class="outcomes-grid">
+                <div class="outcome-card">
+                    <div class="outcome-icon">🏛️</div>
+                    <h3 class="outcome-title">個人認知博物館</h3>
+                    <p class="outcome-desc">收集科學思想「標本」，認知突破時間線可視化，可分享的「認知突破瞬間」短視頻</p>
+                </div>
+
+                <div class="outcome-card">
+                    <div class="outcome-icon">🗺️</div>
+                    <h3 class="outcome-title">認知邊界地圖</h3>
+                    <p class="outcome-desc">動態更新的個人「已知-未知-不可知」認知地圖，與歷史認知邊界的對比可視化</p>
+                </div>
+
+                <div class="outcome-card">
+                    <div class="outcome-icon">🔬</div>
+                    <h3 class="outcome-title">思想實驗作品集</h3>
+                    <p class="outcome-desc">用戶設計的原創思想實驗，AI輔助評估與改進，社區分享與同行評議</p>
+                </div>
+
+                <div class="outcome-card">
+                    <div class="outcome-icon">🧠</div>
+                    <h3 class="outcome-title">科學思維能力</h3>
+                    <p class="outcome-desc">體驗科學認知突破過程，理解科學思維本質，培養跨越認知邊界的勇氣</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section fade-in">
+            <h2 class="cta-title">準備好探索認知邊界了嗎？</h2>
+            <p class="cta-subtitle">與歷史上最偉大的科學家對話，親歷人類認知突破的每一個關鍵時刻</p>
+            <button class="cta-button" onclick="alert('🚀 產品開發中，敬請期待！\n\n第一階段（6個月）：核心AI導師系統+古希臘到科學革命模組\n第二階段（6個月）：19世紀科學+認知可視化引擎\n第三階段（6個月）：20世紀革命+VR沉浸體驗\n第四階段（6個月）：當代前沿+社區功能完善')">
+                🌟 開始探索之旅
+            </button>
+        </section>
+
+        <!-- 核心价值 -->
+        <section class="vision-section fade-in">
+            <h2 class="vision-title">💎 核心價值主張</h2>
+
+            <div class="features-grid">
+                <div class="feature-box">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">體驗科學認知的突破過程</h3>
+                    <p class="feature-desc">不僅學習科學知識，更重要的是親身經歷科學家如何突破認知邊界</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon">🧩</div>
+                    <h3 class="feature-title">理解科學思維的本質</h3>
+                    <p class="feature-desc">從歷史演進中理解科學方法的形成、發展與局限</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title">培養跨越邊界的勇氣</h3>
+                    <p class="feature-desc">在AI時代保持人類獨特的科學創造力與批判性思維</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">連接過去與未來</h3>
+                    <p class="feature-desc">理解科學史，預見未來科學革命的可能方向</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p style="font-size: 1.2rem; color: #b8b8ff; margin-bottom: 15px;">
+            🌌 認知邊界探索者 | 讓每個學習者都能站在科學巨人的肩膀上
+        </p>
+        <p>基於吳國盛《科學的歷程》| AI時代的科學史教育創新</p>
+        <p style="margin-top: 20px;">© 2025 香港AI教育計劃 | 探索無限可能的認知宇宙</p>
+    </footer>
+
+    <script>
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 滚动动画
+        function handleScroll() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach(element => {
+                const rect = element.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight * 0.8;
+                if (isVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            createStars();
+            handleScroll();
+        });
+
+        window.addEventListener('scroll', handleScroll);
+
+        // 时间线交互
+        document.querySelectorAll('.timeline-content').forEach(content => {
+            content.addEventListener('click', function() {
+                this.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>
