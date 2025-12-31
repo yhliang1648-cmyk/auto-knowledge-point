@@ -934,6 +934,389 @@
             </div>
         </section>
 
+        <!-- 心流讲解模式 -->
+        <section class="vision-section fade-in" style="background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(75, 0, 130, 0.2) 100%); padding: 60px; border-radius: 30px; margin: 60px 0;">
+            <h2 class="vision-title">🌊 心流講解模式</h2>
+            <p class="vision-text" style="text-align: center; margin-bottom: 40px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                輸入你感興趣的內容（遊戲、小說、動畫片等），AI將用你熟悉的方式，通俗易懂地講解複雜的科學概念
+            </p>
+
+            <div style="max-width: 800px; margin: 0 auto;">
+                <!-- 输入区域 -->
+                <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; margin-bottom: 30px; backdrop-filter: blur(10px);">
+                    <h3 style="color: #ffed4e; margin-bottom: 20px; font-size: 1.5rem;">💡 告訴我你的興趣</h3>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 10px; color: #b8b8ff;">你最喜歡的是：</label>
+                        <input type="text" id="userInterest" placeholder="例如：《哈利波特》、Minecraft、籃球、鋼鐵俠..."
+                               style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #8a2be2; background: rgba(255,255,255,0.9); font-size: 1.1rem; color: #333;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 10px; color: #b8b8ff;">想學習的概念：</label>
+                        <select id="conceptSelect" style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #8a2be2; background: rgba(255,255,255,0.9); font-size: 1.1rem; color: #333;">
+                            <option value="">選擇一個概念...</option>
+                            <optgroup label="數學概念">
+                                <option value="quadratic">二次函數</option>
+                                <option value="calculus">微積分</option>
+                                <option value="probability">概率論</option>
+                                <option value="vector">向量與矩陣</option>
+                            </optgroup>
+                            <optgroup label="物理概念">
+                                <option value="newton">牛頓運動定律</option>
+                                <option value="energy">能量守恆</option>
+                                <option value="wave">波動與振動</option>
+                                <option value="relativity">相對論</option>
+                                <option value="quantum">量子力學</option>
+                            </optgroup>
+                            <optgroup label="化學概念">
+                                <option value="atom">原子結構</option>
+                                <option value="reaction">化學反應</option>
+                                <option value="equilibrium">化學平衡</option>
+                            </optgroup>
+                            <optgroup label="生物概念">
+                                <option value="evolution">進化論</option>
+                                <option value="dna">DNA與遺傳</option>
+                                <option value="cell">細胞生物學</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <button onclick="generateFlowExplanation()" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #8a2be2 0%, #4b0082 100%); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);">
+                        🚀 開始心流講解
+                    </button>
+                </div>
+
+                <!-- 讲解结果区域 -->
+                <div id="flowExplanation" style="display: none; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #ffed4e; font-size: 1.5rem;">📖 為你定制的講解</h3>
+                        <button onclick="document.getElementById('flowExplanation').style.display='none'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer;">✕ 關閉</button>
+                    </div>
+                    <div id="flowContent" style="color: #e0e0e0; line-height: 2; font-size: 1.1rem;"></div>
+                </div>
+
+                <!-- 示例展示 -->
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,215,0,0.1); border-radius: 15px; border-left: 4px solid #ffd700;">
+                    <h4 style="color: #ffed4e; margin-bottom: 15px;">✨ 示例效果：</h4>
+                    <p style="color: #e0e0e0; margin-bottom: 10px;">
+                        <strong>興趣：《哈利波特》</strong><br>
+                        <strong>概念：能量守恆</strong>
+                    </p>
+                    <p style="color: #b8b8ff; font-style: italic; line-height: 1.8;">
+                        "記得鄧不利多說的嗎？'愛是最強大的魔法'。其實能量守恆定律就像魔法世界的基本規則：能量不會憑空產生或消失，只會轉換形式。就像哈利的守護神咒語（Expecto Patronum）需要消耗魔力（能量），這些魔力來自哈利內心的快樂記憶。當守護神出現時，魔力轉化為光和保護力量。宇宙中所有的能量加起來永遠不變，就像霍格華茲的魔法總量是守恆的..."
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 批判性思维与第一原则 -->
+        <section class="vision-section fade-in" style="background: linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(220, 20, 60, 0.2) 100%); padding: 60px; border-radius: 30px; margin: 60px 0;">
+            <h2 class="vision-title">🔥 批判性思維：挑戰與顛覆</h2>
+            <p class="vision-text" style="text-align: center; margin-bottom: 40px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                展示科學史上的重大突破如何源於對常識的質疑，培養「從第一原則出發」的思維方式
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                <!-- 案例1: 哥白尼的日心说 -->
+                <div class="feature-box" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px;">
+                    <div style="font-size: 3rem; text-align: center; margin-bottom: 15px;">☀️</div>
+                    <h3 style="color: #ffed4e; margin-bottom: 15px; font-size: 1.4rem;">哥白尼：挑戰「地心說」</h3>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #ff6347; margin-bottom: 10px;">❌ 舊觀念（常識）：</h4>
+                        <p style="color: #e0e0e0; line-height: 1.8;">
+                            地球是宇宙中心，太陽繞著地球轉<br>
+                            💭 <em>「顯而易見！我們看到太陽東升西落」</em>
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #32cd32; margin-bottom: 10px;">✅ 第一原則思考：</h4>
+                        <p style="color: #e0e0e0; line-height: 1.8;">
+                            • 觀察行星運動數據（火星逆行）<br>
+                            • 如果地球繞太陽轉，計算會更簡單<br>
+                            • 數學模型驗證：日心說更優雅
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,215,0,0.15); padding: 15px; border-radius: 10px; border-left: 3px solid #ffd700;">
+                        <p style="color: #ffed4e; font-weight: bold;">🎯 啟示：</p>
+                        <p style="color: #e0e0e0;">不要被表象欺騙，回到基本物理定律重新思考問題</p>
+                    </div>
+                </div>
+
+                <!-- 案例2: 爱因斯坦的相对论 -->
+                <div class="feature-box" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px;">
+                    <div style="font-size: 3rem; text-align: center; margin-bottom: 15px;">⚡</div>
+                    <h3 style="color: #ffed4e; margin-bottom: 15px; font-size: 1.4rem;">愛因斯坦：顛覆「絕對時空」</h3>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #ff6347; margin-bottom: 10px;">❌ 舊觀念（牛頓）：</h4>
+                        <p style="color: #e0e0e0; line-height: 1.8;">
+                            時間和空間是絕對的、獨立的<br>
+                            💭 <em>「時間對所有人都一樣快」</em>
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #32cd32; margin-bottom: 10px;">✅ 第一原則思考：</h4>
+                        <p style="color: #e0e0e0; line-height: 1.8;">
+                            • 唯一不變的是光速（c）<br>
+                            • 推導：時間必須是相對的<br>
+                            • E=mc²：能量和質量可以轉換
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,215,0,0.15); padding: 15px; border-radius: 10px; border-left: 3px solid #ffd700;">
+                        <p style="color: #ffed4e; font-weight: bold;">🎯 啟示：</p>
+                        <p style="color: #e0e0e0;">從最基本的假設（光速不變）出發，推翻幾百年的「常識」</p>
+                    </div>
+                </div>
+
+                <!-- 案例3: 量子力学的诞生 -->
+                <div class="feature-box" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px;">
+                    <div style="font-size: 3rem; text-align: center; margin-bottom: 15px;">🌀</div>
+                    <h3 style="color: #ffed4e; margin-bottom: 15px; font-size: 1.4rem;">量子力學：挑戰「決定論」</h3>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #ff6347; margin-bottom: 10px;">❌ 舊觀念（經典物理）：</h4>
+                        <p style="color: #e0e0e0; line-height: 1.8;">
+                            一切都是確定的，可以精確預測<br>
+                            💭 <em>「知道初始條件就能預測未來」</em>
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #32cd32; margin-bottom: 10px;">✅ 第一原則思考：</h4>
+                        <p style="color: #e0e0e0; line-height: 1.8;">
+                            • 黑體輻射實驗：經典理論失敗<br>
+                            • 能量必須是「量子化」的<br>
+                            • 測不準原理：本質上的隨機性
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,215,0,0.15); padding: 15px; border-radius: 10px; border-left: 3px solid #ffd700;">
+                        <p style="color: #ffed4e; font-weight: bold;">🎯 啟示：</p>
+                        <p style="color: #e0e0e0;">當實驗數據與理論矛盾時，勇於創建全新的理論框架</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第一原则思维框架 -->
+            <div style="margin-top: 50px; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 20px; border: 2px dashed #ffd700;">
+                <h3 style="color: #ffed4e; text-align: center; font-size: 2rem; margin-bottom: 30px;">🎯 第一原則思維框架</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px;">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">1️⃣</div>
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">質疑假設</h4>
+                        <p style="color: #e0e0e0;">這個「常識」真的對嗎？</p>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">2️⃣</div>
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">拆解問題</h4>
+                        <p style="color: #e0e0e0;">分解到最基本的事實</p>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">3️⃣</div>
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">重新構建</h4>
+                        <p style="color: #e0e0e0;">從第一原則推導新解</p>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">4️⃣</div>
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">實驗驗證</h4>
+                        <p style="color: #e0e0e0;">用數據證明或推翻</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 学以致用：数学物理解释生活之美 -->
+        <section class="vision-section fade-in" style="background: linear-gradient(135deg, rgba(0, 191, 255, 0.2) 0%, rgba(30, 144, 255, 0.2) 100%); padding: 60px; border-radius: 30px; margin: 60px 0;">
+            <h2 class="vision-title">🌟 學以致用：用公式解釋生活之美</h2>
+            <p class="vision-text" style="text-align: center; margin-bottom: 40px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                數學和物理不是冷冰冰的公式，而是揭示世界運行規律的「密碼本」。讓我們看看如何用它們解釋生活中的美與神奇
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 35px;">
+                <!-- 案例1: 彩虹的数学 -->
+                <div style="background: linear-gradient(135deg, rgba(255,0,0,0.2) 0%, rgba(255,255,0,0.2) 50%, rgba(0,0,255,0.2) 100%); padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="font-size: 3.5rem; text-align: center; margin-bottom: 20px;">🌈</div>
+                    <h3 style="color: #ffed4e; margin-bottom: 20px; font-size: 1.6rem; text-align: center;">彩虹的數學之美</h3>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 15px;">📐 核心公式：</h4>
+                        <p style="color: #fff; font-family: 'Courier New', monospace; font-size: 1.2rem; line-height: 2;">
+                            n₁ sin θ₁ = n₂ sin θ₂<br>
+                            <span style="font-size: 0.9rem; color: #b8b8ff;">(斯涅爾定律 - 光的折射)</span>
+                        </p>
+                    </div>
+
+                    <div style="color: #e0e0e0; line-height: 2; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">🎨 生活中的應用：</h4>
+                        <p>
+                            <strong>為什麼雨後會出現彩虹？</strong><br><br>
+
+                            1️⃣ <strong>折射</strong>：陽光進入水滴，不同顏色的光折射角度不同（紅光42°，紫光40°）<br><br>
+
+                            2️⃣ <strong>反射</strong>：光在水滴內部反射一次<br><br>
+
+                            3️⃣ <strong>分散</strong>：再次折射出來時，形成七色光譜<br><br>
+
+                            <strong style="color: #ffed4e;">🎯 美的本質：</strong>彩虹的美是光的波長差異和幾何光學的完美結合！
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,215,0,0.15); padding: 15px; border-radius: 10px; border-left: 3px solid #ffd700;">
+                        <p style="color: #ffed4e; font-weight: bold;">💡 工具意義：</p>
+                        <p style="color: #e0e0e0;">掌握光學公式，就能理解所有與光相關的美麗現象（日落、極光、鑽石閃光...）</p>
+                    </div>
+                </div>
+
+                <!-- 案例2: 音乐的物理学 -->
+                <div style="background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(75, 0, 130, 0.3) 100%); padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="font-size: 3.5rem; text-align: center; margin-bottom: 20px;">🎵</div>
+                    <h3 style="color: #ffed4e; margin-bottom: 20px; font-size: 1.6rem; text-align: center;">音樂的波動之美</h3>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 15px;">📐 核心公式：</h4>
+                        <p style="color: #fff; font-family: 'Courier New', monospace; font-size: 1.2rem; line-height: 2;">
+                            f = v / λ<br>
+                            <span style="font-size: 0.9rem; color: #b8b8ff;">(頻率 = 波速 / 波長)</span><br><br>
+                            f₂ / f₁ = 2^(n/12)<br>
+                            <span style="font-size: 0.9rem; color: #b8b8ff;">(十二平均律)</span>
+                        </p>
+                    </div>
+
+                    <div style="color: #e0e0e0; line-height: 2; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">🎶 生活中的應用：</h4>
+                        <p>
+                            <strong>為什麼和弦聽起來和諧？</strong><br><br>
+
+                            1️⃣ <strong>Do-Mi-Sol</strong>（C大三和弦）：<br>
+                            頻率比 = 4:5:6<br>
+                            簡單的整數比 → 和諧悅耳<br><br>
+
+                            2️⃣ <strong>共振</strong>：<br>
+                            鋼琴弦的振動頻率與耳膜共振<br><br>
+
+                            3️⃣ <strong>泛音</strong>：<br>
+                            基音的整數倍頻率疊加 → 豐富音色<br><br>
+
+                            <strong style="color: #ffed4e;">🎯 美的本質：</strong>音樂的美是數學比例和物理振動的和諧統一！
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,215,0,0.15); padding: 15px; border-radius: 10px; border-left: 3px solid #ffd700;">
+                        <p style="color: #ffed4e; font-weight: bold;">💡 工具意義：</p>
+                        <p style="color: #e0e0e0;">理解波動方程，就能明白聲音、光、水波等一切波動現象的規律</p>
+                    </div>
+                </div>
+
+                <!-- 案例3: 黄金分割的美学 -->
+                <div style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(218, 165, 32, 0.3) 100%); padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="font-size: 3.5rem; text-align: center; margin-bottom: 20px;">🌻</div>
+                    <h3 style="color: #ffed4e; margin-bottom: 20px; font-size: 1.6rem; text-align: center;">黃金分割的數學之美</h3>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 15px;">📐 核心公式：</h4>
+                        <p style="color: #fff; font-family: 'Courier New', monospace; font-size: 1.2rem; line-height: 2;">
+                            φ = (1 + √5) / 2 ≈ 1.618<br>
+                            <span style="font-size: 0.9rem; color: #b8b8ff;">(黃金比例)</span><br><br>
+                            Fₙ = Fₙ₋₁ + Fₙ₋₂<br>
+                            <span style="font-size: 0.9rem; color: #b8b8ff;">(斐波那契數列)</span>
+                        </p>
+                    </div>
+
+                    <div style="color: #e0e0e0; line-height: 2; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">🌸 生活中的應用：</h4>
+                        <p>
+                            <strong>為什麼向日葵、鸚鵡螺這麼美？</strong><br><br>
+
+                            1️⃣ <strong>向日葵種子排列</strong>：<br>
+                            每個種子旋轉角度 ≈ 137.5° = 360° / φ²<br>
+                            最優排列，最大化空間利用<br><br>
+
+                            2️⃣ <strong>鸚鵡螺殼</strong>：<br>
+                            每層增長比例 ≈ φ<br>
+                            對數螺線：r = ae^(bθ)<br><br>
+
+                            3️⃣ <strong>人臉比例</strong>：<br>
+                            眼睛到嘴巴 / 嘴巴到下巴 ≈ φ<br><br>
+
+                            <strong style="color: #ffed4e;">🎯 美的本質：</strong>自然選擇最優化的數學結構，恰好也是人類覺得最美的！
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,215,0,0.15); padding: 15px; border-radius: 10px; border-left: 3px solid #ffd700;">
+                        <p style="color: #ffed4e; font-weight: bold;">💡 工具意義：</p>
+                        <p style="color: #e0e0e0;">掌握黃金分割，就能在設計、藝術、建築中創造「自然的美感」</p>
+                    </div>
+                </div>
+
+                <!-- 案例4: 抛物线与篮球 -->
+                <div style="background: linear-gradient(135deg, rgba(255, 140, 0, 0.3) 0%, rgba(255, 69, 0, 0.3) 100%); padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="font-size: 3.5rem; text-align: center; margin-bottom: 20px;">🏀</div>
+                    <h3 style="color: #ffed4e; margin-bottom: 20px; font-size: 1.6rem; text-align: center;">拋物線與籃球的完美弧度</h3>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 15px;">📐 核心公式：</h4>
+                        <p style="color: #fff; font-family: 'Courier New', monospace; font-size: 1.2rem; line-height: 2;">
+                            y = v₀t sin θ - ½gt²<br>
+                            x = v₀t cos θ<br>
+                            <span style="font-size: 0.9rem; color: #b8b8ff;">(拋物線運動方程)</span>
+                        </p>
+                    </div>
+
+                    <div style="color: #e0e0e0; line-height: 2; margin-bottom: 20px;">
+                        <h4 style="color: #ffd700; margin-bottom: 10px;">⛹️ 生活中的應用：</h4>
+                        <p>
+                            <strong>如何投出完美的三分球？</strong><br><br>
+
+                            1️⃣ <strong>最佳角度</strong>：約45°時射程最遠<br>
+                            但籃球需要弧度入筐 → 實際約50-55°<br><br>
+
+                            2️⃣ <strong>初速度計算</strong>：<br>
+                            距離7.24米（三分線）<br>
+                            籃筐高3.05米<br>
+                            需要v₀ ≈ 8 m/s<br><br>
+
+                            3️⃣ <strong>空氣阻力修正</strong>：<br>
+                            實際軌跡略低於理論拋物線<br><br>
+
+                            <strong style="color: #ffed4e;">🎯 美的本質：</strong>完美的投籃弧線是物理定律的藝術表現！
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,215,0,0.15); padding: 15px; border-radius: 10px; border-left: 3px solid #ffd700;">
+                        <p style="color: #ffed4e; font-weight: bold;">💡 工具意義：</p>
+                        <p style="color: #e0e0e0;">理解拋物線運動，就能分析所有彈道（足球、棒球、射箭...）並優化動作</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识的威力总结 -->
+            <div style="margin-top: 50px; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 20px; border: 2px solid #1e90ff;">
+                <h3 style="color: #ffed4e; text-align: center; font-size: 2rem; margin-bottom: 30px;">💪 知識的威力：理解世界，改造世界</h3>
+                <div style="color: #e0e0e0; line-height: 2.2; font-size: 1.1rem; max-width: 900px; margin: 0 auto;">
+                    <p style="margin-bottom: 20px;">
+                        <strong style="color: #ffd700;">✨ 數學和物理不是用來考試的</strong>，而是用來：
+                    </p>
+                    <ul style="list-style-position: inside; margin-left: 20px;">
+                        <li style="margin-bottom: 15px;">🌈 <strong>理解自然之美</strong>：為什麼彩虹、日落、閃電是這樣的？</li>
+                        <li style="margin-bottom: 15px;">🎵 <strong>欣賞藝術之美</strong>：音樂、繪畫、建築背後的數學規律</li>
+                        <li style="margin-bottom: 15px;">🏀 <strong>優化生活技能</strong>：如何投籃更準、跑步更快、思考更深？</li>
+                        <li style="margin-bottom: 15px;">🚀 <strong>發明創造</strong>：理解原理才能設計出飛機、手機、AI...</li>
+                        <li style="margin-bottom: 15px;">🔮 <strong>預測未來</strong>：從天氣預報到股市分析，都依賴數學模型</li>
+                    </ul>
+                    <p style="margin-top: 30px; padding: 20px; background: rgba(255,215,0,0.2); border-radius: 10px; text-align: center; font-size: 1.3rem; color: #ffd700;">
+                        <strong>「給我一個支點，我能撬動地球」</strong> — 阿基米德<br>
+                        <span style="font-size: 1rem; color: #e0e0e0; font-style: italic;">數學和物理就是你的「支點」，用它們撬動整個世界！</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
         <!-- 知识图谱可视化 -->
         <section class="knowledge-graph-section fade-in">
             <h2 class="vision-title">🗺️ 科學史知識圖譜</h2>
@@ -1741,6 +2124,111 @@
                 }
             });
         });
+
+        // 心流讲解模式功能
+        function generateFlowExplanation() {
+            const interest = document.getElementById('userInterest').value.trim();
+            const concept = document.getElementById('conceptSelect').value;
+
+            if (!interest || !concept) {
+                alert('請先填寫你的興趣和要學習的概念！');
+                return;
+            }
+
+            const conceptNames = {
+                quadratic: '二次函數',
+                calculus: '微積分',
+                probability: '概率論',
+                vector: '向量與矩陣',
+                newton: '牛頓運動定律',
+                energy: '能量守恆',
+                wave: '波動與振動',
+                relativity: '相對論',
+                quantum: '量子力學',
+                atom: '原子結構',
+                reaction: '化學反應',
+                equilibrium: '化學平衡',
+                evolution: '進化論',
+                dna: 'DNA與遺傳',
+                cell: '細胞生物學'
+            };
+
+            const explanations = {
+                quadratic: {
+                    generic: `${interest}和二次函數的關係：想像你在玩{interest}，很多運動軌跡都是拋物線！二次函數 y = ax² + bx + c 描述的就是這種弧線。比如投擲物品的路徑、跳躍的高度曲線。頂點就是最高點或最低點，對稱軸讓我們知道何時達到極值。`,
+                    patterns: {
+                        '籃球|足球|排球|網球': '投籃或射門時，球的運動軌跡就是一條拋物線！二次函數 y = -½gt² + v₀t sin θ 描述了這條完美弧線。頂點是球飛到的最高點，對稱軸告訴你球何時開始下落。理解二次函數，就能計算出最佳投籃角度！',
+                        'Minecraft|積木|建築': '在{interest}中建造拱門或橋樑時，拋物線形狀最穩固美觀！二次函數能幫你設計完美的拱形結構。y = -a(x-h)² + k 這個頂點式，h和k就是拱頂的位置！',
+                        '哈利波特|魔法|魔戒': '記得魁地奇比賽中金探子的飛行軌跡嗎？它飛得像拋物線一樣！二次函數就像魔法公式，能預測運動物體的路徑。頂點式就像施咒的關鍵字，改變參數就改變了軌跡！'
+                    }
+                },
+                energy: {
+                    generic: `${interest}和能量守恆：能量不會憑空產生或消失，只會轉換形式！就像在{interest}中，一切動作都需要消耗能量，這些能量只是從一種形式轉換成另一種。`,
+                    patterns: {
+                        '哈利波特|魔法': '記得鄧不利多說的嗎？「愛是最強大的魔法」。能量守恆定律就像魔法世界的基本規則：能量不會憑空產生或消失，只會轉換形式。守護神咒語（Expecto Patronum）需要消耗魔力（能量），這些魔力來自內心的快樂記憶。當守護神出現時，魔力轉化為光和保護力量。宇宙中所有的能量加起來永遠不變！',
+                        '鋼鐵俠|Marvel|超級英雄': '鋼鐵俠的方舟反應爐（Arc Reactor）就是能量守恆的完美體現！它不是憑空創造能量，而是高效地將一種能量（核能）轉換成電能。飛行消耗電能→轉化為動能和勢能。能量總量守恆，只是形式在變！E = mc² 告訴我們質量本身也是一種能量形式！',
+                        'Minecraft|遊戲': '在Minecraft中挖礦、建造都遵循能量守恆！你揮動鎬子（消耗你的體力=化學能），礦石被破壞（轉化為動能），最後變成物品（位能）。食物補充能量，重力勢能轉換為動能（從高處跳下）。整個遊戲世界的能量總量是守恆的！'
+                    }
+                },
+                newton: {
+                    generic: `牛頓運動定律和${interest}：F=ma 不是冰冷的公式，而是解釋{interest}中所有運動的萬能鑰匙！`,
+                    patterns: {
+                        '籃球|足球|運動': '牛頓三大定律完全解釋了{interest}的物理學！第一定律：球不會自己動，需要你踢/投（慣性）。第二定律：F=ma，你用的力越大，球加速越快。第三定律：你踢球的同時，球也在"踢"你的腳（作用力與反作用力）！',
+                        '賽車|汽車|速度': '在賽車遊戲中，F=ma 無處不在！引擎提供力（F），車的質量是m，加速度就是a。質量輕的車加速快，但穩定性差。轉彎時需要向心力，否則會甩出去（慣性）。剎車就是反向的力，讓加速度變負！',
+                        '太空|火箭|星際': '火箭發射完美詮釋牛頓定律！第三定律：火箭噴射燃氣向下（作用力），火箭向上飛（反作用力）。F=ma：推力一定時，火箭越輕（消耗燃料後），加速度越大！這就是為什麼火箭要分級，拋棄空燃料箱減輕質量！'
+                    }
+                }
+            };
+
+            let explanation = '';
+            if (explanations[concept]) {
+                const data = explanations[concept];
+                let matched = false;
+
+                // 尝试匹配用户兴趣的模式
+                for (const [pattern, text] of Object.entries(data.patterns || {})) {
+                    const regex = new RegExp(pattern, 'i');
+                    if (regex.test(interest)) {
+                        explanation = text.replace(/\{interest\}/g, interest);
+                        matched = true;
+                        break;
+                    }
+                }
+
+                // 如果没有匹配，使用通用模板
+                if (!matched && data.generic) {
+                    explanation = data.generic.replace(/\{interest\}/g, interest);
+                }
+            }
+
+            // 如果没有预设的解释，使用通用模板
+            if (!explanation) {
+                explanation = `
+                    <h4 style="color: #ffed4e; margin-bottom: 15px;">🎯 用「${interest}」理解「${conceptNames[concept]}」</h4>
+                    <p style="line-height: 2;">
+                        太棒了！讓我用你熟悉的${interest}來解釋${conceptNames[concept]}：<br><br>
+
+                        <strong style="color: #ffd700;">核心概念：</strong><br>
+                        ${conceptNames[concept]}是一個重要的科學概念，它幫助我們理解世界的運行規律。<br><br>
+
+                        <strong style="color: #ffd700;">與${interest}的聯繫：</strong><br>
+                        在${interest}中，你可能已經在不知不覺中運用了這個概念！仔細觀察${interest}中的規律和現象，很多都能用${conceptNames[concept]}來解釋。<br><br>
+
+                        <strong style="color: #ffd700;">實際應用：</strong><br>
+                        理解這個概念後，你會發現${interest}變得更有趣，因為你能看到背後的科學原理！
+                    </p>
+                `;
+            }
+
+            // 显示结果
+            const flowExplanation = document.getElementById('flowExplanation');
+            const flowContent = document.getElementById('flowContent');
+            flowContent.innerHTML = explanation;
+            flowExplanation.style.display = 'block';
+
+            // 平滑滚动到结果
+            flowExplanation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     </script>
 </body>
 </html>
