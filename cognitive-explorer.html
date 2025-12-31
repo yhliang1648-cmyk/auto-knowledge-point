@@ -479,6 +479,265 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* 知识图谱样式 */
+        .knowledge-graph-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, rgba(16, 12, 67, 0.5) 0%, rgba(42, 32, 95, 0.5) 100%);
+            border-radius: 30px;
+            margin-bottom: 60px;
+        }
+
+        .graph-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            color: #ffd700;
+            font-weight: 500;
+        }
+
+        .control-group select {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-group select:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ffd700;
+        }
+
+        .graph-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: none;
+            border-radius: 8px;
+            color: #0a0e27;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .graph-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .graph-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        #graphSvg {
+            display: block;
+            cursor: grab;
+        }
+
+        #graphSvg:active {
+            cursor: grabbing;
+        }
+
+        /* SVG节点样式通过JavaScript动态设置 */
+        .graph-node {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .graph-node:hover {
+            filter: brightness(1.3);
+        }
+
+        .graph-link {
+            fill: none;
+            stroke-width: 2;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .graph-link:hover {
+            opacity: 1;
+            stroke-width: 3;
+        }
+
+        .node-label {
+            font-size: 12px;
+            fill: #e0e0e0;
+            text-anchor: middle;
+            pointer-events: none;
+            font-weight: 500;
+        }
+
+        .node-details {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(16, 12, 67, 0.98) 0%, rgba(42, 32, 95, 0.98) 100%);
+            border: 2px solid #ffd700;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+        }
+
+        .node-details.hidden {
+            display: none;
+        }
+
+        .node-details h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .node-details p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .node-details .detail-label {
+            color: #ffed4e;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ffd700;
+            font-size: 1.5rem;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .graph-legend {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .graph-legend h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-node {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .scientist-node {
+            background: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .theory-node {
+            background: #ff4500;
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+        }
+
+        .experiment-node {
+            background: #ff8c00;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+
+        .paradigm-node {
+            background: #8b0000;
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+
+        .legend-line {
+            width: 40px;
+            height: 3px;
+            flex-shrink: 0;
+        }
+
+        .teacher-line {
+            background: linear-gradient(90deg, #4a90e2, #4a90e2);
+        }
+
+        .extends-line {
+            background: linear-gradient(90deg, #2ecc71, #2ecc71);
+        }
+
+        .refutes-line {
+            background: linear-gradient(90deg, #e74c3c, #e74c3c);
+        }
+
+        .verifies-line {
+            background: linear-gradient(90deg, #9b59b6, #9b59b6);
+        }
+
+        @media (max-width: 768px) {
+            .graph-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .legend-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -661,6 +920,91 @@
             </div>
         </section>
 
+        <!-- 知识图谱可视化 -->
+        <section class="knowledge-graph-section fade-in">
+            <h2 class="vision-title">🗺️ 科學史知識圖譜</h2>
+            <p class="vision-text" style="text-align: center; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                將2500年科學發展構建成動態知識網絡，直觀展示人類認知如何從神話思維演進到現代科學
+            </p>
+
+            <!-- 图谱控制面板 -->
+            <div class="graph-controls">
+                <div class="control-group">
+                    <label>📅 時代篩選：</label>
+                    <select id="eraFilter">
+                        <option value="all">全部時代</option>
+                        <option value="ancient">古希臘（公元前600-200）</option>
+                        <option value="revolution">科學革命（1543-1687）</option>
+                        <option value="modern">近代科學（1700-1900）</option>
+                        <option value="quantum">量子時代（1900-1950）</option>
+                        <option value="contemporary">當代前沿（1950-今）</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>🏷️ 節點類型：</label>
+                    <select id="nodeTypeFilter">
+                        <option value="all">全部類型</option>
+                        <option value="scientist">科學家</option>
+                        <option value="theory">理論</option>
+                        <option value="experiment">實驗</option>
+                        <option value="paradigm">範式</option>
+                    </select>
+                </div>
+                <button id="resetGraph" class="graph-btn">🔄 重置視圖</button>
+                <button id="togglePhysics" class="graph-btn">⚡ 切換動畫</button>
+            </div>
+
+            <!-- 图谱容器 -->
+            <div id="knowledgeGraph" class="graph-container">
+                <svg id="graphSvg" width="100%" height="700"></svg>
+            </div>
+
+            <!-- 节点详情面板 -->
+            <div id="nodeDetails" class="node-details hidden">
+                <button class="close-btn" onclick="closeNodeDetails()">✕</button>
+                <div id="nodeDetailsContent"></div>
+            </div>
+
+            <!-- 图例 -->
+            <div class="graph-legend">
+                <h4>圖例說明</h4>
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <div class="legend-node scientist-node"></div>
+                        <span>科學家</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-node theory-node"></div>
+                        <span>理論</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-node experiment-node"></div>
+                        <span>實驗</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-node paradigm-node"></div>
+                        <span>範式</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line teacher-line"></div>
+                        <span>師承關係</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line extends-line"></div>
+                        <span>繼承發展</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line refutes-line"></div>
+                        <span>反駁推翻</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line verifies-line"></div>
+                        <span>實驗驗證</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 技术架构 -->
         <section class="tech-section fade-in">
             <h2 class="vision-title">🛠️ 技術架構</h2>
@@ -837,6 +1181,442 @@
                 setTimeout(() => {
                     this.style.transform = '';
                 }, 300);
+            });
+        });
+
+        // ========== 知识图谱可视化系统 ==========
+
+        // 知识图谱数据（基于《科学的历程》）
+        const knowledgeGraphData = {
+            nodes: [
+                // 古希腊时期
+                { id: 'thales', name: '泰勒斯', type: 'scientist', era: 'ancient', year: -585, desc: '古希臘第一位哲學家，提出"萬物源於水"，開啟理性思維' },
+                { id: 'pythagoras', name: '畢達哥拉斯', type: 'scientist', era: 'ancient', year: -530, desc: '提出"萬物皆數"，建立數學化自然觀' },
+                { id: 'plato', name: '柏拉圖', type: 'scientist', era: 'ancient', year: -387, desc: '建立學園，提出理念論，強調數學在認知中的地位' },
+                { id: 'aristotle', name: '亞里士多德', type: 'scientist', era: 'ancient', year: -335, desc: '建立第一個科學體系，創立邏輯學' },
+                { id: 'euclid', name: '歐幾里得', type: 'scientist', era: 'ancient', year: -300, desc: '《幾何原本》作者，公理化體系的典範' },
+                { id: 'ptolemy', name: '托勒密', type: 'scientist', era: 'ancient', year: 150, desc: '建立地心說宇宙模型，主導1400年' },
+
+                { id: 'paradigm_ancient', name: '亞里士多德範式', type: 'paradigm', era: 'ancient', year: -300, desc: '目的論、四元素說、地心說' },
+                { id: 'theory_geocentric', name: '地心說', type: 'theory', era: 'ancient', year: 150, desc: '地球是宇宙中心，天體做圓周運動' },
+
+                // 科学革命时期
+                { id: 'copernicus', name: '哥白尼', type: 'scientist', era: 'revolution', year: 1543, desc: '《天體運行論》作者，提出日心說' },
+                { id: 'kepler', name: '開普勒', type: 'scientist', era: 'revolution', year: 1609, desc: '發現行星運動三大定律' },
+                { id: 'galileo', name: '伽利略', type: 'scientist', era: 'revolution', year: 1610, desc: '實驗科學方法的奠基者，望遠鏡觀測' },
+                { id: 'newton', name: '牛頓', type: 'scientist', era: 'revolution', year: 1687, desc: '萬有引力定律、運動三定律、微積分' },
+
+                { id: 'theory_heliocentric', name: '日心說', type: 'theory', era: 'revolution', year: 1543, desc: '太陽是宇宙中心，地球繞太陽運動' },
+                { id: 'exp_telescope', name: '望遠鏡觀測', type: 'experiment', era: 'revolution', year: 1610, desc: '伽利略觀測木星衛星、月球表面' },
+                { id: 'exp_inclined_plane', name: '斜面實驗', type: 'experiment', era: 'revolution', year: 1604, desc: '證明自由落體規律' },
+                { id: 'theory_gravity', name: '萬有引力定律', type: 'theory', era: 'revolution', year: 1687, desc: 'F = G(m₁m₂)/r²' },
+                { id: 'paradigm_newton', name: '牛頓力學範式', type: 'paradigm', era: 'revolution', year: 1687, desc: '機械決定論、數學化自然觀' },
+
+                // 近代科学时期
+                { id: 'lavoisier', name: '拉瓦錫', type: 'scientist', era: 'modern', year: 1789, desc: '化學革命，推翻燃素說，建立質量守恆定律' },
+                { id: 'dalton', name: '道爾頓', type: 'scientist', era: 'modern', year: 1808, desc: '原子論，化學元素的原子量' },
+                { id: 'faraday', name: '法拉第', type: 'scientist', era: 'modern', year: 1831, desc: '電磁感應、電場概念' },
+                { id: 'maxwell', name: '麥克斯韋', type: 'scientist', era: 'modern', year: 1865, desc: '統一電磁學與光學，麥克斯韋方程組' },
+                { id: 'darwin', name: '達爾文', type: 'scientist', era: 'modern', year: 1859, desc: '進化論，自然選擇機制' },
+
+                { id: 'theory_evolution', name: '進化論', type: 'theory', era: 'modern', year: 1859, desc: '物種通過自然選擇而演化' },
+                { id: 'theory_electromagnetic', name: '電磁場理論', type: 'theory', era: 'modern', year: 1865, desc: '電、磁、光的統一' },
+
+                // 量子时代
+                { id: 'planck', name: '普朗克', type: 'scientist', era: 'quantum', year: 1900, desc: '量子假說，解決黑體輻射問題' },
+                { id: 'einstein', name: '愛因斯坦', type: 'scientist', era: 'quantum', year: 1905, desc: '相對論、光電效應、E=mc²' },
+                { id: 'bohr', name: '玻爾', type: 'scientist', era: 'quantum', year: 1913, desc: '原子模型，量子躍遷' },
+                { id: 'heisenberg', name: '海森堡', type: 'scientist', era: 'quantum', year: 1927, desc: '不確定性原理' },
+                { id: 'schrodinger', name: '薛定諤', type: 'scientist', era: 'quantum', year: 1926, desc: '波動力學，薛定諤方程' },
+
+                { id: 'theory_relativity', name: '相對論', type: 'theory', era: 'quantum', year: 1905, desc: '時空相對性、質能等價' },
+                { id: 'theory_quantum', name: '量子力學', type: 'theory', era: 'quantum', year: 1925, desc: '微觀世界的概率描述' },
+                { id: 'paradigm_quantum', name: '量子-相對論範式', type: 'paradigm', era: 'quantum', year: 1927, desc: '概率性、觀測者效應、時空彎曲' },
+                { id: 'exp_photoelectric', name: '光電效應實驗', type: 'experiment', era: 'quantum', year: 1905, desc: '證明光的粒子性' },
+
+                // 当代前沿
+                { id: 'feynman', name: '費曼', type: 'scientist', era: 'contemporary', year: 1965, desc: '量子電動力學，費曼圖' },
+                { id: 'hawking', name: '霍金', type: 'scientist', era: 'contemporary', year: 1974, desc: '黑洞輻射，時間簡史' },
+                { id: 'theory_standard_model', name: '標準模型', type: 'theory', era: 'contemporary', year: 1975, desc: '粒子物理的統一理論' },
+                { id: 'theory_higgs', name: '希格斯機制', type: 'theory', era: 'contemporary', year: 2012, desc: '解釋粒子質量起源' },
+            ],
+
+            links: [
+                // 师承关系
+                { source: 'plato', target: 'aristotle', type: 'teacher', label: '師承' },
+                { source: 'aristotle', target: 'euclid', type: 'teacher', label: '影響' },
+
+                // 理论继承/反驳
+                { source: 'theory_heliocentric', target: 'theory_geocentric', type: 'refutes', label: '推翻' },
+                { source: 'copernicus', target: 'theory_heliocentric', type: 'develops', label: '提出' },
+                { source: 'galileo', target: 'theory_heliocentric', type: 'verifies', label: '驗證' },
+                { source: 'kepler', target: 'theory_heliocentric', type: 'extends', label: '完善' },
+
+                // 范式关系
+                { source: 'aristotle', target: 'paradigm_ancient', type: 'develops', label: '建立' },
+                { source: 'ptolemy', target: 'theory_geocentric', type: 'develops', label: '建立' },
+                { source: 'theory_geocentric', target: 'paradigm_ancient', type: 'belongs', label: '屬於' },
+
+                // 科学革命链条
+                { source: 'galileo', target: 'exp_telescope', type: 'conducts', label: '進行' },
+                { source: 'galileo', target: 'exp_inclined_plane', type: 'conducts', label: '進行' },
+                { source: 'exp_telescope', target: 'theory_heliocentric', type: 'verifies', label: '驗證' },
+                { source: 'newton', target: 'theory_gravity', type: 'develops', label: '提出' },
+                { source: 'theory_gravity', target: 'paradigm_newton', type: 'belongs', label: '核心理論' },
+                { source: 'kepler', target: 'newton', type: 'influences', label: '影響' },
+                { source: 'galileo', target: 'newton', type: 'influences', label: '影響' },
+
+                // 近代科学
+                { source: 'faraday', target: 'maxwell', type: 'influences', label: '實驗基礎' },
+                { source: 'maxwell', target: 'theory_electromagnetic', type: 'develops', label: '建立' },
+                { source: 'darwin', target: 'theory_evolution', type: 'develops', label: '提出' },
+
+                // 量子革命
+                { source: 'planck', target: 'einstein', type: 'influences', label: '啟發' },
+                { source: 'einstein', target: 'theory_relativity', type: 'develops', label: '創立' },
+                { source: 'einstein', target: 'exp_photoelectric', type: 'explains', label: '解釋' },
+                { source: 'bohr', target: 'theory_quantum', type: 'develops', label: '貢獻' },
+                { source: 'heisenberg', target: 'theory_quantum', type: 'develops', label: '貢獻' },
+                { source: 'schrodinger', target: 'theory_quantum', type: 'develops', label: '貢獻' },
+                { source: 'theory_quantum', target: 'paradigm_quantum', type: 'belongs', label: '核心' },
+                { source: 'theory_relativity', target: 'paradigm_quantum', type: 'belongs', label: '核心' },
+                { source: 'paradigm_newton', target: 'paradigm_quantum', type: 'paradigm_shift', label: '範式轉換' },
+
+                // 当代
+                { source: 'einstein', target: 'hawking', type: 'influences', label: '影響' },
+                { source: 'feynman', target: 'theory_standard_model', type: 'develops', label: '貢獻' },
+            ]
+        };
+
+        // 知识图谱渲染引擎
+        class KnowledgeGraphRenderer {
+            constructor(containerId, data) {
+                this.svg = document.getElementById(containerId);
+                this.data = data;
+                this.width = this.svg.clientWidth;
+                this.height = 700;
+                this.nodes = [];
+                this.links = [];
+                this.physics = true;
+                this.dragNode = null;
+
+                // 节点颜色映射
+                this.nodeColors = {
+                    scientist: '#ffd700',
+                    theory: '#ff4500',
+                    experiment: '#ff8c00',
+                    paradigm: '#8b0000'
+                };
+
+                // 连线颜色映射
+                this.linkColors = {
+                    teacher: '#4a90e2',
+                    extends: '#2ecc71',
+                    refutes: '#e74c3c',
+                    verifies: '#9b59b6',
+                    develops: '#2ecc71',
+                    influences: '#3498db',
+                    conducts: '#f39c12',
+                    belongs: '#95a5a6',
+                    explains: '#9b59b6',
+                    paradigm_shift: '#e74c3c'
+                };
+
+                this.init();
+            }
+
+            init() {
+                // 初始化节点位置
+                this.nodes = this.data.nodes.map((node, i) => ({
+                    ...node,
+                    x: Math.random() * (this.width - 100) + 50,
+                    y: Math.random() * (this.height - 100) + 50,
+                    vx: 0,
+                    vy: 0,
+                    radius: node.type === 'paradigm' ? 25 : (node.type === 'scientist' ? 18 : 15)
+                }));
+
+                // 构建连线
+                this.links = this.data.links.map(link => ({
+                    ...link,
+                    source: this.nodes.find(n => n.id === link.source),
+                    target: this.nodes.find(n => n.id === link.target)
+                })).filter(link => link.source && link.target);
+
+                this.render();
+                this.startPhysics();
+                this.setupInteractions();
+            }
+
+            render() {
+                // 清空SVG
+                this.svg.innerHTML = '';
+
+                // 创建连线组
+                const linksGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                this.links.forEach(link => {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('class', 'graph-link');
+                    line.setAttribute('x1', link.source.x);
+                    line.setAttribute('y1', link.source.y);
+                    line.setAttribute('x2', link.target.x);
+                    line.setAttribute('y2', link.target.y);
+                    line.setAttribute('stroke', this.linkColors[link.type] || '#666');
+                    link.element = line;
+                    linksGroup.appendChild(line);
+
+                    // 添加标签
+                    if (link.label) {
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('class', 'link-label');
+                        text.setAttribute('x', (link.source.x + link.target.x) / 2);
+                        text.setAttribute('y', (link.source.y + link.target.y) / 2);
+                        text.setAttribute('fill', '#999');
+                        text.setAttribute('font-size', '10');
+                        text.setAttribute('text-anchor', 'middle');
+                        text.textContent = link.label;
+                        link.labelElement = text;
+                        linksGroup.appendChild(text);
+                    }
+                });
+                this.svg.appendChild(linksGroup);
+
+                // 创建节点组
+                const nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                this.nodes.forEach(node => {
+                    // 节点圆圈
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('class', 'graph-node');
+                    circle.setAttribute('cx', node.x);
+                    circle.setAttribute('cy', node.y);
+                    circle.setAttribute('r', node.radius);
+                    circle.setAttribute('fill', this.nodeColors[node.type]);
+                    circle.setAttribute('stroke', '#fff');
+                    circle.setAttribute('stroke-width', '2');
+                    circle.setAttribute('data-node-id', node.id);
+                    node.element = circle;
+                    nodesGroup.appendChild(circle);
+
+                    // 节点标签
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('class', 'node-label');
+                    text.setAttribute('x', node.x);
+                    text.setAttribute('y', node.y + node.radius + 15);
+                    text.textContent = node.name;
+                    node.labelElement = text;
+                    nodesGroup.appendChild(text);
+                });
+                this.svg.appendChild(nodesGroup);
+            }
+
+            updatePositions() {
+                // 更新连线位置
+                this.links.forEach(link => {
+                    link.element.setAttribute('x1', link.source.x);
+                    link.element.setAttribute('y1', link.source.y);
+                    link.element.setAttribute('x2', link.target.x);
+                    link.element.setAttribute('y2', link.target.y);
+
+                    if (link.labelElement) {
+                        link.labelElement.setAttribute('x', (link.source.x + link.target.x) / 2);
+                        link.labelElement.setAttribute('y', (link.source.y + link.target.y) / 2);
+                    }
+                });
+
+                // 更新节点位置
+                this.nodes.forEach(node => {
+                    node.element.setAttribute('cx', node.x);
+                    node.element.setAttribute('cy', node.y);
+                    node.labelElement.setAttribute('x', node.x);
+                    node.labelElement.setAttribute('y', node.y + node.radius + 15);
+                });
+            }
+
+            startPhysics() {
+                const simulate = () => {
+                    if (!this.physics) return;
+
+                    // 斥力
+                    for (let i = 0; i < this.nodes.length; i++) {
+                        for (let j = i + 1; j < this.nodes.length; j++) {
+                            const n1 = this.nodes[i];
+                            const n2 = this.nodes[j];
+                            const dx = n2.x - n1.x;
+                            const dy = n2.y - n1.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                            const force = 500 / (dist * dist);
+                            const fx = (dx / dist) * force;
+                            const fy = (dy / dist) * force;
+                            n1.vx -= fx;
+                            n1.vy -= fy;
+                            n2.vx += fx;
+                            n2.vy += fy;
+                        }
+                    }
+
+                    // 引力（连线）
+                    this.links.forEach(link => {
+                        const dx = link.target.x - link.source.x;
+                        const dy = link.target.y - link.source.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const force = (dist - 150) * 0.01;
+                        const fx = (dx / dist) * force;
+                        const fy = (dy / dist) * force;
+                        link.source.vx += fx;
+                        link.source.vy += fy;
+                        link.target.vx -= fx;
+                        link.target.vy -= fy;
+                    });
+
+                    // 应用速度和阻尼
+                    this.nodes.forEach(node => {
+                        if (node !== this.dragNode) {
+                            node.vx *= 0.85;
+                            node.vy *= 0.85;
+                            node.x += node.vx;
+                            node.y += node.vy;
+
+                            // 边界碰撞
+                            if (node.x < node.radius) { node.x = node.radius; node.vx *= -0.5; }
+                            if (node.x > this.width - node.radius) { node.x = this.width - node.radius; node.vx *= -0.5; }
+                            if (node.y < node.radius) { node.y = node.radius; node.vy *= -0.5; }
+                            if (node.y > this.height - node.radius) { node.y = this.height - node.radius; node.vy *= -0.5; }
+                        }
+                    });
+
+                    this.updatePositions();
+                    requestAnimationFrame(simulate);
+                };
+
+                simulate();
+            }
+
+            setupInteractions() {
+                // 点击节点显示详情
+                this.svg.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('graph-node')) {
+                        const nodeId = e.target.getAttribute('data-node-id');
+                        const node = this.nodes.find(n => n.id === nodeId);
+                        if (node) showNodeDetails(node);
+                    }
+                });
+
+                // 拖拽节点
+                let isDragging = false;
+
+                this.svg.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('graph-node')) {
+                        isDragging = true;
+                        const nodeId = e.target.getAttribute('data-node-id');
+                        this.dragNode = this.nodes.find(n => n.id === nodeId);
+                    }
+                });
+
+                this.svg.addEventListener('mousemove', (e) => {
+                    if (isDragging && this.dragNode) {
+                        const rect = this.svg.getBoundingClientRect();
+                        this.dragNode.x = e.clientX - rect.left;
+                        this.dragNode.y = e.clientY - rect.top;
+                        this.dragNode.vx = 0;
+                        this.dragNode.vy = 0;
+                        this.updatePositions();
+                    }
+                });
+
+                this.svg.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    this.dragNode = null;
+                });
+            }
+
+            filter(eraFilter, typeFilter) {
+                this.nodes.forEach(node => {
+                    const matchEra = eraFilter === 'all' || node.era === eraFilter;
+                    const matchType = typeFilter === 'all' || node.type === typeFilter;
+                    const visible = matchEra && matchType;
+
+                    node.element.style.display = visible ? 'block' : 'none';
+                    node.labelElement.style.display = visible ? 'block' : 'none';
+                });
+
+                this.links.forEach(link => {
+                    const sourceVisible = link.source.element.style.display !== 'none';
+                    const targetVisible = link.target.element.style.display !== 'none';
+                    const visible = sourceVisible && targetVisible;
+
+                    link.element.style.display = visible ? 'block' : 'none';
+                    if (link.labelElement) {
+                        link.labelElement.style.display = visible ? 'block' : 'none';
+                    }
+                });
+            }
+
+            reset() {
+                this.nodes.forEach(node => {
+                    node.x = Math.random() * (this.width - 100) + 50;
+                    node.y = Math.random() * (this.height - 100) + 50;
+                    node.vx = 0;
+                    node.vy = 0;
+                });
+                this.updatePositions();
+            }
+        }
+
+        // 显示节点详情
+        function showNodeDetails(node) {
+            const detailsPanel = document.getElementById('nodeDetails');
+            const detailsContent = document.getElementById('nodeDetailsContent');
+
+            const typeNames = {
+                scientist: '科學家',
+                theory: '理論',
+                experiment: '實驗',
+                paradigm: '範式'
+            };
+
+            detailsContent.innerHTML = `
+                <h3>${node.name}</h3>
+                <p><span class="detail-label">類型：</span>${typeNames[node.type]}</p>
+                <p><span class="detail-label">年份：</span>${node.year > 0 ? node.year : `公元前${-node.year}`}</p>
+                <p><span class="detail-label">描述：</span>${node.desc}</p>
+            `;
+
+            detailsPanel.classList.remove('hidden');
+        }
+
+        // 关闭详情面板
+        function closeNodeDetails() {
+            document.getElementById('nodeDetails').classList.add('hidden');
+        }
+
+        // 初始化知识图谱
+        let graphRenderer;
+        window.addEventListener('load', () => {
+            graphRenderer = new KnowledgeGraphRenderer('graphSvg', knowledgeGraphData);
+
+            // 筛选控制
+            document.getElementById('eraFilter').addEventListener('change', (e) => {
+                const typeFilter = document.getElementById('nodeTypeFilter').value;
+                graphRenderer.filter(e.target.value, typeFilter);
+            });
+
+            document.getElementById('nodeTypeFilter').addEventListener('change', (e) => {
+                const eraFilter = document.getElementById('eraFilter').value;
+                graphRenderer.filter(eraFilter, e.target.value);
+            });
+
+            // 重置按钮
+            document.getElementById('resetGraph').addEventListener('click', () => {
+                graphRenderer.reset();
+            });
+
+            // 切换物理动画
+            document.getElementById('togglePhysics').addEventListener('click', (e) => {
+                graphRenderer.physics = !graphRenderer.physics;
+                e.target.textContent = graphRenderer.physics ? '⚡ 切換動畫' : '▶️ 啟動動畫';
+                if (graphRenderer.physics) {
+                    graphRenderer.startPhysics();
+                }
             });
         });
     </script>
