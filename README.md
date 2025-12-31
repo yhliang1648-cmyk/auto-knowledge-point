@@ -67,8 +67,9 @@
 
 - **前端**: HTML5 + CSS3 + Vanilla JavaScript
 - **後端**: Cloudflare Workers (Edge Computing)
-- **數據庫**: Cloudflare Vectorize (向量數據庫)
-- **AI 模型**: DeepSeek API / OpenAI API
+- **數據庫**: Cloudflare D1 + Vectorize (向量數據庫)
+- **存儲**: Cloudflare R2 (PDF存儲)
+- **AI 模型**: **通義千問 (Qwen)** - OCR、問答、向量化
 
 ### 支持科目
 
@@ -418,6 +419,42 @@ MIT License © 2025 yhliang1648-cmyk
 - **斯坦福 CS146S**: https://themodernsoftware.dev
 - **Cloudflare 文檔**: https://developers.cloudflare.com/
 - **香港考評局**: https://www.hkeaa.edu.hk/
+- **通義千問API**: https://help.aliyun.com/zh/model-studio/qwen-api-reference
+
+---
+
+## 🤖 通義千問API集成
+
+本平台已全面集成**阿里雲通義千問（Qwen）API**，提供以下AI能力：
+
+### API功能
+
+| 功能 | 模型 | 應用場景 |
+|------|------|---------|
+| **OCR識別** | qwen-vl-ocr-2025-08-28 | 試卷識別、答卷批改 |
+| **AI問答** | qwen-plus | 智能判題、知識問答 |
+| **向量搜索** | text-embedding-v3 | 語義搜索、題目推薦 |
+| **內容生成** | qwen-plus | 智能出題、講解生成 |
+
+### 使用示例
+
+```javascript
+// OCR識別
+const api = new ExamHelperAPI('sk-e79b72b1a216405c89206aefe865139e');
+const result = await api.performOCR(imageBase64, 'exam');
+
+// AI判題
+const grading = await api.gradeAnswer(questionImage, answerImage);
+
+// 生成練習題
+const questions = await api.generateSimilarQuestions(weakPoints, '數學');
+```
+
+### 集成文檔
+
+- 📖 [完整集成指南](./QWEN_INTEGRATION_GUIDE.md)
+- 🚀 [Cloudflare RAG部署](./cloudflare-rag/README.md)
+- 💡 [API使用示例](./exam-helper-api.js)
 
 ---
 

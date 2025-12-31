@@ -1,0 +1,39 @@
+{
+  "name": "dse-rag-api",
+  "version": "1.0.0",
+  "description": "DSE考题智能检索系统 - Cloudflare Workers RAG后端",
+  "main": "src/worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "test": "vitest",
+    "db:create": "wrangler d1 create dse_questions_db",
+    "db:init": "wrangler d1 execute dse_questions_db --file=schema.sql",
+    "db:query": "wrangler d1 execute dse_questions_db --command",
+    "r2:create": "wrangler r2 bucket create dse-pdfs",
+    "kv:create": "wrangler kv:namespace create CACHE",
+    "vectorize:create": "wrangler vectorize create dse-questions-index --dimensions=1536 --metric=cosine",
+    "import:questions": "node scripts/import-questions.js",
+    "setup": "npm run db:create && npm run db:init && npm run r2:create && npm run kv:create && npm run vectorize:create"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "rag",
+    "vector-search",
+    "ocr",
+    "qwen",
+    "dse"
+  ],
+  "author": "DSE RAG Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "wrangler": "^3.90.0",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "@cloudflare/ai": "^1.0.0"
+  }
+}
