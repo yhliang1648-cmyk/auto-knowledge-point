@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港未來學校 | Ad Astra HK - 培養星際時代的人才</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 星空背景 */
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(2px 2px at 20% 30%, white, transparent),
+                        radial-gradient(2px 2px at 60% 70%, white, transparent),
+                        radial-gradient(1px 1px at 50% 50%, white, transparent),
+                        radial-gradient(1px 1px at 80% 10%, white, transparent),
+                        radial-gradient(2px 2px at 90% 60%, white, transparent),
+                        radial-gradient(1px 1px at 33% 80%, white, transparent);
+            background-size: 200% 200%;
+            animation: twinkle 5s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 头部 */
+        header {
+            text-align: center;
+            padding: 100px 20px 80px;
+            background: linear-gradient(135deg, rgba(15, 32, 39, 0.95) 0%, rgba(44, 83, 100, 0.95) 100%);
+            border-radius: 30px;
+            margin-bottom: 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '🚀';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 6rem;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        header h1 {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 50%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        header .subtitle {
+            font-size: 1.8rem;
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+
+        header .tagline {
+            font-size: 1.2rem;
+            color: #b0e0e6;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 20px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .quote-box {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.1) 100%);
+            border-left: 4px solid #00d4ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+            font-style: italic;
+            color: #e0f4ff;
+            font-size: 1.2rem;
+            line-height: 2;
+        }
+
+        .quote-author {
+            text-align: right;
+            margin-top: 15px;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        /* 章节样式 */
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 60px 0;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #0f2027;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%);
+            border-radius: 2px;
+        }
+
+        /* 特点网格 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            color: #0f2027;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feature-desc {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        /* 课程模块 */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 35px;
+            margin-top: 40px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .module-card:hover {
+            border-color: #00d4ff;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .module-number {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .module-title {
+            font-size: 1.6rem;
+            color: #0f2027;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .module-content {
+            color: #555;
+            line-height: 2;
+        }
+
+        .module-content strong {
+            color: #0099ff;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+        /* 对比表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+
+        .comparison-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #555;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: #f5f9ff;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin: 3px;
+        }
+
+        /* CTA按钮 */
+        .cta-section {
+            text-align: center;
+            margin: 60px 0;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.1) 100%);
+            border-radius: 25px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.6);
+        }
+
+        /* 时间线 */
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #00d4ff 0%, #0099ff 100%);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 30px;
+            height: 30px;
+            background: #00d4ff;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            border: 4px solid white;
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.3);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .features-grid,
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item {
+                flex-direction: column !important;
+            }
+
+            .timeline-content {
+                width: calc(100% - 50px);
+                margin-left: 50px;
+            }
+
+            .timeline-marker {
+                left: 20px;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #b0e0e6;
+            background: rgba(15, 32, 39, 0.8);
+            border-radius: 20px;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-bg"></div>
+
+    <header>
+        <h1>🚀 香港未來學校</h1>
+        <div class="subtitle">Ad Astra HK | 通往群星之路</div>
+        <div class="tagline">Per Aspera Ad Astra - 歷經坎坷，終抵群星</div>
+    </header>
+
+    <div class="container">
+        <!-- 愿景引言 -->
+        <div class="quote-box">
+            "我對傳統教育體系的問題在於，太多的教學就像在教孩子們關於引擎的所有知識，卻不教他們為什麼需要引擎。<br>
+            最好的教學方式應該是從問題出發，而不是從工具出發。"
+            <div class="quote-author">— 埃隆·馬斯克 (Elon Musk)</div>
+        </div>
+
+        <!-- 马斯克学校核心理念 -->
+        <section class="section">
+            <h2 class="section-title">💡 馬斯克未來學校的十大核心理念</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1rem;">
+                基於Ad Astra / Astra Nova的教育創新，顛覆傳統教育模式
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">問題導向學習</div>
+                    <div class="feature-desc">
+                        從真實世界的問題出發，而非從學科出發。<br>
+                        <strong>例子：</strong>如何設計火星殖民地？這個問題自然涉及物理、化學、工程、生物等多學科知識。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👤</div>
+                    <div class="feature-title">打破年級制度</div>
+                    <div class="feature-desc">
+                        按能力和興趣分組，而非按年齡。<br>
+                        <strong>理念：</strong>每個孩子的發展速度不同，強制劃分年級限制了潛能發揮。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🛠️</div>
+                    <div class="feature-title">項目制學習</div>
+                    <div class="feature-desc">
+                        通過真實項目培養能力，而非刷題。<br>
+                        <strong>A-Frame模塊：</strong>動手組裝氣象氣球、戰鬥機器人等。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <div class="feature-title">STEM重點教育</div>
+                    <div class="feature-desc">
+                        科學、技術、工程、數學深度融合。<br>
+                        <strong>目標：</strong>培養未來的工程師、科學家、創新者。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚖️</div>
+                    <div class="feature-title">倫理與批判性思維</div>
+                    <div class="feature-desc">
+                        Geneva模塊：深入研究倫理和地緣政治問題。<br>
+                        <strong>案例：</strong>AI發展的倫理邊界、氣候變化的解決方案等。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <div class="feature-title">遊戲化學習</div>
+                    <div class="feature-desc">
+                        通過遊戲和模擬學習複雜概念。<br>
+                        <strong>方式：</strong>戰略遊戲、角色扮演、經濟模擬等。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-title">小班精英教學</div>
+                    <div class="feature-desc">
+                        每班約30-48名學生，師生比極高。<br>
+                        <strong>優勢：</strong>每個學生都能獲得充分關注和個性化指導。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-title">個性化學習路徑</div>
+                    <div class="feature-desc">
+                        根據每個學生的興趣和天賦定制課程。<br>
+                        <strong>理念：</strong>沒有兩個孩子是完全一樣的，教育也應如此。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <div class="feature-title">跨學科整合</div>
+                    <div class="feature-desc">
+                        打破學科壁壘，知識融會貫通。<br>
+                        <strong>實踐：</strong>一個項目同時涉及數學、物理、編程、設計等。
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💭</div>
+                    <div class="feature-title">第一原則思維</div>
+                    <div class="feature-desc">
+                        從基本原理出發，重新思考問題。<br>
+                        <strong>馬斯克式提問：</strong>為什麼事情必須是這樣？有沒有更好的方法？
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 香港版特色 -->
+        <section class="section" style="background: linear-gradient(135deg, #fff5e6 0%, #ffe0b3 100%);">
+            <h2 class="section-title" style="color: #d35400;">🇭🇰 香港版未來學校的獨特優勢</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1rem;">
+                融合馬斯克教育精髓與香港本地特色，培養全球競爭力
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card" style="background: linear-gradient(135deg, #fff 0%, #fff5e6 100%);">
+                    <div class="feature-icon">🗣️</div>
+                    <div class="feature-title">三語教學環境</div>
+                    <div class="feature-desc">
+                        <strong>中文（繁體）+ 英文 + 粵語</strong><br>
+                        • 國際視野與本地文化結合<br>
+                        • DSE與國際課程雙軌準備<br>
+                        • 真正的國際化人才培養
+                    </div>
+                </div>
+
+                <div class="feature-card" style="background: linear-gradient(135deg, #fff 0%, #e6f7ff 100%);">
+                    <div class="feature-icon">🏙️</div>
+                    <div class="feature-title">維港創新精神</div>
+                    <div class="feature-desc">
+                        <strong>香港本地元素融入</strong><br>
+                        • 維多利亞港工程奇蹟研究<br>
+                        • 獅子山精神與創業文化<br>
+                        • 東西方文化交融的獨特優勢
+                    </div>
+                </div>
+
+                <div class="feature-card" style="background: linear-gradient(135deg, #fff 0%, #f0fff4 100%);">
+                    <div class="feature-icon">🌏</div>
+                    <div class="feature-title">大灣區機遇</div>
+                    <div class="feature-desc">
+                        <strong>連接內地與世界</strong><br>
+                        • 深港科技合作項目<br>
+                        • 大灣區創新生態系統<br>
+                        • 跨境學習與實踐機會
+                    </div>
+                </div>
+
+                <div class="feature-card" style="background: linear-gradient(135deg, #fff 0%, #fff0f5 100%);">
+                    <div class="feature-icon">🎓</div>
+                    <div class="feature-title">DSE與國際接軌</div>
+                    <div class="feature-desc">
+                        <strong>升學路徑多元化</strong><br>
+                        • DSE考試策略準備<br>
+                        • 海外名校申請指導<br>
+                        • 本地與國際雙重選擇
+                    </div>
+                </div>
+
+                <div class="feature-card" style="background: linear-gradient(135deg, #fff 0%, #f5f0ff 100%);">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-title">科技創新中心</div>
+                    <div class="feature-desc">
+                        <strong>香港科技園合作</strong><br>
+                        • 前沿科技企業參訪<br>
+                        • 實習與mentorship機會<br>
+                        • 創業孵化支持
+                    </div>
+                </div>
+
+                <div class="feature-card" style="background: linear-gradient(135deg, #fff 0%, #fffacd 100%);">
+                    <div class="feature-icon">💼</div>
+                    <div class="feature-title">金融商業素養</div>
+                    <div class="feature-desc">
+                        <strong>國際金融中心優勢</strong><br>
+                        • 商業思維培養<br>
+                        • 金融市場模擬<br>
+                        • 創業與投資教育
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心课程模块 -->
+        <section class="section">
+            <h2 class="section-title">📚 六大核心課程模塊</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1rem;">
+                每個模塊都是跨學科、問題導向、項目制學習
+            </p>
+
+            <div class="module-grid">
+                <!-- 模块1 -->
+                <div class="module-card">
+                    <span class="module-number">1</span>
+                    <h3 class="module-title">🚀 火星計劃 Mars Project</h3>
+                    <div class="module-content">
+                        <strong>核心問題：</strong>
+                        如何在火星上建立人類殖民地？
+
+                        <strong>涉及學科：</strong>
+                        物理（重力、大氣壓力）、化學（生命維持系統）、工程（建築設計）、生物（植物栽培）、數學（資源計算）
+
+                        <strong>項目成果：</strong>
+                        • 設計火星基地3D模型<br>
+                        • 計算資源需求和成本<br>
+                        • 提出生命維持系統方案<br>
+                        • 團隊演示答辯
+
+                        <strong>學習時長：</strong>8-10週
+                    </div>
+                </div>
+
+                <!-- 模块2 -->
+                <div class="module-card">
+                    <span class="module-number">2</span>
+                    <h3 class="module-title">⚡ 能源革命 Energy Revolution</h3>
+                    <div class="module-content">
+                        <strong>核心問題：</strong>
+                        香港如何實現100%可再生能源？
+
+                        <strong>涉及學科：</strong>
+                        物理（能源轉換）、經濟（成本效益分析）、工程（太陽能/風能系統）、環境科學、政策研究
+
+                        <strong>項目成果：</strong>
+                        • 香港能源現狀調研報告<br>
+                        • 可再生能源方案設計<br>
+                        • 經濟可行性分析<br>
+                        • 政策建議書
+
+                        <strong>學習時長：</strong>6-8週
+                    </div>
+                </div>
+
+                <!-- 模块3 -->
+                <div class="module-card">
+                    <span class="module-number">3</span>
+                    <h3 class="module-title">🤖 AI倫理實驗室 AI Ethics Lab</h3>
+                    <div class="module-content">
+                        <strong>核心問題：</strong>
+                        當AI比人類更聰明時，人類應該如何自處？
+
+                        <strong>涉及學科：</strong>
+                        計算機科學（AI原理）、哲學（倫理學）、社會學、法律、心理學
+
+                        <strong>項目成果：</strong>
+                        • AI倫理案例分析<br>
+                        • 模擬辯論：AI權利問題<br>
+                        • 制定AI使用守則<br>
+                        • 撰寫立場論文
+
+                        <strong>學習時長：</strong>4-6週
+                    </div>
+                </div>
+
+                <!-- 模块4 -->
+                <div class="module-card">
+                    <span class="module-number">4</span>
+                    <h3 class="module-title">🏗️ 創客工坊 Maker Lab</h3>
+                    <div class="module-content">
+                        <strong>核心任務：</strong>
+                        從零開始設計並製作一個解決真實問題的設備
+
+                        <strong>可選項目：</strong>
+                        • 戰鬥機器人<br>
+                        • 氣象氣球與數據收集<br>
+                        • 智能家居系統<br>
+                        • 水下探測器
+
+                        <strong>技能培養：</strong>
+                        3D建模、編程、電子電路、機械設計、團隊協作
+
+                        <strong>學習時長：</strong>10-12週
+                    </div>
+                </div>
+
+                <!-- 模块5 -->
+                <div class="module-card">
+                    <span class="module-number">5</span>
+                    <h3 class="module-title">💰 商業模擬 Business Simulation</h3>
+                    <div class="module-content">
+                        <strong>核心任務：</strong>
+                        創立一家虛擬公司並運營一個學期
+
+                        <strong>涉及內容：</strong>
+                        • 市場調研與商業計劃<br>
+                        • 產品設計與開發<br>
+                        • 營銷與銷售策略<br>
+                        • 財務管理與投資決策<br>
+                        • 團隊管理與領導力
+
+                        <strong>最終比賽：</strong>
+                        投資人路演（Pitch Day）
+
+                        <strong>學習時長：</strong>全學期
+                    </div>
+                </div>
+
+                <!-- 模块6 -->
+                <div class="module-card">
+                    <span class="module-number">6</span>
+                    <h3 class="module-title">🌍 全球挑戰 Global Challenges</h3>
+                    <div class="module-content">
+                        <strong>核心問題：</strong>
+                        選擇一個聯合國可持續發展目標(SDG)並提出解決方案
+
+                        <strong>可選議題：</strong>
+                        • 氣候變化<br>
+                        • 貧困與不平等<br>
+                        • 清潔水源<br>
+                        • 可持續城市
+
+                        <strong>項目成果：</strong>
+                        • 問題分析報告<br>
+                        • 創新解決方案<br>
+                        • 原型或試點計劃<br>
+                        • 影響力評估
+
+                        <strong>學習時長：</strong>8-10週
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 传统学校 vs 未来学校 -->
+        <section class="section">
+            <h2 class="section-title">⚔️ 傳統學校 vs 未來學校</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>對比維度</th>
+                        <th>傳統學校</th>
+                        <th>香港未來學校</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>教學方式</strong></td>
+                        <td>從工具（學科）出發</td>
+                        <td><span class="highlight">從問題出發</span> - 需要什麼學什麼</td>
+                    </tr>
+                    <tr>
+                        <td><strong>年級劃分</strong></td>
+                        <td>按年齡嚴格分班</td>
+                        <td><span class="highlight">按能力和興趣分組</span> - 彈性靈活</td>
+                    </tr>
+                    <tr>
+                        <td><strong>學習目標</strong></td>
+                        <td>應付考試、獲取分數</td>
+                        <td><span class="highlight">解決真實世界問題</span> - 培養能力</td>
+                    </tr>
+                    <tr>
+                        <td><strong>教師角色</strong></td>
+                        <td>知識傳授者</td>
+                        <td><span class="highlight">導師與引導者</span> - 實踐專家</td>
+                    </tr>
+                    <tr>
+                        <td><strong>班級規模</strong></td>
+                        <td>30-40人/班，師生比低</td>
+                        <td><span class="highlight">小班教學</span> - 高師生比，個性化關注</td>
+                    </tr>
+                    <tr>
+                        <td><strong>課程設置</strong></td>
+                        <td>固定課表、統一進度</td>
+                        <td><span class="highlight">個性化學習路徑</span> - 自主選擇</td>
+                    </tr>
+                    <tr>
+                        <td><strong>評估方式</strong></td>
+                        <td>標準化考試、打分數</td>
+                        <td><span class="highlight">項目成果展示</span> - 能力評估</td>
+                    </tr>
+                    <tr>
+                        <td><strong>學科整合</strong></td>
+                        <td>學科分離、各自為政</td>
+                        <td><span class="highlight">跨學科融合</span> - 知識整體化</td>
+                    </tr>
+                    <tr>
+                        <td><strong>思維訓練</strong></td>
+                        <td>記憶為主、應試技巧</td>
+                        <td><span class="highlight">批判性思維</span> - 第一原則推理</td>
+                    </tr>
+                    <tr>
+                        <td><strong>實踐機會</strong></td>
+                        <td>以理論為主</td>
+                        <td><span class="highlight">大量動手項目</span> - 從做中學</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 学习路径时间线 -->
+        <section class="section" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+            <h2 class="section-title">📅 學習路徑時間線</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1rem;">
+                從入學到畢業的完整成長路徑
+            </p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 style="color: #00d4ff; margin-bottom: 10px;">📍 第1-3個月：探索期</h3>
+                        <p><strong>目標：</strong>發現興趣、建立基礎</p>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li>完成個性化能力評估</li>
+                            <li>參與多個試探性項目</li>
+                            <li>學習基本工具使用（編程、3D建模等）</li>
+                            <li>適應項目制學習模式</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 style="color: #00d4ff; margin-bottom: 10px;">📍 第4-9個月：深化期</h3>
+                        <p><strong>目標：</strong>深入學習、培養專長</p>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li>選擇2-3個核心模塊深入學習</li>
+                            <li>完成至少1個大型項目</li>
+                            <li>參加創客工坊實踐</li>
+                            <li>開始個人研究課題</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 style="color: #00d4ff; margin-bottom: 10px;">📍 第10-18個月：專精期</h3>
+                        <p><strong>目標：</strong>建立專業能力</p>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li>在興趣領域達到進階水平</li>
+                            <li>領導或參與跨年齡項目團隊</li>
+                            <li>與行業專家mentor合作</li>
+                            <li>準備作品集</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 style="color: #00d4ff; margin-bottom: 10px;">📍 第19-24個月：突破期</h3>
+                        <p><strong>目標：</strong>創新與應用</p>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li>完成畢業項目（Capstone Project）</li>
+                            <li>參加國際競賽或發表研究</li>
+                            <li>企業實習或創業嘗試</li>
+                            <li>升學規劃與申請</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 招生信息 -->
+        <section class="section">
+            <h2 class="section-title">📋 招生信息</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍🎓</div>
+                    <div class="feature-title">招生對象</div>
+                    <div class="feature-desc">
+                        <strong>年齡範圍：</strong>7-16歲<br>
+                        <strong>不限年級：</strong>按能力分組<br>
+                        <strong>名額：</strong>每批次48名學生
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <div class="feature-title">申請要求</div>
+                    <div class="feature-desc">
+                        • 強烈的好奇心和學習熱情<br>
+                        • 願意挑戰和嘗試新事物<br>
+                        • 基本的中英文溝通能力<br>
+                        • 通過能力評估和面試
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-title">學費說明</div>
+                    <div class="feature-desc">
+                        <strong>學費：</strong>HK$180,000/年<br>
+                        <strong>獎學金：</strong>提供20%名額全額獎學金<br>
+                        <strong>包含：</strong>所有課程、材料、設備使用
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🏫</div>
+                    <div class="feature-title">校區位置</div>
+                    <div class="feature-desc">
+                        <strong>主校區：</strong>香港科學園<br>
+                        <strong>分校區：</strong>數碼港（計劃中）<br>
+                        <strong>合作基地：</strong>科技企業、大學實驗室
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 常见问题 -->
+        <section class="section" style="background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);">
+            <h2 class="section-title" style="color: #c0392b;">❓ 常見問題</h2>
+
+            <div style="max-width: 900px; margin: 0 auto;">
+                <div style="margin-bottom: 30px; padding: 25px; background: white; border-radius: 15px; border-left: 4px solid #e74c3c;">
+                    <h3 style="color: #c0392b; margin-bottom: 15px;">Q: 沒有年級，如何準備DSE考試？</h3>
+                    <p style="line-height: 1.8; color: #555;">
+                        <strong>A:</strong> 我們的課程涵蓋DSE所需的所有知識點，但以更深入、更實用的方式教學。學生可以在11-12年級選擇DSE備考track，我們會提供專門的考試策略培訓。歷史數據顯示，問題導向學習的學生在標準化考試中表現通常優於傳統教育學生。
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 30px; padding: 25px; background: white; border-radius: 15px; border-left: 4px solid #e74c3c;">
+                    <h3 style="color: #c0392b; margin-bottom: 15px;">Q: 如何評估學生的學習進度？</h3>
+                    <p style="line-height: 1.8; color: #555;">
+                        <strong>A:</strong> 我們不使用傳統的分數和排名。評估基於：<br>
+                        • 項目完成質量和創新性<br>
+                        • 解決問題的能力提升<br>
+                        • 團隊協作與領導力<br>
+                        • 自主學習和時間管理<br>
+                        每個學生都有詳細的能力發展檔案，家長可隨時查看。
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 30px; padding: 25px; background: white; border-radius: 15px; border-left: 4px solid #e74c3c;">
+                    <h3 style="color: #c0392b; margin-bottom: 15px;">Q: 升學出路如何？</h3>
+                    <p style="line-height: 1.8; color: #555;">
+                        <strong>A:</strong> 畢業生可選擇：<br>
+                        • 香港本地大學（通過DSE）<br>
+                        • 海外名校（美國、英國、加拿大等）<br>
+                        • 直接創業（我們提供孵化支持）<br>
+                        我們的作品集和項目經歷在海外大學申請中極具競爭力。
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 30px; padding: 25px; background: white; border-radius: 15px; border-left: 4px solid #e74c3c;">
+                    <h3 style="color: #c0392b; margin-bottom: 15px;">Q: 與Ad Astra有官方合作嗎？</h3>
+                    <p style="line-height: 1.8; color: #555;">
+                        <strong>A:</strong> 我們借鑒Ad Astra的教育理念和方法論，但是獨立運營的學校。我們的課程體系是基於馬斯克學校的核心原則，結合香港本地特色和需求設計的。我們與多位曾參與Ad Astra課程設計的教育專家保持交流。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2 style="color: #0f2027; font-size: 2.5rem; margin-bottom: 30px;">
+                準備好加入未來了嗎？
+            </h2>
+            <p style="color: #555; font-size: 1.2rem; margin-bottom: 40px;">
+                2025-2026學年招生已開放，名額有限，先到先得
+            </p>
+            <button class="cta-button" onclick="alert('🚀 申請功能即將開放！\n\n請通過以下方式聯繫我們：\n📧 Email: admissions@adastrahk.edu.hk\n📱 WhatsApp: +852 9XXX XXXX\n🏢 地址：香港科學園')">
+                🚀 立即申請
+            </button>
+            <p style="color: #666; margin-top: 30px; font-size: 1rem;">
+                💬 查詢詳情請聯繫我們 | 📅 校園開放日：每月首個週六
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <p style="font-size: 1.2rem; margin-bottom: 10px;">
+            <strong>香港未來學校 | Ad Astra HK</strong>
+        </p>
+        <p style="margin-bottom: 20px;">
+            Per Aspera Ad Astra - 歷經坎坷，終抵群星
+        </p>
+        <p style="font-size: 0.9rem; opacity: 0.8;">
+            © 2025 Ad Astra Hong Kong | 培養星際時代的人才
+        </p>
+    </footer>
+
+    <script>
+        // 简单的动画效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 滚动显示动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.section, .feature-card, .module-card').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'all 0.6s ease-out';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
