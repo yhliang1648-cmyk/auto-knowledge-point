@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能刷题助手 - 测试演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .error-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tab {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #e0e0e0;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding-top: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 智能刷题助手测试</h1>
+            <p style="color: #666; margin-top: 10px;">基于通义千问API的OCR识别 + AI判题演示</p>
+        </div>
+
+        <div class="test-section">
+            <h2 style="color: #667eea; margin-bottom: 20px;">📝 测试题目</h2>
+
+            <div style="margin-bottom: 20px;">
+                <span class="tab active" onclick="showTab('question1')">题目35 - 摩擦力实验</span>
+                <span class="tab" onclick="showTab('question2')">题目33 - 抛体运动</span>
+            </div>
+
+            <!-- 题目1 -->
+            <div id="question1" class="tab-content active">
+                <div class="question-box">
+                    <h3>题目35：探究滑动摩擦力大小</h3>
+                    <p style="margin-top: 10px; line-height: 1.6;">
+                        为了探究"滑动摩擦力大小与什么因素有关"，小明利用完全相同的两块木块A、B设计了如图所示的实验。
+                    </p>
+                    <p style="margin-top: 10px;">
+                        <strong>实验图示：</strong><br>
+                        甲图：F=0.2N（木块A在玻璃上）<br>
+                        乙图：F=0.6N（木块A在木板上）<br>
+                        丙图：F=1.2N（两个木块叠放在木板上）<br>
+                        丁图：F=1.2N（木块A侧放在木板上）
+                    </p>
+                    <p style="margin-top: 15px;"><strong>问题：</strong></p>
+                    <p>(1) 实验时用弹簧测力计必须沿<u>___水平___</u>方向拉着物块做匀速直线运动，此时滑动摩擦力的大小等于弹簧测力计的示数。</p>
+                    <p>(2) 图甲、乙两次实验说明：在压力相同时，接触面越粗糙，滑动摩擦力越<u>___大___</u>。</p>
+                    <p>(3) 比较图丙、丁两次实验，可得出结论：滑动摩擦力的大小与接触面积大小<u>___无关___</u>（选填"有关"或"无关"）。</p>
+                </div>
+
+                <button class="btn" onclick="testOCR('question1')">🔍 模拟OCR识别</button>
+                <button class="btn" onclick="testGrading('question1')">🤖 模拟AI判题</button>
+                <button class="btn" onclick="testGenerateQuestions('question1')">💡 生成类似练习题</button>
+
+                <div id="result1" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- 题目2 -->
+            <div id="question2" class="tab-content">
+                <div class="question-box">
+                    <h3>题目33：竖直抛体运动</h3>
+                    <p style="margin-top: 10px; line-height: 1.6;">
+                        竖直向上抛出一个重为2牛的物体（物体在空中运动时受到空气阻力与运动方向相反，大小不变），已知该物体在上升过程中所受的重力与空气阻力的合力是2.5牛。
+                    </p>
+                    <p style="margin-top: 15px;"><strong>问题：</strong></p>
+                    <p>(1) 它受到的空气阻力大小是多少？阻力的方向如何？</p>
+                    <p>(2) 该物体在下降过程中它所受的重力与空气阻力的合力大小是多少？合力的方向如何？</p>
+                    <p style="margin-top: 15px;"><strong>答案：</strong></p>
+                    <p>空气阻力等于F_合 - G = 2.5N - 2N = 0.5N，阻力方向竖直向下。</p>
+                    <p>合力大小：F = G - f = 2N - 0.5N = 1.5N，方向竖直向下。</p>
+                </div>
+
+                <button class="btn" onclick="testOCR('question2')">🔍 模拟OCR识别</button>
+                <button class="btn" onclick="testGrading('question2')">🤖 模拟AI判题</button>
+                <button class="btn" onclick="testGenerateQuestions('question2')">💡 生成类似练习题</button>
+
+                <div id="result2" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 style="color: #667eea; margin-bottom: 20px;">🔌 API配置状态</h2>
+            <p><strong>通义千问API密钥：</strong> <code>sk-e79b72b1a216405c89206aefe865139e</code></p>
+            <p style="margin-top: 10px;"><strong>API端点：</strong> <code>https://dashscope.aliyuncs.com</code></p>
+            <p style="margin-top: 10px;"><strong>使用模型：</strong></p>
+            <ul style="margin-left: 30px; margin-top: 5px;">
+                <li>OCR: qwen-vl-ocr-2025-08-28</li>
+                <li>判题: qwen-plus</li>
+                <li>出题: qwen-plus</li>
+            </ul>
+
+            <button class="btn" onclick="testAPIConnection()" style="margin-top: 15px;">🔗 测试API连接</button>
+            <div id="api-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 模拟OCR识别
+        function testOCR(questionId) {
+            const resultDiv = document.getElementById('result' + (questionId === 'question1' ? '1' : '2'));
+
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在进行OCR识别...</p></div>';
+            document.querySelector('.loading').style.display = 'block';
+
+            // 模拟API调用延迟
+            setTimeout(() => {
+                let ocrResult;
+
+                if (questionId === 'question1') {
+                    ocrResult = {
+                        text: `35. 为了探究"滑动摩擦力大小与什么因素有关"，小明利用完全相同的两块木块A、B设计了如图所示的实验。
+
+实验图示：
+甲图：F=0.2N（木块A在玻璃上）
+乙图：F=0.6N（木块A在木板上）
+丙图：F=1.2N（两个木块叠放在木板上）
+丁图：F=1.2N（木块A侧放在木板上）
+
+问题：
+(1) 实验时用弹簧测力计必须沿___水平___方向拉着物块做匀速直线运动
+(2) 图甲、乙两次实验说明：在压力相同时，接触面越粗糙，滑动摩擦力越___大___
+(3) 比较图丙、丁两次实验，可得出结论：滑动摩擦力的大小与接触面积大小___无关___`,
+                        boxes: [
+                            {x: 50, y: 100, width: 400, height: 30, text: "35. 为了探究..."},
+                            {x: 50, y: 150, width: 200, height: 25, text: "甲图：F=0.2N"},
+                            // ... 更多边界框
+                        ],
+                        confidence: 0.95
+                    };
+                } else {
+                    ocrResult = {
+                        text: `33. 竖直向上抛出一个重为2牛的物体（物体在空中运动时受到空气阻力与运动方向相反，大小不变），已知该物体在上升过程中所受的重力与空气阻力的合力是2.5牛。
+
+问题：
+(1) 它受到的空气阻力大小是多少？阻力的方向如何？
+(2) 该物体在下降过程中它所受的重力与空气阻力的合力大小是多少？合力的方向如何？
+
+答案：
+空气阻力等于 F_合 - G = 2.5N - 2N = 0.5N，阻力方向竖直向下
+合力大小：F = G - f = 2N - 0.5N = 1.5N，方向竖直向下`,
+                        boxes: [
+                            {x: 50, y: 100, width: 500, height: 30, text: "33. 竖直向上抛出..."}
+                        ],
+                        confidence: 0.92
+                    };
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="result-box">
+                        <h3>✅ OCR识别结果</h3>
+                        <p><strong>识别准确度：</strong> ${(ocrResult.confidence * 100).toFixed(1)}%</p>
+                        <p><strong>识别的文字：</strong></p>
+                        <pre>${ocrResult.text}</pre>
+                        <p style="margin-top: 10px;"><strong>检测到 ${ocrResult.boxes.length} 个文本区域</strong></p>
+                        <p style="color: #666; margin-top: 10px; font-size: 0.9rem;">
+                            💡 实际API调用：<code>qwen-vl-ocr-2025-08-28</code>
+                        </p>
+                    </div>
+                `;
+            }, 1500);
+        }
+
+        // 模拟AI判题
+        function testGrading(questionId) {
+            const resultDiv = document.getElementById('result' + (questionId === 'question1' ? '1' : '2'));
+
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>AI正在批改试卷...</p></div>';
+            document.querySelector('.loading').style.display = 'block';
+
+            setTimeout(() => {
+                let gradingResult;
+
+                if (questionId === 'question1') {
+                    gradingResult = {
+                        totalScore: 8,
+                        maxScore: 10,
+                        stepScores: [
+                            {step: "第(1)问", score: 2, maxScore: 3, comment: "答案正确但缺少"匀速"的强调"},
+                            {step: "第(2)问", score: 3, maxScore: 3, comment: "答案完全正确"},
+                            {step: "第(3)问", score: 3, maxScore: 4, comment: "结论正确，但未说明原因"}
+                        ],
+                        strengths: [
+                            "能够正确理解实验原理",
+                            "对照实验的变量控制理解准确",
+                            "答案简洁明了"
+                        ],
+                        errors: [
+                            {
+                                location: "第(1)问",
+                                type: "表述不完整",
+                                description: "只写了"水平"，未强调"匀速直线运动"的重要性",
+                                correction: "应完整表述为：必须沿水平方向拉着物块做匀速直线运动，这样弹簧测力计的拉力才等于摩擦力"
+                            },
+                            {
+                                location: "第(3)问",
+                                type: "分析不深入",
+                                description: "只给出了结论，未解释为什么无关",
+                                correction: "应说明：图丙和丁中压力相同、接触面粗糙程度相同，但接触面积不同（丙是正常放置，丁是侧放），测力计示数相同，说明摩擦力与接触面积无关"
+                            }
+                        ],
+                        weakKnowledgePoints: [
+                            {point: "实验操作规范性", severity: "medium", suggestion: "需要加强对实验操作细节的理解"},
+                            {point: "控制变量法", severity: "low", suggestion: "理解基本正确，需要深化分析能力"}
+                        ],
+                        overallComment: "整体掌握较好，能正确理解滑动摩擦力实验的基本原理和对照实验方法。建议加强实验操作细节的表述和实验结论的深入分析。"
+                    };
+                } else {
+                    gradingResult = {
+                        totalScore: 9,
+                        maxScore: 10,
+                        stepScores: [
+                            {step: "第(1)问 - 空气阻力大小", score: 2, maxScore: 2, comment: "计算正确"},
+                            {step: "第(1)问 - 阻力方向", score: 2, maxScore: 2, comment: "方向判断正确"},
+                            {step: "第(2)问 - 合力大小", score: 2, maxScore: 2, comment: "计算正确"},
+                            {step: "第(2)问 - 合力方向", score: 2, maxScore: 2, comment: "方向判断正确"},
+                            {step: "解题步骤", score: 1, maxScore: 2, comment: "步骤基本清晰，但缺少受力分析图"}
+                        ],
+                        strengths: [
+                            "力的合成与分解理解正确",
+                            "计算准确无误",
+                            "方向判断清晰"
+                        ],
+                        errors: [
+                            {
+                                location: "解题过程",
+                                type: "缺少图示",
+                                description: "未画出受力分析图",
+                                correction: "建议画出上升和下降两个过程的受力分析图，标明重力G、空气阻力f和合力F_合的方向"
+                            }
+                        ],
+                        weakKnowledgePoints: [
+                            {point: "受力分析图绘制", severity: "low", suggestion: "养成画受力分析图的习惯，有助于理清思路"},
+                            {point: "力的方向表述", severity: "low", suggestion: "可以更规范地表述力的方向"}
+                        ],
+                        overallComment: "解题思路清晰，计算准确，对力的合成理解透彻。唯一不足是缺少受力分析图，建议养成画图的好习惯，这样能更直观地分析问题。"
+                    };
+                }
+
+                const percentage = (gradingResult.totalScore / gradingResult.maxScore * 100).toFixed(1);
+
+                resultDiv.innerHTML = `
+                    <div class="result-box">
+                        <h2 style="text-align: center; color: #667eea;">AI判题结果</h2>
+                        <div style="text-align: center; margin: 20px 0;">
+                            <div style="font-size: 3rem; font-weight: bold; color: #4caf50;">
+                                ${gradingResult.totalScore}/${gradingResult.maxScore}
+                            </div>
+                            <div style="font-size: 1.5rem; color: #666;">
+                                ${percentage}%
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top: 20px;">📊 各步骤得分</h3>
+                        ${gradingResult.stepScores.map(step => `
+                            <div style="background: white; padding: 10px; margin: 10px 0; border-radius: 8px;">
+                                <strong>${step.step}:</strong> ${step.score}/${step.maxScore} 分
+                                <p style="color: #666; margin-top: 5px;">${step.comment}</p>
+                            </div>
+                        `).join('')}
+
+                        <h3 style="margin-top: 20px;">✅ 答题优点</h3>
+                        <ul style="margin-left: 30px;">
+                            ${gradingResult.strengths.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+
+                        <h3 style="margin-top: 20px;">❌ 错误分析</h3>
+                        ${gradingResult.errors.map(err => `
+                            <div style="background: #fff3cd; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #ffc107;">
+                                <strong>${err.location} - ${err.type}</strong>
+                                <p style="margin-top: 5px;">${err.description}</p>
+                                <p style="color: #27ae60; margin-top: 8px;">
+                                    <strong>✓ 正确做法：</strong>${err.correction}
+                                </p>
+                            </div>
+                        `).join('')}
+
+                        <h3 style="margin-top: 20px;">📌 薄弱知识点</h3>
+                        ${gradingResult.weakKnowledgePoints.map(wp => `
+                            <span style="display: inline-block; background: #ffeaa7; padding: 8px 15px; margin: 5px; border-radius: 20px;">
+                                ${wp.point} (${wp.severity})
+                            </span>
+                        `).join('')}
+
+                        <h3 style="margin-top: 20px;">💬 总体评语</h3>
+                        <p style="background: white; padding: 15px; border-radius: 8px;">
+                            ${gradingResult.overallComment}
+                        </p>
+
+                        <p style="color: #666; margin-top: 20px; font-size: 0.9rem;">
+                            💡 实际API调用：<code>qwen-plus</code>（温度=0.3，最大tokens=3000）
+                        </p>
+                    </div>
+                `;
+            }, 2000);
+        }
+
+        // 模拟生成练习题
+        function testGenerateQuestions(questionId) {
+            const resultDiv = document.getElementById('result' + (questionId === 'question1' ? '1' : '2'));
+
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>AI正在生成类似练习题...</p></div>';
+            document.querySelector('.loading').style.display = 'block';
+
+            setTimeout(() => {
+                let questions;
+
+                if (questionId === 'question1') {
+                    questions = [
+                        {
+                            id: "friction-001",
+                            knowledgePoint: "滑动摩擦力与压力的关系",
+                            difficulty: "easy",
+                            content: "在探究滑动摩擦力与压力关系的实验中，小华用弹簧测力计水平拉动木块在水平木板上做匀速直线运动，测得拉力为2N。当在木块上再放一个相同的木块时，用弹簧测力计拉动两个木块一起做匀速直线运动，此时测力计的示数最接近多少？",
+                            answer: "4N",
+                            solution: `分析：
+1. 第一次拉动一个木块时，摩擦力 f₁ = F₁ = 2N
+2. 根据 f = μN，此时 N₁ = G（一个木块的重力）
+3. 第二次叠放两个木块时，N₂ = 2G（两个木块的总重力）
+4. 接触面粗糙程度不变（μ相同）
+5. 因此 f₂ = μN₂ = μ(2G) = 2μG = 2f₁ = 2 × 2N = 4N
+
+答案：4N`,
+                            explanation: "滑动摩擦力的大小与压力成正比。在接触面粗糙程度不变的情况下，压力增大几倍，摩擦力也增大几倍。",
+                            hints: [
+                                "匀速直线运动时，拉力等于摩擦力",
+                                "摩擦力公式：f = μN",
+                                "叠放后压力变为原来的2倍"
+                            ]
+                        },
+                        {
+                            id: "friction-002",
+                            knowledgePoint: "控制变量法在摩擦力实验中的应用",
+                            difficulty: "medium",
+                            content: "如图所示，小明设计了四个实验来探究摩擦力。已知玻璃表面比木板表面光滑，木块A的底面积大于木块B的底面积。下列说法正确的是：\n\nA. 甲、乙对比说明摩擦力与接触面粗糙程度有关\nB. 乙、丙对比说明摩擦力与压力大小有关\nC. 丙、丁对比说明摩擦力与接触面积有关\nD. 甲、丁对比无法得出有效结论",
+                            options: ["A", "B", "C", "D"],
+                            answer: "A、B",
+                            solution: `分析各选项：
+
+A. 甲、乙对比：
+   - 压力相同（都是一个木块）
+   - 接触面积相同（同一木块）
+   - 接触面粗糙程度不同（玻璃vs木板）
+   - 符合控制变量法，可说明摩擦力与粗糙程度有关 ✓
+
+B. 乙、丙对比：
+   - 接触面粗糙程度相同（都在木板上）
+   - 接触面积相同（同一木块正常放置）
+   - 压力不同（一个木块vs两个木块）
+   - 符合控制变量法，可说明摩擦力与压力有关 ✓
+
+C. 丙、丁对比：
+   - 压力相同（都是两个木块）
+   - 接触面粗糙程度相同（都在木板上）
+   - 接触面积不同（正常放置vs侧放）
+   - 应该说明摩擦力与接触面积无关，而不是有关 ✗
+
+D. 甲、丁对比：
+   - 压力不同、接触面粗糙程度不同、接触面积也不同
+   - 同时改变多个变量，违反控制变量法 ✓
+
+答案：A、B`,
+                            explanation: "控制变量法要求：研究某一因素对结果的影响时，必须保持其他因素不变，只改变这一个因素。同时改变多个变量无法得出有效结论。",
+                            hints: [
+                                "控制变量法的核心：只改变一个变量",
+                                "对比实验要找出不同点和相同点",
+                                "摩擦力的三个影响因素：压力、粗糙程度、（不受接触面积影响）"
+                            ]
+                        }
+                    ];
+                } else {
+                    questions = [
+                        {
+                            id: "force-001",
+                            knowledgePoint: "力的合成与分解",
+                            difficulty: "easy",
+                            content: "一个物体重10N，受到竖直向上的8N的拉力，求物体所受合力的大小和方向。",
+                            answer: "2N，竖直向下",
+                            solution: `解：
+已知：重力 G = 10N（方向竖直向下）
+      拉力 F = 8N（方向竖直向上）
+
+求：合力 F_合 的大小和方向
+
+因为重力和拉力在同一直线上，方向相反，所以：
+F_合 = G - F = 10N - 8N = 2N
+
+方向：因为 G > F，所以合力方向与重力方向相同，即竖直向下
+
+答：物体所受合力大小为2N，方向竖直向下。`,
+                            explanation: "同一直线上的两个力合成时：方向相同则相加，方向相反则相减，合力方向与较大的力方向相同。",
+                            hints: [
+                                "先画出受力分析图",
+                                "判断两个力是同向还是反向",
+                                "同向相加，反向相减",
+                                "合力方向与较大的力方向相同"
+                            ]
+                        },
+                        {
+                            id: "force-002",
+                            knowledgePoint: "运动状态改变与受力分析",
+                            difficulty: "medium",
+                            content: "一个小球在空中运动，受到重力6N和空气阻力2N的作用。当小球向上运动时和向下运动时，它们的合力大小分别是多少？方向如何？",
+                            answer: "向上运动：8N，竖直向下；向下运动：4N，竖直向下",
+                            solution: `解：
+已知：重力 G = 6N（方向始终竖直向下）
+      空气阻力 f = 2N（方向与运动方向相反）
+
+(1) 小球向上运动时：
+受力分析：
+- 重力 G = 6N（竖直向下）
+- 空气阻力 f = 2N（竖直向下，与向上运动方向相反）
+
+合力：F_合 = G + f = 6N + 2N = 8N
+方向：竖直向下
+
+(2) 小球向下运动时：
+受力分析：
+- 重力 G = 6N（竖直向下）
+- 空气阻力 f = 2N（竖直向上，与向下运动方向相反）
+
+合力：F_合 = G - f = 6N - 2N = 4N
+方向：竖直向下
+
+答：向上运动时合力为8N，竖直向下；
+    向下运动时合力为4N，竖直向下。`,
+                            explanation: "空气阻力的方向始终与运动方向相反。物体向上运动时，重力和阻力都向下，同向相加；物体向下运动时，重力向下、阻力向上，反向相减。",
+                            hints: [
+                                "空气阻力方向与运动方向相反",
+                                "分别画出向上和向下运动的受力图",
+                                "注意判断重力和阻力的方向关系",
+                                "两种情况要分别计算"
+                            ]
+                        }
+                    ];
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="result-box">
+                        <h2 style="color: #667eea;">💡 针对性练习题（共${questions.length}题）</h2>
+                        <p style="color: #666; margin-bottom: 20px;">根据薄弱知识点智能生成</p>
+
+                        ${questions.map((q, index) => `
+                            <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h3>练习题 ${index + 1}</h3>
+                                    <span style="padding: 5px 15px; background: ${q.difficulty === 'easy' ? '#55efc4' : q.difficulty === 'medium' ? '#ffeaa7' : '#fab1a0'}; border-radius: 15px; font-size: 0.9rem; font-weight: bold;">
+                                        ${q.difficulty === 'easy' ? '简单' : q.difficulty === 'medium' ? '中等' : '困难'}
+                                    </span>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                    <strong>知识点：</strong>${q.knowledgePoint}
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <p style="white-space: pre-line;">${q.content}</p>
+                                </div>
+
+                                ${q.options ? `
+                                    <div style="margin-bottom: 15px;">
+                                        ${q.options.map(opt => `<p>${opt}</p>`).join('')}
+                                    </div>
+                                ` : ''}
+
+                                <button class="btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">
+                                    查看答案与解析
+                                </button>
+
+                                <div style="display: none; margin-top: 15px; background: #e8f5e9; padding: 15px; border-radius: 10px;">
+                                    <h4>答案：${q.answer}</h4>
+                                    <h4 style="margin-top: 15px;">解题步骤：</h4>
+                                    <pre style="background: #263238; color: #aed581; padding: 15px; border-radius: 10px; white-space: pre-wrap;">${q.solution}</pre>
+                                    <h4 style="margin-top: 15px;">知识点讲解：</h4>
+                                    <p>${q.explanation}</p>
+                                    ${q.hints ? `
+                                        <h4 style="margin-top: 15px;">提示：</h4>
+                                        <ul style="margin-left: 30px;">
+                                            ${q.hints.map(h => `<li>${h}</li>`).join('')}
+                                        </ul>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+
+                        <p style="color: #666; margin-top: 20px; font-size: 0.9rem;">
+                            💡 实际API调用：<code>qwen-plus</code>（温度=0.8，最大tokens=4000）
+                        </p>
+                    </div>
+                `;
+            }, 2500);
+        }
+
+        // 测试API连接
+        function testAPIConnection() {
+            const resultDiv = document.getElementById('api-result');
+
+            resultDiv.innerHTML = `
+                <div class="result-box" style="margin-top: 20px;">
+                    <h3>✅ API配置检查</h3>
+                    <p style="margin-top: 10px;"><strong>状态：</strong> <span style="color: #4caf50;">已配置</span></p>
+                    <p style="margin-top: 5px;"><strong>API密钥：</strong> sk-e79b72b1a216405c89206aefe865139e</p>
+                    <p style="margin-top: 5px;"><strong>端点：</strong> https://dashscope.aliyuncs.com</p>
+
+                    <h4 style="margin-top: 15px;">可用功能：</h4>
+                    <ul style="margin-left: 30px; margin-top: 10px;">
+                        <li>✅ OCR识别（qwen-vl-ocr-2025-08-28）</li>
+                        <li>✅ AI判题（qwen-plus）</li>
+                        <li>✅ 智能出题（qwen-plus）</li>
+                        <li>✅ 文本向量化（text-embedding-v3）</li>
+                    </ul>
+
+                    <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                        💡 注意：以上演示使用模拟数据。实际部署时，请确保网络能够访问通义千问API。
+                    </p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
