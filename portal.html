@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港AI教育平台 - 九大創新教育系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #2c3e50;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 粒子背景 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
+            50% { transform: translateY(-30px) translateX(20px); opacity: 0.8; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 头部 */
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        h1 {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 系统网格 */
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .system-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .system-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--card-color-1), var(--card-color-2));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .system-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .system-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            border-color: var(--card-color-1);
+        }
+
+        .system-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .system-card:hover .system-icon {
+            animation: spin 0.6s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg) scale(1); }
+            to { transform: rotate(360deg) scale(1.2); }
+        }
+
+        .system-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .system-subtitle {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .system-desc {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .system-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, var(--card-color-1), var(--card-color-2));
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .system-link {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--card-color-1), var(--card-color-2));
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .system-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 不同系统的颜色 */
+        .card-1 { --card-color-1: #3498db; --card-color-2: #2980b9; }
+        .card-2 { --card-color-1: #9b59b6; --card-color-2: #8e44ad; }
+        .card-3 { --card-color-1: #e74c3c; --card-color-2: #c0392b; }
+        .card-4 { --card-color-1: #1abc9c; --card-color-2: #16a085; }
+        .card-5 { --card-color-1: #f39c12; --card-color-2: #e67e22; }
+        .card-6 { --card-color-1: #34495e; --card-color-2: #2c3e50; }
+        .card-7 { --card-color-1: #16a085; --card-color-2: #1abc9c; }
+        .card-8 { --card-color-1: #c0392b; --card-color-2: #e74c3c; }
+        .card-9 { --card-color-1: #d35400; --card-color-2: #e67e22; }
+
+        .new-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(245, 87, 108, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            margin-top: 60px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        footer p {
+            color: #7f8c8d;
+            margin: 10px 0;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #764ba2;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .subtitle { font-size: 1.3rem; }
+            .tagline { font-size: 1rem; }
+            .systems-grid { grid-template-columns: 1fr; gap: 20px; }
+            .stats { gap: 20px; }
+            .stat-number { font-size: 2rem; }
+        }
+
+        /* 加载动画 */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- 头部 -->
+        <header class="fade-in">
+            <h1>🎓 香港AI教育平台</h1>
+            <div class="subtitle">九大創新教育系統 · 全方位AI學習體驗</div>
+            <p class="tagline">
+                整合 DSE 智能檢索、AI 課程、創客教育、科學探索、智能刷題、教材評估、開發工具、<br>
+                未來學校、管理哲學，為學生、教師、開發者、管理者提供完整的 AI 教育解決方案
+            </p>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">創新系統</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5+</div>
+                    <div class="stat-label">用戶群體</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">開源免費</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 系统网格 -->
+        <div class="systems-grid">
+            <!-- System 1: DSE RAG -->
+            <div class="system-card card-1 fade-in">
+                <div class="system-icon">🔍</div>
+                <h3 class="system-title">DSE 考題智能檢索</h3>
+                <p class="system-subtitle">RAG 技術驅動的智能搜索系統</p>
+                <p class="system-desc">
+                    基於檢索增強生成（RAG）技術的香港中學文憑試歷屆考題知識庫（2012-2025），支持語義搜索、AI 解答、智能分類。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">DSE考生</span>
+                    <span class="tag">教師</span>
+                    <span class="tag">RAG技術</span>
+                </div>
+                <a href="index.html" class="system-link">立即使用 →</a>
+            </div>
+
+            <!-- System 2: Stanford AI Course -->
+            <div class="system-card card-2 fade-in" style="animation-delay: 0.1s;">
+                <div class="system-icon">📚</div>
+                <h3 class="system-title">斯坦福AI課程（香港版）</h3>
+                <p class="system-subtitle">CS146S 改編 · 三級課程體系</p>
+                <p class="system-desc">
+                    基於斯坦福大學 CS146S 課程改編，分為小學（AI小創客）、初中（AI應用開發者）、高中（AI工程師）三個級別，系統學習 AI 開發。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">中小學生</span>
+                    <span class="tag">8-16週</span>
+                    <span class="tag">證書</span>
+                </div>
+                <a href="ai-course.html" class="system-link">查看課程 →</a>
+            </div>
+
+            <!-- System 3: AI Maker -->
+            <div class="system-card card-3 fade-in" style="animation-delay: 0.2s;">
+                <div class="system-icon">🚀</div>
+                <h3 class="system-title">AI創客小達人</h3>
+                <p class="system-subtitle">12週 PBL · 炫酷成果展示</p>
+                <p class="system-desc">
+                    項目制學習（PBL）課程，專為香港中小學生設計。視覺衝擊、即時反饋、遊戲化學習，12週打造 3-5 個可運行的 AI 應用。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">中小學生</span>
+                    <span class="tag">PBL</span>
+                    <span class="tag">作品集</span>
+                </div>
+                <a href="hk-ai-maker.html" class="system-link">開始學習 →</a>
+            </div>
+
+            <!-- System 4: Cognitive Explorer -->
+            <div class="system-card card-4 fade-in" style="animation-delay: 0.3s;">
+                <div class="system-icon">🌌</div>
+                <h3 class="system-title">認知邊界探索者</h3>
+                <p class="system-subtitle">科學史 AI 導師 · 認知突破</p>
+                <p class="system-desc">
+                    基於吳國盛《科學的歷程》，用 AI 技術重構科學史教育。時間卷軸學習、AI 歷史導師對話、思想實驗工坊，探索 2500 年認知演進。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">中學生-大學生</span>
+                    <span class="tag">55-67學時</span>
+                    <span class="tag">認知博物館</span>
+                </div>
+                <a href="cognitive-explorer.html" class="system-link">開始探索 →</a>
+            </div>
+
+            <!-- System 5: Exam Helper -->
+            <div class="system-card card-5 fade-in" style="animation-delay: 0.4s;">
+                <div class="system-icon">📸</div>
+                <h3 class="system-title">智能刷題助手</h3>
+                <p class="system-subtitle">拍照批改 · AI 出題 · 可視化講解</p>
+                <p class="system-desc">
+                    AI 驅動的個性化學習系統，支持拍照批改、知識診斷、智能出題、可視化講解。通義千問 API 集成，移動端 App 支持。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">所有學生</span>
+                    <span class="tag">OCR識別</span>
+                    <span class="tag">Web+App</span>
+                </div>
+                <a href="exam-helper.html" class="system-link">開始刷題 →</a>
+            </div>
+
+            <!-- System 6: Textbook Eval -->
+            <div class="system-card card-6 fade-in" style="animation-delay: 0.5s;">
+                <div class="system-icon">📖</div>
+                <h3 class="system-title">教材試卷評估系統</h3>
+                <p class="system-subtitle">AI 智能評估 · 考點覆蓋率分析</p>
+                <p class="system-desc">
+                    教師專用 AI 評估工具，上傳教材和試卷即可獲得考點覆蓋率、難度分析、適應性評估報告。自動 OCR、向量化、RAG 知識庫建設。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">教師</span>
+                    <span class="tag">教研人員</span>
+                    <span class="tag">評估報告</span>
+                </div>
+                <a href="textbook-eval.html" class="system-link">開始評估 →</a>
+            </div>
+
+            <!-- System 7: API Tester -->
+            <div class="system-card card-7 fade-in" style="animation-delay: 0.6s;">
+                <div class="system-icon">🧪</div>
+                <h3 class="system-title">API測試系統</h3>
+                <p class="system-subtitle">開發者工具 · 實時測試</p>
+                <p class="system-desc">
+                    支持測試各類 API 端點，實時顯示響應結果、請求歷史和性能統計。多方法支持（GET/POST/PUT/DELETE），JSON 語法高亮。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">開發者</span>
+                    <span class="tag">API調試</span>
+                    <span class="tag">性能監控</span>
+                </div>
+                <a href="api-tester.html" class="system-link">開始測試 →</a>
+            </div>
+
+            <!-- System 8: Future School -->
+            <div class="system-card card-8 fade-in" style="animation-delay: 0.7s;">
+                <div class="system-icon">🌟</div>
+                <h3 class="system-title">香港未來學校</h3>
+                <p class="system-subtitle">Ad Astra 模式 · 問題導向學習</p>
+                <p class="system-desc">
+                    參考埃隆·馬斯克 Ad Astra/Astra Nova 理念，打破年級制度、項目制教學、第一原則思維。6 大核心課程模塊，2 年制學習路徑。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">7-16歲</span>
+                    <span class="tag">2年制</span>
+                    <span class="tag">Capstone項目</span>
+                </div>
+                <a href="future-school.html" class="system-link">了解詳情 →</a>
+            </div>
+
+            <!-- System 9: Musk Workflow -->
+            <div class="system-card card-9 fade-in" style="animation-delay: 0.8s;">
+                <span class="new-badge">⭐ 最新</span>
+                <div class="system-icon">⚡</div>
+                <h3 class="system-title">馬斯克工作流系統</h3>
+                <p class="system-subtitle">第一性原理 · 五步算法 · Hardcore</p>
+                <p class="system-desc">
+                    深度拆解埃隆·馬斯克的成功算法，將管理哲學轉化為可執行的工作流程系統。四大維度：戰略選擇、技術突破、多公司管理、人才管理。
+                </p>
+                <div class="system-tags">
+                    <span class="tag">管理者</span>
+                    <span class="tag">創業者</span>
+                    <span class="tag">效率提升</span>
+                </div>
+                <a href="musk-workflow.html" class="system-link">立即體驗 →</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="fade-in" style="animation-delay: 0.9s;">
+            <p style="font-size: 1.2rem; color: #2c3e50; font-weight: 600; margin-bottom: 15px;">
+                🚀 讓我們一起用 AI 改變教育！
+            </p>
+            <p>© 2025 香港AI教育計劃 | 讓每個孩子都能擁抱AI時代</p>
+            <p style="margin-top: 15px;">
+                <a href="https://github.com/yhliang1648-cmyk/auto-knowledge-point" target="_blank">📁 GitHub 倉庫</a> ·
+                <a href="README.md">📖 項目文檔</a> ·
+                <a href="mailto:contact@example.com">📧 聯繫我們</a>
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                Powered by Cloudflare · 通義千問 · First Principles Thinking
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 生成粒子背景
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const numParticles = 50;
+
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = particle.style.height = (Math.random() * 8 + 2) + 'px';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            createParticles();
+
+            // 添加滚动动画
+            const cards = document.querySelectorAll('.system-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        };
+
+        // 点击卡片时的效果
+        document.querySelectorAll('.system-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'A') {
+                    const link = this.querySelector('.system-link');
+                    if (link) link.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

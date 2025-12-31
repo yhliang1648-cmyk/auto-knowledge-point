@@ -42,6 +42,14 @@
 
 ## 🌐 在線訪問
 
+### 🏠 平台入口
+
+| 項目 | 網址 | 說明 |
+|------|------|------|
+| **🎓 平台主頁** ⭐ | [portal.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/portal.html) | 九大系統統一入口 |
+
+### 📚 各系統直達
+
 | 項目 | 網址 | 說明 |
 |------|------|------|
 | **DSE RAG 系統** | [index.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/index.html) | DSE 考題智能搜索 |
@@ -850,6 +858,7 @@
 
 ```
 auto-knowledge-point/
+├── portal.html                      # 平台主頁（九大系統統一入口）⭐
 ├── index.html                       # DSE RAG 系統主頁
 ├── ai-course.html                   # 斯坦福AI課程展示頁
 ├── hk-ai-maker.html                 # AI創客小達人展示頁
