@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API測試系統 | 接口測試工具</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .section h2 {
+            color: #f5576c;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn-small {
+            padding: 8px 20px;
+            font-size: 0.9rem;
+        }
+
+        .method-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .method-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: #f5576c;
+        }
+
+        .result-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .response-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .json-viewer {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #f5576c;
+            border-bottom-color: #f5576c;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .history-list {
+            margin-top: 20px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .history-method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .method-get {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .method-post {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .method-put {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .method-delete {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .quick-apis {
+            margin-top: 20px;
+        }
+
+        .quick-api-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+        .quick-api-btn:hover {
+            background: #e9ecef;
+            border-color: #f5576c;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f5576c;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔌 API測試系統</h1>
+            <p class="subtitle">快速測試和驗證API接口 • 支持多種HTTP方法 • 實時響應分析</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Input -->
+            <div class="section">
+                <h2>📝 API請求配置</h2>
+
+                <!-- Method Selector -->
+                <div class="method-selector">
+                    <button class="method-btn active" data-method="GET" onclick="selectMethod('GET')">GET</button>
+                    <button class="method-btn" data-method="POST" onclick="selectMethod('POST')">POST</button>
+                    <button class="method-btn" data-method="PUT" onclick="selectMethod('PUT')">PUT</button>
+                    <button class="method-btn" data-method="DELETE" onclick="selectMethod('DELETE')">DELETE</button>
+                </div>
+
+                <!-- URL Input -->
+                <div class="form-group">
+                    <label for="apiUrl">API端點URL</label>
+                    <input type="text" id="apiUrl" placeholder="https://api.example.com/endpoint" value="http://localhost:8080/api/health">
+                </div>
+
+                <!-- Headers -->
+                <div class="form-group">
+                    <label for="headers">請求頭（Headers）</label>
+                    <textarea id="headers" rows="4" placeholder='{"Content-Type": "application/json", "Authorization": "Bearer token"}'>{
+  "Content-Type": "application/json"
+}</textarea>
+                </div>
+
+                <!-- Request Body -->
+                <div class="form-group" id="bodyGroup">
+                    <label for="requestBody">請求體（Body）</label>
+                    <textarea id="requestBody" rows="6" placeholder='{"key": "value"}'>{
+  "query": "測試查詢",
+  "limit": 10
+}</textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" onclick="sendRequest()">🚀 發送請求</button>
+                    <button class="btn btn-secondary btn-small" onclick="clearForm()">🗑️ 清空</button>
+                    <button class="btn btn-success btn-small" onclick="saveToHistory()">💾 保存</button>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>正在發送請求...</p>
+                </div>
+
+                <!-- Quick Test APIs -->
+                <div class="quick-apis">
+                    <h3 style="margin-bottom: 15px; color: #f5576c;">📌 快速測試</h3>
+                    <button class="quick-api-btn" onclick="loadQuickAPI('health')">
+                        <strong>健康檢查</strong><br>
+                        <span style="color: #666; font-size: 0.85rem;">GET http://localhost:8080/api/health</span>
+                    </button>
+                    <button class="quick-api-btn" onclick="loadQuickAPI('qwen')">
+                        <strong>通義千問API</strong><br>
+                        <span style="color: #666; font-size: 0.85rem;">POST https://dashscope.aliyuncs.com/.../chat/completions</span>
+                    </button>
+                    <button class="quick-api-btn" onclick="loadQuickAPI('github')">
+                        <strong>GitHub API</strong><br>
+                        <span style="color: #666; font-size: 0.85rem;">GET https://api.github.com/users/octocat</span>
+                    </button>
+                    <button class="quick-api-btn" onclick="loadQuickAPI('jsonplaceholder')">
+                        <strong>JSONPlaceholder</strong><br>
+                        <span style="color: #666; font-size: 0.85rem;">GET https://jsonplaceholder.typicode.com/posts/1</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Output -->
+            <div class="section">
+                <h2>📊 響應結果</h2>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchResultTab('response')">響應</button>
+                    <button class="tab" onclick="switchResultTab('headers')">響應頭</button>
+                    <button class="tab" onclick="switchResultTab('history')">歷史記錄</button>
+                    <button class="tab" onclick="switchResultTab('stats')">統計</button>
+                </div>
+
+                <!-- Response Tab -->
+                <div id="response-tab" class="tab-content active">
+                    <div id="responseContainer" class="result-container">
+                        <p style="color: #666; text-align: center; padding: 40px;">
+                            點擊"發送請求"開始測試API
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Headers Tab -->
+                <div id="headers-tab" class="tab-content">
+                    <div id="headersContainer" class="result-container">
+                        <p style="color: #666; text-align: center; padding: 40px;">
+                            發送請求後查看響應頭
+                        </p>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div id="history-tab" class="tab-content">
+                    <div id="historyList" class="history-list"></div>
+                </div>
+
+                <!-- Stats Tab -->
+                <div id="stats-tab" class="tab-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalRequests">0</div>
+                            <div class="stat-label">總請求數</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="successRate">0%</div>
+                            <div class="stat-label">成功率</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgResponseTime">0ms</div>
+                            <div class="stat-label">平均響應時間</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">API狀態監控</h3>
+                        <div id="apiStatusList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMethod = 'GET';
+        let requestHistory = JSON.parse(localStorage.getItem('apiTestHistory') || '[]');
+        let stats = JSON.parse(localStorage.getItem('apiTestStats') || '{"total": 0, "success": 0, "times": []}');
+
+        // Select Method
+        function selectMethod(method) {
+            currentMethod = method;
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.method === method);
+            });
+
+            // Show/hide body for GET/DELETE
+            const bodyGroup = document.getElementById('bodyGroup');
+            bodyGroup.style.display = (method === 'GET' || method === 'DELETE') ? 'none' : 'block';
+        }
+
+        // Send Request
+        async function sendRequest() {
+            const url = document.getElementById('apiUrl').value.trim();
+            if (!url) {
+                alert('請輸入API URL');
+                return;
+            }
+
+            // Parse headers
+            let headers = {};
+            try {
+                const headersText = document.getElementById('headers').value.trim();
+                if (headersText) {
+                    headers = JSON.parse(headersText);
+                }
+            } catch (e) {
+                alert('請求頭格式錯誤，請使用有效的JSON格式');
+                return;
+            }
+
+            // Parse body
+            let body = null;
+            if (currentMethod !== 'GET' && currentMethod !== 'DELETE') {
+                const bodyText = document.getElementById('requestBody').value.trim();
+                if (bodyText) {
+                    try {
+                        body = JSON.parse(bodyText);
+                    } catch (e) {
+                        alert('請求體格式錯誤，請使用有效的JSON格式');
+                        return;
+                    }
+                }
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+
+            const startTime = Date.now();
+
+            try {
+                const options = {
+                    method: currentMethod,
+                    headers: headers
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(url, options);
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+
+                // Parse response
+                const contentType = response.headers.get('content-type');
+                let responseData;
+                let isJSON = false;
+
+                if (contentType && contentType.includes('application/json')) {
+                    responseData = await response.json();
+                    isJSON = true;
+                } else {
+                    responseData = await response.text();
+                }
+
+                // Display result
+                displayResponse(response, responseData, responseTime, isJSON);
+
+                // Display headers
+                displayResponseHeaders(response.headers);
+
+                // Update stats
+                updateStats(response.ok, responseTime);
+
+                // Save to history
+                addToHistory({
+                    method: currentMethod,
+                    url,
+                    status: response.status,
+                    time: responseTime,
+                    timestamp: new Date().toISOString()
+                });
+
+            } catch (error) {
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+
+                displayError(error, responseTime);
+                updateStats(false, responseTime);
+
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Display Response
+        function displayResponse(response, data, responseTime, isJSON) {
+            const status = response.status;
+            const statusClass = response.ok ? 'status-success' : 'status-error';
+
+            let dataHTML;
+            if (isJSON) {
+                dataHTML = `<pre class="json-viewer">${JSON.stringify(data, null, 2)}</pre>`;
+            } else {
+                dataHTML = `<pre class="json-viewer">${data}</pre>`;
+            }
+
+            const html = `
+                <div class="result-header">
+                    <div>
+                        <span class="status-badge ${statusClass}">
+                            ${status} ${response.statusText}
+                        </span>
+                    </div>
+                    <div class="response-time">
+                        ⏱️ ${responseTime}ms
+                    </div>
+                </div>
+                ${dataHTML}
+            `;
+
+            document.getElementById('responseContainer').innerHTML = html;
+        }
+
+        // Display Response Headers
+        function displayResponseHeaders(headers) {
+            const headersObj = {};
+            headers.forEach((value, key) => {
+                headersObj[key] = value;
+            });
+
+            const html = `
+                <pre class="json-viewer">${JSON.stringify(headersObj, null, 2)}</pre>
+            `;
+
+            document.getElementById('headersContainer').innerHTML = html;
+        }
+
+        // Display Error
+        function displayError(error, responseTime) {
+            const html = `
+                <div class="result-header">
+                    <div>
+                        <span class="status-badge status-error">
+                            錯誤
+                        </span>
+                    </div>
+                    <div class="response-time">
+                        ⏱️ ${responseTime}ms
+                    </div>
+                </div>
+                <div style="padding: 20px; background: #f8d7da; border-radius: 10px; color: #721c24;">
+                    <strong>❌ 請求失敗</strong>
+                    <p style="margin-top: 10px;">${error.message}</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">
+                        可能的原因：<br>
+                        • 網絡連接問題<br>
+                        • CORS跨域限制<br>
+                        • API端點不存在<br>
+                        • 請求參數錯誤
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('responseContainer').innerHTML = html;
+        }
+
+        // Update Stats
+        function updateStats(success, responseTime) {
+            stats.total++;
+            if (success) stats.success++;
+            stats.times.push(responseTime);
+
+            // Keep only last 100 response times
+            if (stats.times.length > 100) {
+                stats.times = stats.times.slice(-100);
+            }
+
+            localStorage.setItem('apiTestStats', JSON.stringify(stats));
+
+            // Update display
+            document.getElementById('totalRequests').textContent = stats.total;
+            document.getElementById('successRate').textContent =
+                ((stats.success / stats.total * 100) || 0).toFixed(1) + '%';
+            document.getElementById('avgResponseTime').textContent =
+                Math.round(stats.times.reduce((a, b) => a + b, 0) / stats.times.length || 0) + 'ms';
+        }
+
+        // Add to History
+        function addToHistory(item) {
+            requestHistory.unshift(item);
+            if (requestHistory.length > 50) {
+                requestHistory = requestHistory.slice(0, 50);
+            }
+            localStorage.setItem('apiTestHistory', JSON.stringify(requestHistory));
+            displayHistory();
+        }
+
+        // Display History
+        function displayHistory() {
+            const html = requestHistory.map((item, index) => `
+                <div class="history-item" onclick="loadFromHistory(${index})">
+                    <span class="history-method method-${item.method.toLowerCase()}">${item.method}</span>
+                    <strong>${item.url}</strong><br>
+                    <span style="color: #666; font-size: 0.85rem;">
+                        ${item.status} • ${item.time}ms • ${new Date(item.timestamp).toLocaleString()}
+                    </span>
+                </div>
+            `).join('');
+
+            document.getElementById('historyList').innerHTML = html ||
+                '<p style="color: #666; text-align: center; padding: 40px;">暫無歷史記錄</p>';
+        }
+
+        // Load from History
+        function loadFromHistory(index) {
+            const item = requestHistory[index];
+            document.getElementById('apiUrl').value = item.url;
+            selectMethod(item.method);
+
+            // Switch to response tab
+            switchResultTab('response');
+        }
+
+        // Switch Result Tab
+        function switchResultTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            if (tabName === 'history') {
+                displayHistory();
+            } else if (tabName === 'stats') {
+                updateStatsDisplay();
+            }
+        }
+
+        // Update Stats Display
+        function updateStatsDisplay() {
+            // API Status List
+            const apis = [
+                {name: 'Local Health API', url: 'http://localhost:8080/api/health', status: 'unknown'},
+                {name: '通義千問API', url: 'https://dashscope.aliyuncs.com', status: 'unknown'},
+                {name: 'GitHub API', url: 'https://api.github.com', status: 'unknown'},
+            ];
+
+            const html = apis.map(api => `
+                <div class="history-item" style="cursor: default;">
+                    <strong>${api.name}</strong><br>
+                    <span style="color: #666; font-size: 0.85rem;">${api.url}</span><br>
+                    <button class="btn btn-small" onclick="testAPI('${api.url}')">測試連接</button>
+                </div>
+            `).join('');
+
+            document.getElementById('apiStatusList').innerHTML = html;
+        }
+
+        // Test API
+        async function testAPI(url) {
+            try {
+                const response = await fetch(url);
+                alert(`✅ ${url}\n狀態：${response.status} ${response.statusText}`);
+            } catch (error) {
+                alert(`❌ ${url}\n錯誤：${error.message}`);
+            }
+        }
+
+        // Load Quick API
+        function loadQuickAPI(type) {
+            const apis = {
+                health: {
+                    method: 'GET',
+                    url: 'http://localhost:8080/api/health',
+                    headers: '{"Content-Type": "application/json"}',
+                    body: ''
+                },
+                qwen: {
+                    method: 'POST',
+                    url: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+                    headers: '{\n  "Content-Type": "application/json",\n  "Authorization": "Bearer sk-e79b72b1a216405c89206aefe865139e"\n}',
+                    body: '{\n  "model": "qwen-plus",\n  "messages": [\n    {"role": "user", "content": "你好"}\n  ]\n}'
+                },
+                github: {
+                    method: 'GET',
+                    url: 'https://api.github.com/users/octocat',
+                    headers: '{"Accept": "application/json"}',
+                    body: ''
+                },
+                jsonplaceholder: {
+                    method: 'GET',
+                    url: 'https://jsonplaceholder.typicode.com/posts/1',
+                    headers: '{"Content-Type": "application/json"}',
+                    body: ''
+                }
+            };
+
+            const api = apis[type];
+            if (api) {
+                selectMethod(api.method);
+                document.getElementById('apiUrl').value = api.url;
+                document.getElementById('headers').value = api.headers;
+                document.getElementById('requestBody').value = api.body;
+            }
+        }
+
+        // Clear Form
+        function clearForm() {
+            document.getElementById('apiUrl').value = '';
+            document.getElementById('headers').value = '{\n  "Content-Type": "application/json"\n}';
+            document.getElementById('requestBody').value = '';
+        }
+
+        // Save to History
+        function saveToHistory() {
+            const url = document.getElementById('apiUrl').value.trim();
+            if (!url) {
+                alert('請先輸入API URL');
+                return;
+            }
+
+            const item = {
+                method: currentMethod,
+                url,
+                status: 0,
+                time: 0,
+                timestamp: new Date().toISOString()
+            };
+
+            addToHistory(item);
+            alert('已保存到歷史記錄');
+        }
+
+        // Initialize
+        displayHistory();
+        updateStatsDisplay();
+    </script>
+</body>
+</html>

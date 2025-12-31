@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教材試卷評估系統 | AI智能分析</title>
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 180, 219, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-area {
+            border: 3px dashed #00b4db;
+            border-radius: 15px;
+            padding: 60px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: rgba(0, 180, 219, 0.1);
+            border-color: #0083b0;
+        }
+
+        .upload-area.dragover {
+            background: rgba(0, 180, 219, 0.2);
+            border-color: #0083b0;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 180, 219, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+        }
+
+        .file-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .result-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .evaluation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .eval-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .eval-card h3 {
+            color: #00b4db;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .knowledge-points {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .point-item {
+            display: inline-block;
+            background: white;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .coverage-bar {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .coverage-fill {
+            background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+
+        .rag-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #00b4db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .match-indicator {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .match-high {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .match-medium {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .match-low {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .evaluation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 教材試卷評估系統</h1>
+            <p class="subtitle">AI智能分析 • RAG知識庫 • 考點評估 • 適應性分析</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('upload')">📤 上傳教材</button>
+            <button class="tab" onclick="switchTab('library')">📖 知識庫管理</button>
+            <button class="tab" onclick="switchTab('evaluate')">🔍 評估分析</button>
+            <button class="tab" onclick="switchTab('stats')">📊 統計報告</button>
+        </div>
+
+        <!-- Tab 1: Upload Textbooks -->
+        <div id="upload-tab" class="tab-content active">
+            <div class="section">
+                <h2 style="color: #00b4db; margin-bottom: 20px;">上傳教材或試卷</h2>
+
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📄</div>
+                    <h3>點擊或拖拽上傳文件</h3>
+                    <p>支持PDF、圖片、Word文檔</p>
+                    <p style="color: #666; margin-top: 10px;">建議：香港初中、高中教材，歷年DSE真題</p>
+                    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,image/*" multiple style="display:none" onchange="handleFileUpload(event)">
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">文件類型：</label>
+                    <select id="fileType" style="padding: 10px; border-radius: 10px; border: 2px solid #e0e0e0; font-size: 1rem; width: 100%; max-width: 300px;">
+                        <option value="textbook">教材</option>
+                        <option value="exam">歷年真題</option>
+                        <option value="practice">練習題</option>
+                        <option value="syllabus">考試大綱</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">年級/科目：</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="gradeLevel" style="padding: 10px; border-radius: 10px; border: 2px solid #e0e0e0; font-size: 1rem; flex: 1;">
+                            <option value="">選擇年級</option>
+                            <option value="junior1">中一</option>
+                            <option value="junior2">中二</option>
+                            <option value="junior3">中三</option>
+                            <option value="senior1">中四</option>
+                            <option value="senior2">中五</option>
+                            <option value="senior3">中六</option>
+                        </select>
+                        <select id="subject" style="padding: 10px; border-radius: 10px; border: 2px solid #e0e0e0; font-size: 1rem; flex: 1;">
+                            <option value="">選擇科目</option>
+                            <option value="chi">中國語文</option>
+                            <option value="eng">英國語文</option>
+                            <option value="math">數學</option>
+                            <option value="physics">物理</option>
+                            <option value="chemistry">化學</option>
+                            <option value="biology">生物</option>
+                            <option value="history">歷史</option>
+                            <option value="geography">地理</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="fileList" class="file-list hidden"></div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" id="processBtn" onclick="processFiles()" disabled>🤖 開始處理並建立RAG庫</button>
+                </div>
+            </div>
+
+            <div id="processingResults" class="hidden">
+                <div class="section">
+                    <h2 style="color: #00b4db; margin-bottom: 20px;">處理結果</h2>
+                    <div id="processingStatus"></div>
+                </div>
+            </div>
+
+            <div id="uploadLoading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>正在處理文件...</p>
+                <p style="color: #666; margin-top: 10px;">OCR識別 → 內容提取 → 知識點分析 → RAG向量化</p>
+            </div>
+        </div>
+
+        <!-- Tab 2: Library Management -->
+        <div id="library-tab" class="tab-content">
+            <div class="section">
+                <h2 style="color: #00b4db; margin-bottom: 20px;">RAG知識庫統計</h2>
+
+                <div class="rag-stats" id="ragStats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalDocs">156</div>
+                        <div class="stat-label">文檔總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPages">3,842</div>
+                        <div class="stat-label">總頁數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalVectors">45,231</div>
+                        <div class="stat-label">向量總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalKnowledge">892</div>
+                        <div class="stat-label">知識點數</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px; color: #00b4db;">已上傳文件列表</h3>
+                <div id="libraryList" style="margin-top: 20px;">
+                    <!-- 文件列表將在這裡動態生成 -->
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" onclick="refreshLibrary()">🔄 刷新知識庫</button>
+                    <button class="btn btn-secondary" onclick="exportLibrary()">📥 導出知識庫</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Evaluation -->
+        <div id="evaluate-tab" class="tab-content">
+            <div class="section">
+                <h2 style="color: #00b4db; margin-bottom: 20px;">新教材/試卷評估</h2>
+
+                <div class="upload-area" id="evalUploadArea" onclick="document.getElementById('evalFileInput').click()">
+                    <div class="upload-icon">📝</div>
+                    <h3>上傳需要評估的教材或試卷</h3>
+                    <p>系統將分析考點覆蓋率和適應性</p>
+                    <input type="file" id="evalFileInput" accept=".pdf,.doc,.docx,image/*" style="display:none" onchange="handleEvalFileUpload(event)">
+                </div>
+
+                <div id="evalFilePreview" class="hidden" style="margin-top: 20px;"></div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" id="evaluateBtn" onclick="performEvaluation()" disabled>🔍 開始評估</button>
+                </div>
+            </div>
+
+            <div id="evaluationResults" class="hidden">
+                <div class="section">
+                    <h2 style="color: #00b4db; margin-bottom: 20px;">評估報告</h2>
+
+                    <div class="score-display">
+                        <h3>綜合評分</h3>
+                        <div class="score-number" id="overallScore">--</div>
+                        <p>基於考點覆蓋率和適應性分析</p>
+                    </div>
+
+                    <div class="evaluation-grid">
+                        <div class="eval-card">
+                            <h3>📋 考點覆蓋率</h3>
+                            <div id="coverageAnalysis"></div>
+                        </div>
+
+                        <div class="eval-card">
+                            <h3>🎯 難度分佈</h3>
+                            <div id="difficultyAnalysis"></div>
+                        </div>
+
+                        <div class="eval-card">
+                            <h3>📊 知識點分析</h3>
+                            <div id="knowledgeAnalysis"></div>
+                        </div>
+
+                        <div class="eval-card">
+                            <h3>💡 適應性評估</h3>
+                            <div id="adaptabilityAnalysis"></div>
+                        </div>
+                    </div>
+
+                    <div class="section" style="margin-top: 30px;">
+                        <h3>🔍 詳細考點對比</h3>
+                        <div id="detailedComparison"></div>
+                    </div>
+
+                    <div class="section" style="margin-top: 30px;">
+                        <h3>💬 AI建議</h3>
+                        <div id="aiSuggestions"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="evalLoading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>AI正在評估中...</p>
+                <p style="color: #666; margin-top: 10px;">分析考點 → 對比大綱 → 生成報告</p>
+            </div>
+        </div>
+
+        <!-- Tab 4: Statistics -->
+        <div id="stats-tab" class="tab-content">
+            <div class="section">
+                <h2 style="color: #00b4db; margin-bottom: 20px;">統計報告</h2>
+
+                <div class="evaluation-grid">
+                    <div class="eval-card">
+                        <h3>📈 上傳趨勢</h3>
+                        <p style="color: #666; margin-top: 10px;">本週上傳：23份文檔</p>
+                        <p style="color: #666;">本月上傳：87份文檔</p>
+                    </div>
+
+                    <div class="eval-card">
+                        <h3>🏆 熱門科目</h3>
+                        <p style="color: #666; margin-top: 10px;">1. 數學（45份）</p>
+                        <p style="color: #666;">2. 物理（32份）</p>
+                        <p style="color: #666;">3. 化學（28份）</p>
+                    </div>
+
+                    <div class="eval-card">
+                        <h3>📊 評估次數</h3>
+                        <p style="color: #666; margin-top: 10px;">總評估：156次</p>
+                        <p style="color: #666;">平均評分：82.5分</p>
+                    </div>
+
+                    <div class="eval-card">
+                        <h3>💾 存儲使用</h3>
+                        <p style="color: #666; margin-top: 10px;">已使用：2.3GB</p>
+                        <p style="color: #666;">剩餘：7.7GB</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" onclick="generateReport()">📄 生成詳細報告</button>
+                    <button class="btn btn-secondary" onclick="exportStats()">📥 導出統計數據</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load ExamHelperAPI -->
+    <script src="exam-helper-api.js"></script>
+
+    <script>
+        // Initialize API
+        const api = new ExamHelperAPI('sk-e79b72b1a216405c89206aefe865139e');
+        let uploadedFiles = [];
+        let evalFile = null;
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            if (tabName === 'library') {
+                loadLibrary();
+            }
+        }
+
+        // Handle File Upload
+        function handleFileUpload(event) {
+            const files = Array.from(event.target.files);
+            uploadedFiles = uploadedFiles.concat(files);
+
+            displayFileList();
+            document.getElementById('processBtn').disabled = false;
+        }
+
+        // Display File List
+        function displayFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.classList.remove('hidden');
+
+            const html = uploadedFiles.map((file, index) => `
+                <div class="file-item">
+                    <div class="file-info">
+                        <span class="file-icon">📄</span>
+                        <div>
+                            <div><strong>${file.name}</strong></div>
+                            <div style="color: #666; font-size: 0.9rem;">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                    <span class="file-status status-pending">待處理</span>
+                </div>
+            `).join('');
+
+            fileList.innerHTML = html;
+        }
+
+        // Process Files
+        async function processFiles() {
+            document.getElementById('uploadLoading').classList.remove('hidden');
+            document.getElementById('processingResults').classList.remove('hidden');
+            document.getElementById('processBtn').disabled = true;
+
+            const fileType = document.getElementById('fileType').value;
+            const grade = document.getElementById('gradeLevel').value;
+            const subject = document.getElementById('subject').value;
+
+            try {
+                const results = [];
+
+                for (let i = 0; i < uploadedFiles.length; i++) {
+                    const file = uploadedFiles[i];
+
+                    // Update status
+                    updateFileStatus(i, 'processing', '處理中...');
+
+                    // Read file as base64
+                    const base64 = await fileToBase64(file);
+
+                    // OCR recognition
+                    const ocrResult = await api.performOCR(base64, fileType);
+
+                    // Extract knowledge points using AI
+                    const analysis = await analyzeContent(ocrResult.text, subject, grade);
+
+                    results.push({
+                        fileName: file.name,
+                        fileType,
+                        grade,
+                        subject,
+                        pages: analysis.pages || 1,
+                        knowledgePoints: analysis.knowledgePoints || [],
+                        topics: analysis.topics || []
+                    });
+
+                    // Update status
+                    updateFileStatus(i, 'completed', '已完成');
+
+                    // Delay to avoid API rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                // Display results
+                displayProcessingResults(results);
+
+                // Update RAG stats
+                updateRAGStats(results.length);
+
+            } catch (error) {
+                console.error('處理錯誤:', error);
+                alert('處理失敗：' + error.message);
+            } finally {
+                document.getElementById('uploadLoading').classList.add('hidden');
+                document.getElementById('processBtn').disabled = false;
+            }
+        }
+
+        // File to Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Update File Status
+        function updateFileStatus(index, status, text) {
+            const fileItems = document.querySelectorAll('.file-item');
+            if (fileItems[index]) {
+                const statusSpan = fileItems[index].querySelector('.file-status');
+                statusSpan.className = `file-status status-${status}`;
+                statusSpan.textContent = text;
+            }
+        }
+
+        // Analyze Content with AI
+        async function analyzeContent(text, subject, grade) {
+            const prompt = `請分析以下${subject}教材內容，提取知識點和主題：
+
+${text.substring(0, 2000)}
+
+請以JSON格式返回：
+{
+  "pages": 估計頁數,
+  "knowledgePoints": ["知識點1", "知識點2", ...],
+  "topics": ["主題1", "主題2", ...]
+}`;
+
+            const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer sk-e79b72b1a216405c89206aefe865139e'
+                },
+                body: JSON.stringify({
+                    model: 'qwen-plus',
+                    messages: [{role: 'user', content: prompt}],
+                    temperature: 0.3,
+                    response_format: {type: 'json_object'}
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('AI分析失敗');
+            }
+
+            const data = await response.json();
+            return JSON.parse(data.choices[0].message.content);
+        }
+
+        // Display Processing Results
+        function displayProcessingResults(results) {
+            const html = `
+                <div class="result-box">
+                    <h3>✅ 處理完成</h3>
+                    <p style="margin-top: 10px;"><strong>成功處理：</strong>${results.length} 份文檔</p>
+                    <p><strong>總頁數：</strong>${results.reduce((sum, r) => sum + r.pages, 0)} 頁</p>
+                    <p><strong>提取知識點：</strong>${results.reduce((sum, r) => sum + r.knowledgePoints.length, 0)} 個</p>
+
+                    <div class="knowledge-points">
+                        <strong>識別的知識點：</strong>
+                        ${results.flatMap(r => r.knowledgePoints).slice(0, 10).map(kp =>
+                            `<span class="point-item">${kp}</span>`
+                        ).join('')}
+                    </div>
+
+                    <p style="margin-top: 15px; color: #666;">
+                        💡 文檔已成功添加到RAG知識庫，可用於後續評估分析
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('processingStatus').innerHTML = html;
+        }
+
+        // Update RAG Stats
+        function updateRAGStats(newDocs) {
+            const totalDocs = parseInt(document.getElementById('totalDocs').textContent) + newDocs;
+            document.getElementById('totalDocs').textContent = totalDocs;
+        }
+
+        // Handle Evaluation File Upload
+        async function handleEvalFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            evalFile = file;
+
+            const preview = document.getElementById('evalFilePreview');
+            preview.classList.remove('hidden');
+            preview.innerHTML = `
+                <div class="file-item">
+                    <div class="file-info">
+                        <span class="file-icon">📝</span>
+                        <div>
+                            <div><strong>${file.name}</strong></div>
+                            <div style="color: #666; font-size: 0.9rem;">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('evaluateBtn').disabled = false;
+        }
+
+        // Perform Evaluation
+        async function performEvaluation() {
+            document.getElementById('evalLoading').classList.remove('hidden');
+            document.getElementById('evaluationResults').classList.remove('hidden');
+
+            try {
+                // Read file
+                const base64 = await fileToBase64(evalFile);
+
+                // OCR
+                const ocrResult = await api.performOCR(base64, 'exam');
+
+                // Analyze with AI
+                const evaluation = await evaluateTextbook(ocrResult.text);
+
+                // Display results
+                displayEvaluationResults(evaluation);
+
+            } catch (error) {
+                console.error('評估錯誤:', error);
+                alert('評估失敗：' + error.message);
+            } finally {
+                document.getElementById('evalLoading').classList.add('hidden');
+            }
+        }
+
+        // Evaluate Textbook
+        async function evaluateTextbook(text) {
+            const prompt = `你是一位專業的教育評估專家。請評估以下教材/試卷內容：
+
+${text.substring(0, 3000)}
+
+請提供以下評估（JSON格式）：
+{
+  "overallScore": 綜合評分(0-100),
+  "coverage": {
+    "rate": 覆蓋率百分比,
+    "coveredPoints": ["已覆蓋的考點"],
+    "missingPoints": ["缺失的考點"]
+  },
+  "difficulty": {
+    "easy": 簡單題百分比,
+    "medium": 中等題百分比,
+    "hard": 困難題百分比
+  },
+  "knowledgePoints": ["主要知識點"],
+  "adaptability": {
+    "score": 適應性評分(0-100),
+    "strengths": ["優點"],
+    "weaknesses": ["不足"]
+  },
+  "suggestions": ["改進建議"]
+}`;
+
+            const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer sk-e79b72b1a216405c89206aefe865139e'
+                },
+                body: JSON.stringify({
+                    model: 'qwen-plus',
+                    messages: [{role: 'user', content: prompt}],
+                    temperature: 0.5,
+                    max_tokens: 3000,
+                    response_format: {type: 'json_object'}
+                })
+            });
+
+            const data = await response.json();
+            return JSON.parse(data.choices[0].message.content);
+        }
+
+        // Display Evaluation Results
+        function displayEvaluationResults(evaluation) {
+            // Overall Score
+            document.getElementById('overallScore').textContent = evaluation.overallScore + '分';
+
+            // Coverage Analysis
+            document.getElementById('coverageAnalysis').innerHTML = `
+                <p><strong>覆蓋率：</strong>${evaluation.coverage.rate}%</p>
+                <div class="coverage-bar">
+                    <div class="coverage-fill" style="width: ${evaluation.coverage.rate}%">${evaluation.coverage.rate}%</div>
+                </div>
+                <p style="margin-top: 10px; color: #4caf50;">✅ 已覆蓋：${evaluation.coverage.coveredPoints.length} 個考點</p>
+                <p style="color: #f44336;">❌ 缺失：${evaluation.coverage.missingPoints.length} 個考點</p>
+            `;
+
+            // Difficulty Analysis
+            document.getElementById('difficultyAnalysis').innerHTML = `
+                <p><strong>簡單：</strong>${evaluation.difficulty.easy}%</p>
+                <div class="coverage-bar">
+                    <div class="coverage-fill" style="width: ${evaluation.difficulty.easy}%; background: #8bc34a">${evaluation.difficulty.easy}%</div>
+                </div>
+                <p style="margin-top: 10px;"><strong>中等：</strong>${evaluation.difficulty.medium}%</p>
+                <div class="coverage-bar">
+                    <div class="coverage-fill" style="width: ${evaluation.difficulty.medium}%; background: #ffc107">${evaluation.difficulty.medium}%</div>
+                </div>
+                <p style="margin-top: 10px;"><strong>困難：</strong>${evaluation.difficulty.hard}%</p>
+                <div class="coverage-bar">
+                    <div class="coverage-fill" style="width: ${evaluation.difficulty.hard}%; background: #f44336">${evaluation.difficulty.hard}%</div>
+                </div>
+            `;
+
+            // Knowledge Points
+            document.getElementById('knowledgeAnalysis').innerHTML = `
+                ${evaluation.knowledgePoints.map(kp =>
+                    `<span class="point-item">${kp}</span>`
+                ).join('')}
+            `;
+
+            // Adaptability
+            document.getElementById('adaptabilityAnalysis').innerHTML = `
+                <p><strong>適應性評分：</strong>${evaluation.adaptability.score}分</p>
+                <div class="coverage-bar">
+                    <div class="coverage-fill" style="width: ${evaluation.adaptability.score}%">${evaluation.adaptability.score}%</div>
+                </div>
+                <p style="margin-top: 10px; color: #4caf50;"><strong>優點：</strong></p>
+                <ul style="margin-left: 20px;">
+                    ${evaluation.adaptability.strengths.map(s => `<li>${s}</li>`).join('')}
+                </ul>
+                <p style="margin-top: 10px; color: #f44336;"><strong>不足：</strong></p>
+                <ul style="margin-left: 20px;">
+                    ${evaluation.adaptability.weaknesses.map(w => `<li>${w}</li>`).join('')}
+                </ul>
+            `;
+
+            // Detailed Comparison
+            document.getElementById('detailedComparison').innerHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>考點</th>
+                            <th>教材內容</th>
+                            <th>大綱要求</th>
+                            <th>匹配度</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${evaluation.coverage.coveredPoints.slice(0, 5).map(point => `
+                            <tr>
+                                <td>${point}</td>
+                                <td>已包含</td>
+                                <td>要求掌握</td>
+                                <td><span class="match-indicator match-high">高</span></td>
+                            </tr>
+                        `).join('')}
+                        ${evaluation.coverage.missingPoints.slice(0, 3).map(point => `
+                            <tr>
+                                <td>${point}</td>
+                                <td>未包含</td>
+                                <td>要求掌握</td>
+                                <td><span class="match-indicator match-low">低</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            // AI Suggestions
+            document.getElementById('aiSuggestions').innerHTML = `
+                <ul style="margin-left: 20px;">
+                    ${evaluation.suggestions.map(s => `<li style="margin-bottom: 10px;">${s}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // Load Library
+        function loadLibrary() {
+            // Mock data - 實際應從後端API獲取
+            const mockFiles = [
+                {name: '中四數學教材.pdf', type: '教材', grade: '中四', subject: '數學', pages: 342, date: '2024-12-15'},
+                {name: '2024 DSE數學試卷.pdf', type: '真題', grade: '中六', subject: '數學', pages: 28, date: '2024-12-10'},
+                {name: '物理力學專題.pdf', type: '教材', grade: '中五', subject: '物理', pages: 156, date: '2024-12-08'},
+            ];
+
+            const html = mockFiles.map(file => `
+                <div class="file-item">
+                    <div class="file-info">
+                        <span class="file-icon">📄</span>
+                        <div>
+                            <div><strong>${file.name}</strong></div>
+                            <div style="color: #666; font-size: 0.9rem;">
+                                ${file.type} • ${file.grade} • ${file.subject} • ${file.pages}頁 • ${file.date}
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" style="padding: 8px 20px; font-size: 0.9rem;" onclick="deleteFile('${file.name}')">刪除</button>
+                </div>
+            `).join('');
+
+            document.getElementById('libraryList').innerHTML = html || '<p style="color: #666;">暫無文件</p>';
+        }
+
+        // Helper Functions
+        function refreshLibrary() {
+            loadLibrary();
+            alert('知識庫已刷新');
+        }
+
+        function exportLibrary() {
+            alert('導出功能開發中...');
+        }
+
+        function deleteFile(fileName) {
+            if (confirm(`確定要刪除 ${fileName} 嗎？`)) {
+                alert('文件已刪除');
+                loadLibrary();
+            }
+        }
+
+        function generateReport() {
+            alert('報告生成功能開發中...');
+        }
+
+        function exportStats() {
+            alert('導出功能開發中...');
+        }
+
+        // Drag and Drop
+        ['uploadArea', 'evalUploadArea'].forEach(id => {
+            const area = document.getElementById(id);
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.remove('dragover'), false);
+            });
+
+            area.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (id === 'uploadArea') {
+                    document.getElementById('fileInput').files = files;
+                    handleFileUpload({target: {files}});
+                } else {
+                    document.getElementById('evalFileInput').files = files;
+                    handleEvalFileUpload({target: {files}});
+                }
+            }, false);
+        });
+    </script>
+</body>
+</html>

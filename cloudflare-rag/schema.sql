@@ -68,6 +68,24 @@ CREATE TABLE IF NOT EXISTS search_history (
 
 CREATE INDEX IF NOT EXISTS idx_created_at ON search_history(created_at);
 
+-- 教材和试卷表（用于教师上传的教材评估系统）
+CREATE TABLE IF NOT EXISTS textbooks (
+  id TEXT PRIMARY KEY,
+  file_name TEXT NOT NULL,
+  file_type TEXT NOT NULL,  -- textbook, exam, practice, syllabus
+  grade TEXT,  -- 初一、初二、初三、高一、高二、高三
+  subject TEXT,  -- 数学、物理、化学等
+  content TEXT NOT NULL,  -- 教材文本内容
+  knowledge_points TEXT,  -- JSON数组存储知识点
+  pages INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_textbook_type ON textbooks(file_type);
+CREATE INDEX IF NOT EXISTS idx_textbook_grade ON textbooks(grade);
+CREATE INDEX IF NOT EXISTS idx_textbook_subject ON textbooks(subject);
+
 -- 示例数据插入
 INSERT INTO questions (id, year, subject, subject_code, paper, number, content, keywords, difficulty, topic) VALUES
 ('2024-chi-1-1', 2024, '中國語文', 'chi', '試卷一', '1', '閱讀理解：分析文章主旨及作者寫作手法', '["閱讀理解", "主旨分析", "寫作手法"]', 'medium', '閱讀能力'),

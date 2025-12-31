@@ -35,6 +35,12 @@ export default {
         return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
+      } else if (path === '/api/textbook/upload' && request.method === 'POST') {
+        return await handleTextbookUpload(request, env, corsHeaders);
+      } else if (path === '/api/textbook/evaluate' && request.method === 'POST') {
+        return await handleTextbookEvaluate(request, env, corsHeaders);
+      } else if (path === '/api/textbook/list' && request.method === 'GET') {
+        return await handleTextbookList(request, env, corsHeaders);
       }
 
       return new Response('Not Found', { status: 404, headers: corsHeaders });
@@ -383,4 +389,169 @@ ${context}
 
   const data = await response.json();
   return data.choices[0].message.content;
+}
+
+/**
+ * 处理教材上传
+ */
+async function handleTextbookUpload(request, env, corsHeaders) {
+  try {
+    const { fileName, fileType, grade, subject, textContent, knowledgePoints } = await request.json();
+
+    if (!fileName || !textContent) {
+      return new Response(JSON.stringify({ error: '缺少必要参数' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 1. 生成文本的embedding向量
+    const embedding = await generateEmbedding(textContent.substring(0, 5000), env);
+
+    // 2. 存储到D1数据库
+    const textbookId = `textbook-${Date.now()}`;
+    await env.DB.prepare(`
+      INSERT INTO textbooks (id, file_name, file_type, grade, subject, content, knowledge_points, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).bind(
+      textbookId,
+      fileName,
+      fileType,
+      grade,
+      subject,
+      textContent.substring(0, 10000), // 存储前10000字符
+      JSON.stringify(knowledgePoints || [])
+    ).run();
+
+    // 3. 存储向量到Vectorize
+    await env.VECTORIZE.insert([{
+      id: textbookId,
+      values: embedding,
+      metadata: {
+        fileName,
+        fileType,
+        grade,
+        subject
+      }
+    }]);
+
+    return new Response(JSON.stringify({
+      success: true,
+      textbookId,
+      message: '教材上传成功'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('教材上传错误:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 处理教材评估
+ */
+async function handleTextbookEvaluate(request, env, corsHeaders) {
+  try {
+    const { textContent, subject, grade } = await request.json();
+
+    if (!textContent) {
+      return new Response(JSON.stringify({ error: '缺少教材内容' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 使用通义千问AI进行评估
+    const prompt = `你是一位专业的教育评估专家。请评估以下${subject}教材内容（${grade}年级）：
+
+${textContent.substring(0, 3000)}
+
+请提供以下评估（JSON格式）：
+{
+  "overallScore": 综合评分(0-100),
+  "coverage": {
+    "rate": 覆盖率百分比,
+    "coveredPoints": ["已覆盖的考点"],
+    "missingPoints": ["缺失的考点"]
+  },
+  "difficulty": {
+    "easy": 简单题百分比,
+    "medium": 中等题百分比,
+    "hard": 困难题百分比
+  },
+  "knowledgePoints": ["主要知识点"],
+  "adaptability": {
+    "score": 适应性评分(0-100),
+    "strengths": ["优点"],
+    "weaknesses": ["不足"]
+  },
+  "suggestions": ["改进建议"]
+}`;
+
+    const response = await fetch(`${env.QWEN_API_ENDPOINT}/compatible-mode/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.QWEN_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'qwen-plus',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.5,
+        max_tokens: 3000,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('AI评估失败');
+    }
+
+    const data = await response.json();
+    const evaluation = JSON.parse(data.choices[0].message.content);
+
+    return new Response(JSON.stringify(evaluation), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('教材评估错误:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 获取教材列表
+ */
+async function handleTextbookList(request, env, corsHeaders) {
+  try {
+    const { results } = await env.DB.prepare(`
+      SELECT id, file_name, file_type, grade, subject, created_at
+      FROM textbooks
+      ORDER BY created_at DESC
+      LIMIT 50
+    `).all();
+
+    return new Response(JSON.stringify({
+      textbooks: results,
+      total: results.length
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('获取教材列表错误:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
 }
