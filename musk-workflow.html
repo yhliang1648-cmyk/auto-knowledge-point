@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>馬斯克工作流 - Musk's Workflow System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 星空背景动画 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(231, 76, 60, 0.05) 100%);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #e74c3c;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            font-style: italic;
+        }
+
+        .quote-box {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(192, 57, 43, 0.15));
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+            border-left: 5px solid #e74c3c;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            font-style: italic;
+            color: #ecf0f1;
+        }
+
+        .quote-author {
+            text-align: right;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #e74c3c;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 50px 40px;
+            margin: 40px 0;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: #e74c3c;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .section-intro {
+            text-align: center;
+            font-size: 1.15rem;
+            color: #bdc3c7;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        /* 四大维度卡片 */
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .dimension-card {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+            padding: 35px;
+            border-radius: 15px;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dimension-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
+        }
+
+        .dimension-icon {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dimension-title {
+            font-size: 1.8rem;
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .dimension-desc {
+            color: #bdc3c7;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        /* 五步算法 */
+        .algorithm-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .step-card {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1));
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #3498db;
+            display: flex;
+            align-items: flex-start;
+            gap: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateX(10px);
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(41, 128, 185, 0.2));
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #3498db;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .step-content h3 {
+            font-size: 1.6rem;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .step-content p {
+            color: #bdc3c7;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .step-example {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 3px solid #2ecc71;
+        }
+
+        .step-example strong {
+            color: #2ecc71;
+        }
+
+        /* 工作流工具 */
+        .workflow-tool {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .tool-title {
+            font-size: 2rem;
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        .tool-button {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tool-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* 时间块管理 */
+        .time-block-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .day-block {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(231, 76, 60, 0.2);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .day-block:hover {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .day-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .day-project {
+            font-size: 0.95rem;
+            color: #bdc3c7;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* 瓶颈发现器 */
+        .bottleneck-finder {
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(243, 156, 18, 0.1));
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid rgba(241, 196, 15, 0.3);
+        }
+
+        .bottleneck-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(241, 196, 15, 0.3);
+            border-radius: 8px;
+            color: #ecf0f1;
+            font-size: 1.05rem;
+            margin: 15px 0;
+        }
+
+        .bottleneck-input:focus {
+            outline: none;
+            border-color: #f1c40f;
+        }
+
+        textarea.bottleneck-input {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        /* 第一性原理分析器 */
+        .first-principles {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.1));
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .principle-step {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .principle-step h4 {
+            color: #9b59b6;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        /* 成功案例 */
+        .case-study {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .case-title {
+            font-size: 1.6rem;
+            color: #2ecc71;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .case-content {
+            color: #bdc3c7;
+            line-height: 1.8;
+        }
+
+        .case-metric {
+            display: inline-block;
+            background: rgba(46, 204, 113, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 10px 10px 10px 0;
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        /* 对比表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bdc3c7;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .highlight {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .warning {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        /* 互动工具 */
+        .interactive-tool {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .tool-input-group {
+            margin: 20px 0;
+        }
+
+        .tool-label {
+            display: block;
+            color: #e74c3c;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .tool-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(231, 76, 60, 0.3);
+            border-radius: 8px;
+            color: #ecf0f1;
+            font-size: 1rem;
+        }
+
+        .tool-input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+
+        .tool-result {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1));
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid rgba(46, 204, 113, 0.3);
+            display: none;
+        }
+
+        .tool-result.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .subtitle { font-size: 1.2rem; }
+            .section-title { font-size: 2rem; }
+            .dimension-grid { grid-template-columns: 1fr; }
+            .time-block-grid { grid-template-columns: 1fr; }
+            .step-card { flex-direction: column; text-align: center; }
+            .step-number { min-width: auto; }
+        }
+
+        /* CTA 按钮 */
+        .cta-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(192, 57, 43, 0.15));
+            border-radius: 20px;
+            margin: 50px 0;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            color: #e74c3c;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 18px 50px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            margin: 10px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.5);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <!-- 头部 -->
+        <header>
+            <h1>⚡ 馬斯克工作流系統</h1>
+            <div class="subtitle">Musk's Workflow & Management System</div>
+            <div class="tagline">First Principles × Extreme Execution × Mission-Driven</div>
+        </header>
+
+        <!-- 马斯克名言 -->
+        <div class="quote-box">
+            "我對成功的定義很簡單：如果你早上醒來，迫不及待想去工作，那就是成功。<br>
+            我不是在追求舒適，我是在追求有意義的事情。如果這個過程很艱難，那也沒關係，因為這就是值得做的事情。"
+            <div class="quote-author">— 埃隆·馬斯克 (Elon Musk)</div>
+        </div>
+
+        <!-- 系统概述 -->
+        <div class="section">
+            <h2 class="section-title">🎯 系統概述</h2>
+            <p class="section-intro">
+                馬斯克能夠同時管理 Tesla、SpaceX、Neuralink、The Boring Company 和 X（Twitter），<br>
+                並在每個領域都取得突破性成就，源於一套<strong style="color: #e74c3c;">極其嚴苛且可複製的底層邏輯</strong>。<br><br>
+                本系統將他的「成功算法」拆解為 <strong style="color: #2ecc71;">戰略、技術、管理、人才</strong> 四大維度，<br>
+                幫助你構建屬於自己的「馬斯克操作系統」。
+            </p>
+        </div>
+
+        <!-- 四大维度 -->
+        <div class="section">
+            <h2 class="section-title">🚀 四大核心維度</h2>
+            <div class="dimension-grid">
+                <!-- 战略选择 -->
+                <div class="dimension-card" onclick="scrollToSection('strategy')">
+                    <div class="dimension-icon">🎯</div>
+                    <div class="dimension-title">戰略選擇</div>
+                    <div class="dimension-desc">
+                        <strong>第一性原理思維</strong><br>
+                        拒絕類比思維，將問題拆解到物理事實，從頭推演。<br><br>
+                        <strong>關鍵：</strong>選擇關乎人類未來且技術停滯的賽道
+                    </div>
+                </div>
+
+                <!-- 技术突破 -->
+                <div class="dimension-card" onclick="scrollToSection('technology')">
+                    <div class="dimension-icon">⚙️</div>
+                    <div class="dimension-title">技術突破</div>
+                    <div class="dimension-desc">
+                        <strong>五步算法 (The Algorithm)</strong><br>
+                        質疑需求 → 刪減 → 簡化 → 加速 → 自動化<br><br>
+                        <strong>關鍵：</strong>不要優化一個不該存在的東西
+                    </div>
+                </div>
+
+                <!-- 多公司管理 -->
+                <div class="dimension-card" onclick="scrollToSection('management')">
+                    <div class="dimension-icon">📊</div>
+                    <div class="dimension-title">多公司管理</div>
+                    <div class="dimension-desc">
+                        <strong>時間片 + 瓶頸驅動</strong><br>
+                        主題日管理，深度沉浸單一任務。<br><br>
+                        <strong>關鍵：</strong>找到最致命的瓶頸，親自駐場解決
+                    </div>
+                </div>
+
+                <!-- 人才管理 -->
+                <div class="dimension-card" onclick="scrollToSection('people')">
+                    <div class="dimension-icon">👥</div>
+                    <div class="dimension-title">人才管理</div>
+                    <div class="dimension-desc">
+                        <strong>Hardcore 文化</strong><br>
+                        只雇極客人才，使命感驅動，去官僚化。<br><br>
+                        <strong>關鍵：</strong>將軍親自衝鋒，以身作則
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第一性原理 -->
+        <div class="section" id="strategy">
+            <h2 class="section-title">🎯 維度一：戰略選擇 - 第一性原理</h2>
+            <p class="section-intro">
+                馬斯克最核心的思維武器是<strong style="color: #e74c3c;">第一性原理</strong>（First Principles Thinking）。<br>
+                他拒絕「類比思維」，而是將事物拆解到最基本的物理事實，再從頭推演。
+            </p>
+
+            <div class="first-principles">
+                <div class="principle-step">
+                    <h4>1️⃣ 打破成本天花板</h4>
+                    <p><strong>案例：SpaceX 火箭成本</strong></p>
+                    <p>❌ 傳統思維：「火箭就是貴，這是行業常識」</p>
+                    <p>✅ 第一性原理：</p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        <li>計算原材料成本（鋁、鋰、碳纖維）在商品市場的價格</li>
+                        <li>發現原材料僅為成品售價的 <strong style="color: #2ecc71;">2%</strong></li>
+                        <li>結論：通過垂直整合和自主研發，成本可降低 <strong style="color: #2ecc71;">10倍</strong></li>
+                    </ul>
+                    <div class="case-metric">結果：Falcon 9 成本降至 6200萬美元（行業平均 2-3億）</div>
+                </div>
+
+                <div class="principle-step">
+                    <h4>2️⃣ 電池成本革命</h4>
+                    <p><strong>案例：Tesla 電池組</strong></p>
+                    <p>❌ 傳統思維：「電池組 600美元/kWh，電動車太貴」</p>
+                    <p>✅ 第一性原理：</p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        <li>拆解電池組成：碳、鎳、鋁、鋼、聚合物</li>
+                        <li>倫敦金屬交易所價格：約 80美元/kWh</li>
+                        <li>結論：通過自產電池芯，可降至 <strong style="color: #2ecc71;">100美元/kWh</strong></li>
+                    </ul>
+                    <div class="case-metric">結果：2024年 Tesla 電池成本降至 139美元/kWh</div>
+                </div>
+
+                <div class="principle-step">
+                    <h4>3️⃣ 選擇賽道的兩個標準</h4>
+                    <p style="color: #bdc3c7;">
+                        1️⃣ <strong style="color: #e74c3c;">關乎人類未來</strong>：多行星文明（SpaceX）、可持續能源（Tesla）、腦機接口（Neuralink）<br>
+                        2️⃣ <strong style="color: #e74c3c;">技術停滯或低效</strong>：火箭回收、電動車、隧道挖掘
+                    </p>
+                </div>
+            </div>
+
+            <!-- 第一性原理分析器 -->
+            <div class="interactive-tool">
+                <h3 style="color: #9b59b6; font-size: 1.8rem; margin-bottom: 20px;">🧠 第一性原理分析器</h3>
+                <p style="color: #bdc3c7; margin-bottom: 20px;">輸入你的問題，系統將幫你從第一性原理角度分析</p>
+
+                <div class="tool-input-group">
+                    <label class="tool-label">你想解決的問題：</label>
+                    <input type="text" class="tool-input" id="problemInput" placeholder="例如：如何降低產品成本？">
+                </div>
+
+                <div class="tool-input-group">
+                    <label class="tool-label">當前的「常識」或限制：</label>
+                    <textarea class="tool-input" id="constraintInput" placeholder="例如：行業認為這個成本無法降低"></textarea>
+                </div>
+
+                <button class="tool-button" onclick="analyzeFirstPrinciples()">🚀 開始分析</button>
+
+                <div class="tool-result" id="principleResult">
+                    <h4 style="color: #2ecc71; font-size: 1.4rem; margin-bottom: 15px;">📊 第一性原理分析結果</h4>
+                    <div id="principleAnalysis"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 五步算法 -->
+        <div class="section" id="technology">
+            <h2 class="section-title">⚙️ 維度二：技術突破 - 五步算法</h2>
+            <p class="section-intro">
+                馬斯克不僅是 CEO，更是 Tesla 和 SpaceX 的<strong style="color: #e74c3c;">首席工程師</strong>。<br>
+                他在應對技術難點時，嚴格執行一套被稱為「算法」(The Algorithm) 的五步流程。
+            </p>
+
+            <div class="algorithm-steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>質疑所有需求</h3>
+                        <p>每一個需求都必須有<strong>明確的人負責</strong>，而不是源自「某個部門」。即便需求來自馬斯克本人，也可能是錯的。</p>
+                        <div class="step-example">
+                            <strong>案例：</strong>Tesla Model 3 生產線上，工程師說需要一個機器人來塗膠。馬斯克問：「誰說需要塗膠？」<br>
+                            結果發現：塗膠是為了防止某個零件鬆動，但那個零件根本不該存在。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>刪減流程或部件</h3>
+                        <p>如果你沒在後來<strong>不得不加回 10% 的東西</strong>，說明你刪得還不夠。</p>
+                        <div class="step-example">
+                            <strong>原則：</strong>「每個人都應該被要求刪掉至少 10% 的流程。如果你沒有被迫加回一些東西，就說明你刪得不夠狠。」<br>
+                            <strong>結果：</strong>Tesla 將零部件從 Model S 的 2000+ 件降至 Model 3 的 1000+ 件
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>簡化與優化</h3>
+                        <p>這是一個最常見的陷阱 —— <strong style="color: #e74c3c;">不要去優化一個根本不該存在的東西</strong>。</p>
+                        <div class="step-example">
+                            <strong>錯誤示範：</strong>花費大量時間優化一個複雜的焊接流程<br>
+                            <strong>正確做法：</strong>先問「為什麼需要焊接？能否用一體成型替代？」<br>
+                            <strong>案例：</strong>Tesla Cybertruck 的不銹鋼外殼，減少了 90% 的沖壓工序
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>加速迭代</h3>
+                        <p>在確保前三步正確後，<strong style="color: #2ecc71;">瘋狂提升循環速度</strong>。</p>
+                        <div class="step-example">
+                            <strong>SpaceX 案例：</strong><br>
+                            • Starship 原型機迭代速度：每 <strong>6-8週</strong> 一個版本<br>
+                            • 2019-2024：測試了 30+ 個原型，8次高空測試<br>
+                            • 對比：NASA SLS 火箭開發 <strong>15年</strong> 才首飛
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>自動化（最後一步）</h3>
+                        <p>這是<strong>最後一步</strong>。他在 Tesla Model 3 早期犯過「過度自動化」的錯。</p>
+                        <div class="step-example">
+                            <strong>教訓：</strong>2018 年 Model 3 「產能地獄」，因為過早自動化了錯誤的流程<br>
+                            <strong>覺悟：</strong>「人類被低估了。必須先讓人跑通流程，再讓機器接管。」<br>
+                            <strong>結果：</strong>馬斯克親自睡在工廠，重新設計生產線，3個月內產能提升 5倍
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 五步算法工具 -->
+            <div class="interactive-tool">
+                <h3 style="color: #3498db; font-size: 1.8rem; margin-bottom: 20px;">🔧 五步算法實踐工具</h3>
+                <p style="color: #bdc3c7; margin-bottom: 20px;">將你的項目或流程放入五步算法中進行優化</p>
+
+                <div class="tool-input-group">
+                    <label class="tool-label">項目/流程名稱：</label>
+                    <input type="text" class="tool-input" id="projectName" placeholder="例如：產品開發流程">
+                </div>
+
+                <div class="tool-input-group">
+                    <label class="tool-label">當前步驟或部件列表（每行一個）：</label>
+                    <textarea class="tool-input" id="currentSteps" placeholder="例如：&#10;1. 市場調研&#10;2. 需求分析&#10;3. 原型設計&#10;4. 測試&#10;5. 量產"></textarea>
+                </div>
+
+                <button class="tool-button" onclick="applyAlgorithm()">⚡ 應用五步算法</button>
+
+                <div class="tool-result" id="algorithmResult">
+                    <h4 style="color: #2ecc71; font-size: 1.4rem; margin-bottom: 15px;">✅ 優化建議</h4>
+                    <div id="algorithmAnalysis"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 多公司管理 -->
+        <div class="section" id="management">
+            <h2 class="section-title">📊 維度三：多公司管理 - 時間片與瓶頸驅動</h2>
+            <p class="section-intro">
+                一個人如何同時管理 Tesla、SpaceX、Neuralink、The Boring Company 和 X？<br>
+                答案是：<strong style="color: #e74c3c;">主題日管理 + 瓶頸驅動 + 極度透明</strong>
+            </p>
+
+            <!-- 时间块管理 -->
+            <div class="workflow-tool">
+                <div class="tool-header">
+                    <div class="tool-title">📅 主題日管理 (Theme Days)</div>
+                    <button class="tool-button" onclick="customizeSchedule()">自定義時間表</button>
+                </div>
+                <p style="color: #bdc3c7; margin-bottom: 20px;">
+                    馬斯克將一週的時間按「塊」劃分。這種<strong>單一任務的深度沉浸</strong>（Serial Tasking）比多任務並行更高效。
+                </p>
+
+                <div class="time-block-grid" id="timeBlocks">
+                    <div class="day-block">
+                        <div class="day-name">週一</div>
+                        <div class="day-project">🚀 SpaceX</div>
+                        <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">Starship 開發</div>
+                    </div>
+                    <div class="day-block">
+                        <div class="day-name">週二</div>
+                        <div class="day-project">🚀 SpaceX</div>
+                        <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">工程審查</div>
+                    </div>
+                    <div class="day-block">
+                        <div class="day-name">週三</div>
+                        <div class="day-project">🚗 Tesla</div>
+                        <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">生產優化</div>
+                    </div>
+                    <div class="day-block">
+                        <div class="day-name">週四</div>
+                        <div class="day-project">🚗 Tesla</div>
+                        <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">自動駕駛</div>
+                    </div>
+                    <div class="day-block">
+                        <div class="day-name">週五</div>
+                        <div class="day-project">🧠 Neuralink / 🔥 Boring</div>
+                        <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">技術突破</div>
+                    </div>
+                    <div class="day-block">
+                        <div class="day-name">週六</div>
+                        <div class="day-project">📱 X (Twitter)</div>
+                        <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">產品策略</div>
+                    </div>
+                    <div class="day-block">
+                        <div class="day-name">週日</div>
+                        <div class="day-project">💭 戰略思考</div>
+                        <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">長期規劃</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 瓶颈发现器 -->
+            <div class="bottleneck-finder">
+                <h3 style="color: #f1c40f; font-size: 1.8rem; margin-bottom: 15px;">🔍 瓶頸發現器</h3>
+                <p style="color: #bdc3c7; margin-bottom: 20px;">
+                    馬斯克不聽取常規業務彙報。他每週會<strong>跳過管理層</strong>，直接深入基層工程師中，<br>
+                    尋找當前公司最致命的技術或生產「瓶頸」，然後<strong>帶隊駐紮現場</strong>直到解決。
+                </p>
+
+                <div class="tool-input-group">
+                    <label class="tool-label">當前項目/公司：</label>
+                    <input type="text" class="bottleneck-input" id="bottleneckProject" placeholder="例如：產品開發">
+                </div>
+
+                <div class="tool-input-group">
+                    <label class="tool-label">描述當前面臨的最大障礙：</label>
+                    <textarea class="bottleneck-input" id="bottleneckDesc" placeholder="例如：交付速度慢、成本過高、質量不穩定..."></textarea>
+                </div>
+
+                <div class="tool-input-group">
+                    <label class="tool-label">這個問題影響了哪些關鍵指標？</label>
+                    <input type="text" class="bottleneck-input" id="bottleneckImpact" placeholder="例如：每週只能生產100台，目標是500台">
+                </div>
+
+                <button class="tool-button" onclick="findBottleneck()">🎯 識別瓶頸並制定行動計劃</button>
+
+                <div class="tool-result" id="bottleneckResult">
+                    <h4 style="color: #2ecc71; font-size: 1.4rem; margin-bottom: 15px;">🚨 瓶頸分析與行動方案</h4>
+                    <div id="bottleneckAnalysis"></div>
+                </div>
+            </div>
+
+            <!-- 极度透明与反馈 -->
+            <div class="case-study">
+                <div class="case-title">⚡ 極度透明與快速反饋回路</div>
+                <div class="case-content">
+                    <p><strong>核心原則：</strong>任何工程師發現問題，都可以直接發郵件給馬斯克。</p>
+                    <br>
+                    <p><strong>真實案例（2018 Model 3 產能地獄）：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>一位基層技術員發現電池組裝有瓶頸，直接郵件馬斯克</li>
+                        <li>馬斯克當天深夜到工廠，親自在生產線上觀察 6 小時</li>
+                        <li>發現問題：自動化設備故障率高，改為半手工</li>
+                        <li>3 天內重新設計流程，產能提升 40%</li>
+                    </ul>
+                    <br>
+                    <p><strong style="color: #e74c3c;">關鍵啟示：</strong>越級溝通極大縮短決策鏈路，將反饋時間從「幾週」降至「幾小時」。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人才管理 -->
+        <div class="section" id="people">
+            <h2 class="section-title">👥 維度四：人才管理 - Hardcore 文化</h2>
+            <p class="section-intro">
+                馬斯克對人才的要求極高，他的管理風格可以用<strong style="color: #e74c3c;">「Hardcore」</strong>來形容：<br>
+                極端自驅、使命認同、去官僚化、將軍衝鋒。
+            </p>
+
+            <!-- Hardcore 文化 -->
+            <div class="dimension-grid">
+                <div class="dimension-card">
+                    <div class="dimension-icon">🎯</div>
+                    <div class="dimension-title">篩選極客人才</div>
+                    <div class="dimension-desc">
+                        <strong>招聘標準：</strong><br>
+                        1️⃣ 極強自驅動力<br>
+                        2️⃣ 能在高壓下工作<br>
+                        3️⃣ 對目標有狂熱認同<br>
+                        4️⃣ 解決問題能力 > 學歷背景<br><br>
+                        <strong style="color: #2ecc71;">案例：</strong>SpaceX 早期員工平均年齡 26 歲，很多來自賽車、機器人競賽社團
+                    </div>
+                </div>
+
+                <div class="dimension-card">
+                    <div class="dimension-icon">🔥</div>
+                    <div class="dimension-title">以身作則</div>
+                    <div class="dimension-desc">
+                        <strong>將軍親自衝鋒：</strong><br>
+                        • 2008 年 Tesla 瀕臨破產，馬斯克睡在工廠<br>
+                        • 2018 年 Model 3 產能地獄，睡在生產線旁<br>
+                        • 2022 年收購 Twitter 後，睡在辦公室<br><br>
+                        <strong style="color: #2ecc71;">精神動能：</strong>這種行為能給團隊帶來巨大的士氣提升
+                    </div>
+                </div>
+
+                <div class="dimension-card">
+                    <div class="dimension-icon">⚡</div>
+                    <div class="dimension-title">去官僚化</div>
+                    <div class="dimension-desc">
+                        <strong>反對無效會議：</strong><br>
+                        • 如果員工在會上沒有貢獻，鼓勵直接離開<br>
+                        • 「這是在節省雙方的時間」<br>
+                        • 任何超過 6 人的會議都是浪費<br><br>
+                        <strong style="color: #2ecc71;">郵件政策：</strong>禁止使用「鏈式批准」，任何人可直接找決策者
+                    </div>
+                </div>
+
+                <div class="dimension-card">
+                    <div class="dimension-icon">🚀</div>
+                    <div class="dimension-title">使命感驅動</div>
+                    <div class="dimension-desc">
+                        <strong>為什麼而戰：</strong><br>
+                        • SpaceX：讓人類成為多行星物種<br>
+                        • Tesla：加速世界向可持續能源轉變<br>
+                        • Neuralink：解決腦部疾病，增強人類智能<br><br>
+                        <strong style="color: #2ecc71;">結果：</strong>員工願意接受更低薪資、更長工時，因為有意義
+                    </div>
+                </div>
+            </div>
+
+            <!-- 真实案例 -->
+            <div class="case-study">
+                <div class="case-title">💼 真實案例：Twitter 裁員 75%</div>
+                <div class="case-content">
+                    <p><strong>2022 年 10 月，</strong>馬斯克收購 Twitter（現 X）後，執行了史上最大規模的科技公司裁員：</p>
+                    <br>
+                    <p><strong>數據：</strong></p>
+                    <div class="case-metric">員工數從 7500 人降至 1500 人</div>
+                    <div class="case-metric">保留率：僅 20%</div>
+                    <div class="case-metric">離職率：75%</div>
+                    <br>
+                    <p><strong>策略：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>發送「Hardcore」郵件：要求員工承諾「長時間高強度工作」，否則離開並獲得遣散費</li>
+                        <li>只留下「極端自驅」且認同使命的工程師</li>
+                        <li>取消「永久遠程辦公」政策，要求回辦公室</li>
+                    </ul>
+                    <br>
+                    <p><strong style="color: #2ecc71;">結果（6個月後）：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>平台穩定性提升（宕機減少 90%）</li>
+                        <li>新功能迭代速度提升 5 倍</li>
+                        <li>運營成本降低 60%</li>
+                        <li>小團隊完成了大公司做不到的事</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 对比表 -->
+        <div class="section">
+            <h2 class="section-title">⚖️ 傳統管理 vs 馬斯克式管理</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>維度</th>
+                        <th>傳統管理方式</th>
+                        <th>馬斯克式管理</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>戰略選擇</strong></td>
+                        <td>跟隨行業趨勢，類比競爭對手</td>
+                        <td><span class="highlight">第一性原理，挑戰常識</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>技術決策</strong></td>
+                        <td>層層審批，風險規避</td>
+                        <td><span class="highlight">快速迭代，擁抱失敗</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>流程優化</strong></td>
+                        <td>優化現有流程</td>
+                        <td><span class="highlight">質疑流程必要性，大膽刪減</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>時間管理</strong></td>
+                        <td>多任務並行，碎片化</td>
+                        <td><span class="highlight">主題日，深度沉浸</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>問題發現</strong></td>
+                        <td>等待匯報，層級決策</td>
+                        <td><span class="highlight">親臨一線，瓶頸驅動</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>溝通機制</strong></td>
+                        <td>層級彙報，會議文化</td>
+                        <td><span class="highlight">越級溝通，極度透明</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>人才篩選</strong></td>
+                        <td>看學歷、背景、經驗</td>
+                        <td><span class="highlight">看解決問題能力、自驅力</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>領導風格</strong></td>
+                        <td>CEO 在辦公室決策</td>
+                        <td><span class="highlight">將軍睡在生產線，親自衝鋒</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>工作強度</strong></td>
+                        <td>Work-Life Balance</td>
+                        <td><span class="warning">Hardcore，每週 80-100 小時</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>動力來源</strong></td>
+                        <td>薪資、福利、職級</td>
+                        <td><span class="highlight">使命感、改變世界</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 技术协同 -->
+        <div class="section">
+            <h2 class="section-title">🔗 馬斯克的「操作系統」- 技術協同生態</h2>
+            <p class="section-intro">
+                馬斯克的公司之間<strong style="color: #e74c3c;">並非互不相關</strong>，而是一個圍繞<br>
+                <strong style="color: #2ecc71;">「未來能源與生命」</strong>的技術協同生態系統。
+            </p>
+
+            <div class="dimension-grid">
+                <div class="case-study">
+                    <div class="case-title">🔋 SpaceX ↔ Tesla：材料科學</div>
+                    <div class="case-content">
+                        <p><strong>協同點：</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>SpaceX 開發的耐高溫合金 → Tesla 電池外殼</li>
+                            <li>Tesla 電池技術 → SpaceX Starship 電力系統</li>
+                            <li>碳纖維複合材料研發共享</li>
+                        </ul>
+                        <div class="case-metric">成本降低：研發費用減少 30%</div>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <div class="case-title">🤖 Tesla ↔ Optimus：AI 與自動化</div>
+                    <div class="case-content">
+                        <p><strong>協同點：</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>Tesla FSD（全自動駕駛）AI → Optimus 機器人決策系統</li>
+                            <li>視覺識別算法共享</li>
+                            <li>Dojo 超級計算機訓練兩者的 AI 模型</li>
+                        </ul>
+                        <div class="case-metric">技術複用：AI 研發成本攤薄 50%</div>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <div class="case-title">🚇 Boring Company ↔ Tesla：隧道與交通</div>
+                    <div class="case-content">
+                        <p><strong>協同點：</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>Boring 隧道專為 Tesla 電動車設計（Vegas Loop）</li>
+                            <li>自動駕駛技術在地下隧道測試</li>
+                            <li>城市交通解決方案整合</li>
+                        </ul>
+                        <div class="case-metric">商業閉環：隧道建設 + 車輛運營</div>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <div class="case-title">🧠 Neuralink ↔ 全生態：數據與 AI</div>
+                    <div class="case-content">
+                        <p><strong>未來協同：</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>腦機接口數據 → 改進 Tesla AI 對人類行為的理解</li>
+                            <li>X (Twitter) 的語言模型 → Neuralink 語言解碼</li>
+                            <li>長期：人機融合，增強人類控制機器的能力</li>
+                        </ul>
+                        <div class="case-metric">願景：打造「人類-AI-機器」統一生態</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 如何复制马斯克的成功 -->
+        <div class="section">
+            <h2 class="section-title">🎯 如何複製馬斯克的成功算法？</h2>
+            <div class="algorithm-steps">
+                <div class="step-card">
+                    <div class="step-number">🎯</div>
+                    <div class="step-content">
+                        <h3>選擇你的賽道</h3>
+                        <p>問自己兩個問題：</p>
+                        <ul style="margin-left: 20px; color: #bdc3c7;">
+                            <li>這件事<strong>關乎人類/行業的未來</strong>嗎？</li>
+                            <li>這個領域<strong>技術停滯或效率低下</strong>嗎？</li>
+                        </ul>
+                        <p style="margin-top: 10px; color: #2ecc71;"><strong>如果兩個答案都是「是」，這就是值得All-in的賽道。</strong></p>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">🧠</div>
+                    <div class="step-content">
+                        <h3>掌握第一性原理</h3>
+                        <p>遇到問題時：</p>
+                        <ul style="margin-left: 20px; color: #bdc3c7;">
+                            <li>不要問「別人怎麼做」，而是問「<strong>物理上最基本的限制是什麼</strong>」</li>
+                            <li>拆解到原材料、能量、時間成本</li>
+                            <li>從基本事實重新構建解決方案</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">⚙️</div>
+                    <div class="step-content">
+                        <h3>執行五步算法</h3>
+                        <p>對你的產品/流程：</p>
+                        <ol style="margin-left: 20px; color: #bdc3c7;">
+                            <li>質疑每個需求的必要性</li>
+                            <li>刪減 10% 的流程或部件</li>
+                            <li>簡化剩下的東西（不要優化不該存在的）</li>
+                            <li>加速迭代速度</li>
+                            <li>最後才考慮自動化</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">📊</div>
+                    <div class="step-content">
+                        <h3>建立極速反饋回路</h3>
+                        <p>管理原則：</p>
+                        <ul style="margin-left: 20px; color: #bdc3c7;">
+                            <li>每週找到<strong>最致命的瓶頸</strong>，親自解決</li>
+                            <li>允許越級溝通，極度透明</li>
+                            <li>廢除無意義的會議和流程</li>
+                            <li>將反饋時間從「週」降至「小時」</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">🔥</div>
+                    <div class="step-content">
+                        <h3>打造 Hardcore 團隊</h3>
+                        <p>人才標準：</p>
+                        <ul style="margin-left: 20px; color: #bdc3c7;">
+                            <li>只招<strong>極端自驅、認同使命</strong>的人</li>
+                            <li>能力 > 學歷，解決問題 > 遵守流程</li>
+                            <li>以身作則，將軍親自衝鋒</li>
+                            <li>用使命感而非僅用薪資激勵團隊</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">⏰</div>
+                    <div class="step-content">
+                        <h3>採用主題日管理</h3>
+                        <p>時間分配：</p>
+                        <ul style="margin-left: 20px; color: #bdc3c7;">
+                            <li>不要多任務並行，用<strong>時間塊</strong>深度沉浸</li>
+                            <li>每天/每週聚焦一個項目或主題</li>
+                            <li>保留「戰略思考日」用於長期規劃</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <div class="cta-title">🚀 準備好構建你的「馬斯克操作系統」了嗎？</div>
+            <p style="color: #bdc3c7; font-size: 1.2rem; margin: 20px 0;">
+                從今天開始，用第一性原理思考，用五步算法執行，<br>
+                打造屬於你的 Hardcore 團隊，創造改變世界的產品。
+            </p>
+            <a href="#strategy" class="cta-button">📖 重新學習四大維度</a>
+            <a href="index.html" class="cta-button" style="background: linear-gradient(135deg, #3498db, #2980b9);">🏠 返回平台首頁</a>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2025 香港AI教育計劃 - 馬斯克工作流系統</p>
+            <p style="margin-top: 10px;">First Principles Thinking × The Algorithm × Hardcore Execution</p>
+            <p style="margin-top: 10px; font-style: italic;">"When something is important enough, you do it even if the odds are not in your favor." - Elon Musk</p>
+        </footer>
+    </div>
+
+    <script>
+        // 生成星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 150;
+
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = Math.random() * 3 + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 滚动到指定部分
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 第一性原理分析器
+        function analyzeFirstPrinciples() {
+            const problem = document.getElementById('problemInput').value;
+            const constraint = document.getElementById('constraintInput').value;
+
+            if (!problem || !constraint) {
+                alert('請填寫問題和限制條件！');
+                return;
+            }
+
+            const result = document.getElementById('principleResult');
+            const analysis = document.getElementById('principleAnalysis');
+
+            const analysisHTML = `
+                <div class="principle-step">
+                    <h4>🎯 問題拆解</h4>
+                    <p><strong>原始問題：</strong>${problem}</p>
+                    <p><strong>傳統限制：</strong>${constraint}</p>
+                </div>
+
+                <div class="principle-step">
+                    <h4>🔬 第一性原理分析</h4>
+                    <p><strong>步驟1：</strong>忽略所有行業「常識」和經驗</p>
+                    <p><strong>步驟2：</strong>將問題拆解到最基本的物理/經濟要素</p>
+                    <p style="margin-left: 20px; color: #bdc3c7;">
+                        • 涉及的原材料成本是多少？<br>
+                        • 物理上的最小能量/時間消耗是多少？<br>
+                        • 哪些步驟是絕對必要的？哪些是「約定俗成」？
+                    </p>
+                </div>
+
+                <div class="principle-step">
+                    <h4>💡 重新構建方案</h4>
+                    <p><strong>建議方向：</strong></p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        <li>計算該問題的「理論最低成本」（原材料+能源）</li>
+                        <li>找出當前方案與理論值的差距（通常是 5-10 倍）</li>
+                        <li>通過垂直整合、自主研發縮小差距</li>
+                        <li>挑戰每一個「不可能」的假設</li>
+                    </ul>
+                </div>
+
+                <div class="principle-step">
+                    <h4>🚀 行動計劃</h4>
+                    <p style="color: #2ecc71;"><strong>下一步：</strong></p>
+                    <ol style="margin-left: 20px; color: #bdc3c7;">
+                        <li>列出問題的所有「基本組成部分」</li>
+                        <li>計算每個部分的理論成本</li>
+                        <li>識別哪些中間商/流程可以繞過</li>
+                        <li>開始小規模測試新方案</li>
+                    </ol>
+                </div>
+            `;
+
+            analysis.innerHTML = analysisHTML;
+            result.classList.add('active');
+        }
+
+        // 五步算法应用
+        function applyAlgorithm() {
+            const projectName = document.getElementById('projectName').value;
+            const steps = document.getElementById('currentSteps').value;
+
+            if (!projectName || !steps) {
+                alert('請填寫項目名稱和當前步驟！');
+                return;
+            }
+
+            const stepList = steps.split('\n').filter(s => s.trim());
+            const result = document.getElementById('algorithmResult');
+            const analysis = document.getElementById('algorithmAnalysis');
+
+            let analysisHTML = `<h4 style="color: #3498db; margin-bottom: 15px;">項目：${projectName}</h4>`;
+
+            // 步骤1：质疑需求
+            analysisHTML += `
+                <div class="step-example">
+                    <strong>步驟 1️⃣：質疑所有需求</strong><br>
+                    <p style="margin-top: 10px;">對以下每個步驟，問自己：</p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        ${stepList.map(step => `<li>${step} → <strong style="color: #e74c3c;">為什麼需要這個步驟？誰提出的需求？</strong></li>`).join('')}
+                    </ul>
+                    <p style="margin-top: 10px; color: #2ecc71;"><strong>目標：</strong>找出至少 20% 不必要的需求</p>
+                </div>
+            `;
+
+            // 步骤2：删减
+            analysisHTML += `
+                <div class="step-example" style="margin-top: 15px;">
+                    <strong>步驟 2️⃣：刪減流程或部件</strong><br>
+                    <p style="margin-top: 10px; color: #f39c12;">⚠️ 目標：刪減至少 10% 的步驟</p>
+                    <p style="color: #bdc3c7;">建議刪減候選（需驗證）：</p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        ${stepList.slice(0, Math.max(1, Math.floor(stepList.length * 0.2))).map(step =>
+                            `<li>${step} → <strong style="color: #e74c3c;">可能可以刪除或合併</strong></li>`
+                        ).join('')}
+                    </ul>
+                    <p style="margin-top: 10px; color: #2ecc71;"><strong>記住：</strong>如果沒被迫加回 10%，說明刪得不夠！</p>
+                </div>
+            `;
+
+            // 步骤3：简化
+            analysisHTML += `
+                <div class="step-example" style="margin-top: 15px;">
+                    <strong>步驟 3️⃣：簡化與優化</strong><br>
+                    <p style="margin-top: 10px; color: #9b59b6;"><strong>關鍵原則：</strong>只優化確定需要的步驟</p>
+                    <p style="color: #bdc3c7;">對剩餘步驟，問：</p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        <li>能否用更簡單的方法實現？</li>
+                        <li>能否合併多個步驟？</li>
+                        <li>能否用一體成型替代多零件組裝？</li>
+                    </ul>
+                </div>
+            `;
+
+            // 步骤4：加速
+            analysisHTML += `
+                <div class="step-example" style="margin-top: 15px;">
+                    <strong>步驟 4️⃣：加速迭代</strong><br>
+                    <p style="margin-top: 10px; color: #2ecc71;"><strong>目標：</strong>將迭代週期縮短 50%</p>
+                    <p style="color: #bdc3c7;">具體行動：</p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        <li>當前週期：<strong>${stepList.length * 2}</strong> 天？ → 目標：<strong>${stepList.length}</strong> 天</li>
+                        <li>並行執行可並行的步驟</li>
+                        <li>縮短反饋回路（從週 → 天 → 小時）</li>
+                    </ul>
+                </div>
+            `;
+
+            // 步骤5：自动化
+            analysisHTML += `
+                <div class="step-example" style="margin-top: 15px;">
+                    <strong>步驟 5️⃣：自動化（最後一步！）</strong><br>
+                    <p style="margin-top: 10px; color: #e74c3c;"><strong>警告：</strong>只有在步驟 1-4 都完成後才考慮自動化</p>
+                    <p style="color: #bdc3c7;">候選自動化步驟：</p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        ${stepList.slice(-Math.max(1, Math.floor(stepList.length * 0.3))).map(step =>
+                            `<li>${step} → 可考慮自動化</li>`
+                        ).join('')}
+                    </ul>
+                    <p style="margin-top: 10px; color: #2ecc71;"><strong>記住：</strong>先讓人跑通流程，再讓機器接管</p>
+                </div>
+            `;
+
+            analysis.innerHTML = analysisHTML;
+            result.classList.add('active');
+        }
+
+        // 瓶颈发现器
+        function findBottleneck() {
+            const project = document.getElementById('bottleneckProject').value;
+            const desc = document.getElementById('bottleneckDesc').value;
+            const impact = document.getElementById('bottleneckImpact').value;
+
+            if (!project || !desc || !impact) {
+                alert('請填寫完整信息！');
+                return;
+            }
+
+            const result = document.getElementById('bottleneckResult');
+            const analysis = document.getElementById('bottleneckAnalysis');
+
+            const analysisHTML = `
+                <div class="principle-step">
+                    <h4>🎯 瓶頸識別</h4>
+                    <p><strong>項目：</strong>${project}</p>
+                    <p><strong>最大障礙：</strong>${desc}</p>
+                    <p><strong>關鍵指標影響：</strong>${impact}</p>
+                </div>
+
+                <div class="principle-step">
+                    <h4>🔍 根因分析</h4>
+                    <p><strong>問 5 個為什麼：</strong></p>
+                    <ol style="margin-left: 20px; color: #bdc3c7;">
+                        <li>為什麼會出現這個問題？（現象層）</li>
+                        <li>為什麼會有這個原因？（流程層）</li>
+                        <li>為什麼流程這樣設計？（系統層）</li>
+                        <li>為什麼系統沒有預防？（管理層）</li>
+                        <li>為什麼管理上沒有這個機制？（根因層）</li>
+                    </ol>
+                </div>
+
+                <div class="principle-step">
+                    <h4>🚀 馬斯克式行動方案</h4>
+                    <p style="color: #2ecc71;"><strong>立即執行（48小時內）：</strong></p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        <li><strong>1️⃣</strong> 親臨現場（不要聽彙報，親眼看瓶頸在哪）</li>
+                        <li><strong>2️⃣</strong> 找到基層執行者（跳過管理層，直接問工程師/工人）</li>
+                        <li><strong>3️⃣</strong> 駐紮現場（睡在工廠/辦公室，直到解決）</li>
+                        <li><strong>4️⃣</strong> 應用五步算法：質疑需求 → 刪減 → 簡化 → 加速 → 自動化</li>
+                        <li><strong>5️⃣</strong> 建立快速反饋回路（每小時檢查進度）</li>
+                    </ul>
+                </div>
+
+                <div class="principle-step">
+                    <h4>📊 成功指標</h4>
+                    <p><strong>如何知道瓶頸已解決：</strong></p>
+                    <ul style="margin-left: 20px; color: #bdc3c7;">
+                        <li>關鍵指標改善 <strong style="color: #2ecc71;">50%+</strong></li>
+                        <li>團隊不再抱怨這個問題</li>
+                        <li>新的瓶頸出現（說明這個已不是最大問題）</li>
+                    </ul>
+                    <p style="margin-top: 15px; color: #e74c3c;"><strong>⚠️ 警告：</strong>如果 1 週內沒有實質性改善，說明方法錯了，重新分析！</p>
+                </div>
+            `;
+
+            analysis.innerHTML = analysisHTML;
+            result.classList.add('active');
+        }
+
+        // 自定义时间表
+        function customizeSchedule() {
+            alert('功能開發中！\n\n未來將支持：\n• 自定義每日主題\n• 設置項目優先級\n• 時間塊分配建議\n• 與日曆系統整合');
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            createStars();
+        };
+    </script>
+</body>
+</html>
