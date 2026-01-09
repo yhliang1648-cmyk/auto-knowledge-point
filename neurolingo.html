@@ -1082,44 +1082,30 @@
             console.log('例句:', exampleSentence);
             console.log('圖片提示詞:', imagePrompt);
 
-            // 使用通义千问生成与例句场景完全匹配的图片
+            // 直接使用通义千问的多模态绘图API生成图片
+            // 不进行降级，确保图片与例句完全匹配
+            wordInfo.imageGenerating = true;
+            wordInfo.imagePromptUsed = imagePrompt;
+
+            console.log('🎨 開始生成AI圖片...');
+            console.log('圖片提示詞:', imagePrompt);
+
+            // 同步方式：直接等待图片生成
             try {
-                const imageUrl = await generateWordImage(imagePrompt);
+                const imageUrl = await generateWordImageSync(imagePrompt, chinesePart);
                 wordInfo.imageUrls = [imageUrl];
                 wordInfo.aiGeneratedImage = true;
-                wordInfo.imagePromptUsed = imagePrompt; // 保存使用的提示词，便于调试
                 console.log('✅ AI圖片生成成功:', imageUrl);
             } catch (error) {
                 console.error('❌ AI圖片生成失敗:', error);
-                console.log('原因:', error.message);
+                console.log('錯誤詳情:', error.message);
 
-                // 降级策略：使用Pexels API获取场景相关图片
-                // 提取中文场景关键词（从括号中的中文部分）
-                const sceneKeywords = extractSceneKeywords(chinesePart);
-                const timestamp = Date.now();
-                console.log('📸 使用場景關鍵詞降級:', sceneKeywords);
-                console.log('英文例句:', englishPart);
-                console.log('中文描述:', chinesePart);
-
-                // 尝试从Pexels获取场景图片
-                try {
-                    const pexelsImage = await fetchPexelsImage(sceneKeywords || word);
-                    wordInfo.imageUrls = [pexelsImage];
-                    console.log('✅ Pexels圖片獲取成功:', pexelsImage);
-                } catch (pexelsError) {
-                    console.error('Pexels also failed:', pexelsError);
-                    // 最终降级：使用随机但不同的图片
-                    wordInfo.imageUrls = [
-                        `https://picsum.photos/seed/${word}-${timestamp}/400/300`,
-                        `https://picsum.photos/seed/${sceneKeywords}-${timestamp}/400/300`,
-                        `https://picsum.photos/seed/${hash(chinesePart)}/400/300`
-                    ];
-                    console.log('⚠️ 使用隨機圖片作為最終降級');
-                }
-
+                // 不使用不相关的图片，而是显示占位符或者不显示
+                wordInfo.imageUrls = [];
                 wordInfo.aiGeneratedImage = false;
-                wordInfo.fallbackKeywords = sceneKeywords;
-                console.log('圖片URL:', wordInfo.imageUrls);
+                wordInfo.imageGenerationFailed = true;
+                wordInfo.errorMessage = error.message;
+                console.log('⚠️ 圖片生成失敗，不顯示不相關圖片');
             }
 
             // 生成GIF动画提示词 - 也基于例句场景
@@ -1142,79 +1128,122 @@
             return wordInfo;
         }
 
-        // 使用通义千问生成图片
-        async function generateWordImage(prompt, isAnimation = false) {
+        // 同步生成图片 - 直接调用通义千问，确保图片与例句匹配
+        async function generateWordImageSync(imagePrompt, chineseDescription) {
             const imageGenUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
+
+            // 增强提示词，确保与例句场景匹配
+            const enhancedPrompt = `${imagePrompt}. Scene description: ${chineseDescription}. Educational illustration style, clear and detailed.`;
+
+            console.log('📤 發送圖片生成請求...');
+            console.log('增強提示詞:', enhancedPrompt);
 
             const requestBody = {
                 model: 'wanx-v1',
                 input: {
-                    prompt: prompt,
-                    negative_prompt: 'blurry, low quality, text, watermark, abstract, unclear'
+                    prompt: enhancedPrompt,
+                    negative_prompt: 'blurry, low quality, text, watermark, abstract, unclear, unrelated'
                 },
                 parameters: {
-                    style: '<auto>',  // 自动风格，让AI选择最合适的风格展现场景
+                    style: '<auto>',
                     size: '512*512',
                     n: 1
                 }
             };
 
-            const response = await fetch(imageGenUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${QWEN_API_KEY}`,
-                    'X-DashScope-Async': 'enable'
-                },
-                body: JSON.stringify(requestBody)
-            });
+            try {
+                const response = await fetch(imageGenUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${QWEN_API_KEY}`,
+                        'X-DashScope-Async': 'enable'
+                    },
+                    body: JSON.stringify(requestBody),
+                    timeout: 30000  // 30秒超时
+                });
 
-            if (!response.ok) {
-                throw new Error('Image generation request failed');
-            }
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API響應錯誤:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
 
-            const result = await response.json();
+                const result = await response.json();
+                console.log('📥 API響應:', result);
 
-            // 通义千问返回任务ID，需要轮询获取结果
-            if (result.output && result.output.task_id) {
-                return await pollImageResult(result.output.task_id);
-            } else if (result.output && result.output.results && result.output.results.length > 0) {
-                return result.output.results[0].url;
-            } else {
-                throw new Error('No image URL in response');
+                // 检查是否有任务ID需要轮询
+                if (result.output && result.output.task_id) {
+                    console.log('🔄 任務ID:', result.output.task_id, '- 開始輪詢...');
+                    return await pollImageResult(result.output.task_id);
+                }
+
+                // 检查是否直接返回了图片URL
+                if (result.output && result.output.results && result.output.results.length > 0) {
+                    return result.output.results[0].url;
+                }
+
+                throw new Error('API返回格式錯誤：無任務ID也無圖片URL');
+
+            } catch (error) {
+                console.error('圖片生成請求失敗:', error);
+                throw new Error(`圖片生成失敗: ${error.message}`);
             }
         }
 
-        // 轮询图片生成结果
-        async function pollImageResult(taskId, maxAttempts = 10) {
+        // 保留旧的函数用于GIF生成
+        async function generateWordImage(prompt, isAnimation = false) {
+            return generateWordImageSync(prompt, '');
+        }
+
+        // 轮询图片生成结果 - 增强版，提供详细日志
+        async function pollImageResult(taskId, maxAttempts = 15) {
             const pollUrl = `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`;
+
+            console.log(`🔍 開始輪詢任務 ${taskId}，最多嘗試 ${maxAttempts} 次...`);
 
             for (let i = 0; i < maxAttempts; i++) {
                 await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒
 
-                const response = await fetch(pollUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${QWEN_API_KEY}`
+                console.log(`📡 輪詢第 ${i + 1}/${maxAttempts} 次...`);
+
+                try {
+                    const response = await fetch(pollUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${QWEN_API_KEY}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        console.warn(`⚠️ 輪詢請求失敗 (HTTP ${response.status})，繼續重試...`);
+                        continue;
                     }
-                });
 
-                if (!response.ok) {
-                    continue;
-                }
+                    const result = await response.json();
+                    console.log(`📊 任務狀態:`, result.output?.task_status);
 
-                const result = await response.json();
-
-                if (result.output && result.output.task_status === 'SUCCEEDED') {
-                    if (result.output.results && result.output.results.length > 0) {
-                        return result.output.results[0].url;
+                    if (result.output && result.output.task_status === 'SUCCEEDED') {
+                        if (result.output.results && result.output.results.length > 0) {
+                            const imageUrl = result.output.results[0].url;
+                            console.log('🎉 圖片生成成功！URL:', imageUrl);
+                            return imageUrl;
+                        }
+                    } else if (result.output && result.output.task_status === 'FAILED') {
+                        const errorMsg = result.output.message || '未知錯誤';
+                        console.error('❌ 任務失敗:', errorMsg);
+                        throw new Error(`圖片生成任務失敗: ${errorMsg}`);
+                    } else if (result.output && result.output.task_status === 'RUNNING') {
+                        console.log('⏳ 任務進行中，繼續等待...');
                     }
-                } else if (result.output && result.output.task_status === 'FAILED') {
-                    throw new Error('Image generation failed');
+                } catch (error) {
+                    console.error(`輪詢第 ${i + 1} 次出錯:`, error);
+                    if (i === maxAttempts - 1) throw error;
                 }
             }
 
-            throw new Error('Image generation timeout');
+            console.error('❌ 輪詢超時，已達最大嘗試次數');
+            throw new Error(`圖片生成超時：已輪詢 ${maxAttempts} 次，任務仍未完成`);
         }
 
         // 显示单词
@@ -1255,7 +1284,12 @@
                 aiImageBadge.classList.add('hidden');
             }
 
-            if (wordData.imageUrls && wordData.imageUrls.length > 0) {
+            if (wordData.imageGenerationFailed) {
+                // 图片生成失败，显示提示信息
+                imgElement.classList.add('hidden');
+                console.warn('⚠️ 圖片生成失敗，已隱藏圖片區域');
+                showMessage('AI圖片生成中遇到問題，請繼續學習單詞', 'error');
+            } else if (wordData.imageUrls && wordData.imageUrls.length > 0) {
                 loadImageWithFallback(imgElement, wordData.imageUrls, 0);
             } else if (wordData.imageUrl) {
                 imgElement.src = wordData.imageUrl;
