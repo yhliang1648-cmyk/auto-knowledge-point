@@ -837,9 +837,11 @@
   "definition": "中文釋義（簡潔）",
   "example": "英文例句（附中文翻譯）",
   "context": "使用情境描述",
-  "imagePrompt": "用於AI生成圖片的英文提示詞，描述這個單詞的視覺意義，要具體生動，50詞以內",
+  "imagePrompt": "用於AI生成圖片的英文提示詞，要根據例句的具體場景來描述，展現單詞在實際使用中的視覺情境，50詞以內，要具體生動",
   "visualDescription": "這個單詞的視覺化描述，幫助記憶"
-}`;
+}
+
+重要：imagePrompt必須基於example例句的場景來生成，讓圖片能夠展現例句中描述的具體情境，而不僅僅是單詞的抽象概念。`;
 
             const response = await fetch(QWEN_API_URL, {
                 method: 'POST',
@@ -867,9 +869,20 @@
             const data = await response.json();
             const wordInfo = JSON.parse(data.choices[0].message.content);
 
-            // 使用通义千问生成与单词意义相关的图片
+            // 构建更详细的图片生成提示词，结合例句场景
+            let enhancedImagePrompt = wordInfo.imagePrompt;
+            if (!enhancedImagePrompt || enhancedImagePrompt.length < 20) {
+                // 如果AI没有提供好的提示词，我们基于例句自己构建
+                const exampleText = wordInfo.example || '';
+                const chineseMatch = exampleText.match(/[（(](.+?)[)）]/);
+                const chineseDescription = chineseMatch ? chineseMatch[1] : '';
+
+                enhancedImagePrompt = `A scene illustrating: ${chineseDescription}. ${wordInfo.definition}. Visual style: educational, clear, realistic.`;
+            }
+
+            // 使用通义千问生成与例句场景相关的图片
             try {
-                const imageUrl = await generateWordImage(wordInfo.imagePrompt || `A visual representation of the word "${word}"`);
+                const imageUrl = await generateWordImage(enhancedImagePrompt);
                 wordInfo.imageUrls = [imageUrl];
                 wordInfo.aiGeneratedImage = true;
             } catch (error) {
@@ -883,8 +896,8 @@
                 wordInfo.aiGeneratedImage = false;
             }
 
-            // 生成GIF动画提示词
-            const gifPrompt = `animated illustration of ${word}, simple and clear`;
+            // 生成GIF动画提示词 - 也基于例句场景
+            const gifPrompt = `animated illustration: ${enhancedImagePrompt}, simple and clear animation`;
             try {
                 const gifUrl = await generateWordImage(gifPrompt, true);
                 wordInfo.gifUrl = gifUrl;
