@@ -571,7 +571,8 @@
                     <!-- Loading状态 -->
                     <div id="loadingState" class="loading">
                         <div class="spinner"></div>
-                        <p style="color: #667eea; font-size: 1.1rem;">正在從通義千問獲取單詞資料...</p>
+                        <p id="loadingText" style="color: #667eea; font-size: 1.1rem;">正在從通義千問獲取單詞資料...</p>
+                        <p id="loadingSubtext" style="color: #999; font-size: 0.9rem; margin-top: 10px;">正在生成專屬圖片，請稍候</p>
                     </div>
 
                     <!-- 单词展示 -->
@@ -582,7 +583,12 @@
                         <!-- 多媒体展示区 -->
                         <div class="media-display">
                             <!-- 图片 -->
-                            <img id="wordImage" class="word-image hidden" alt="Word illustration">
+                            <div style="position: relative; display: inline-block;">
+                                <img id="wordImage" class="word-image hidden" alt="Word illustration">
+                                <div id="aiImageBadge" class="hidden" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                    ✨ AI生成
+                                </div>
+                            </div>
 
                             <!-- GIF动画 -->
                             <img id="wordGif" class="word-image hidden" alt="Word animation" style="border: 3px solid #f39c12;">
@@ -789,38 +795,49 @@
                 console.error('Error fetching word data:', error);
                 showMessage('獲取單詞資料失敗，使用默認數據', 'error');
 
-                // 使用默认数据（仍然提供多媒体资源）
-                displayWord({
+                // 使用默认数据（仍然尝试生成AI图片）
+                const fallbackData = {
                     word: word,
                     phonetic: `/${word}/`,
                     definition: `${word} 的中文釋義`,
                     example: `Example sentence with ${word}.`,
                     visualDescription: `記住這個單詞：${word}`,
-                    imageUrls: [
-                        `https://source.unsplash.com/400x300/?${encodeURIComponent(word)}`,
-                        `https://images.unsplash.com/photo-1?q=${encodeURIComponent(word)}&w=400&h=300&fit=crop`,
-                        `https://picsum.photos/400/300?random=${word.length}`
-                    ],
-                    gifUrl: `https://media.giphy.com/media/3o7TKSjRrfIPjeiVyg/giphy.gif?tag=${encodeURIComponent(word)}`,
                     audioUrls: [
                         `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`,
                         `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`
                     ],
                     videoSearchUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(word + ' meaning english')}`
-                });
+                };
+
+                // 尝试使用通义千问生成图片
+                try {
+                    const imageUrl = await generateWordImage(`A clear illustration of the word "${word}"`);
+                    fallbackData.imageUrls = [imageUrl];
+                    fallbackData.aiGeneratedImage = true;
+                } catch (imgError) {
+                    console.error('Fallback image generation also failed:', imgError);
+                    fallbackData.imageUrls = [
+                        `https://source.unsplash.com/400x300/?${encodeURIComponent(word)}`,
+                        `https://picsum.photos/400/300?random=${word.length}`
+                    ];
+                    fallbackData.aiGeneratedImage = false;
+                }
+
+                fallbackData.gifUrl = null;
+                displayWord(fallbackData);
             }
         }
 
         // 从通义千问API获取单词数据
         async function fetchWordData(word) {
-            const prompt = `請提供英文單詞 "${word}" 的詳細信息，包括多媒體資源建議，以JSON格式返回：
+            const prompt = `請提供英文單詞 "${word}" 的詳細信息，包括圖片生成提示詞，以JSON格式返回：
 {
   "word": "${word}",
   "phonetic": "音標",
   "definition": "中文釋義（簡潔）",
   "example": "英文例句（附中文翻譯）",
   "context": "使用情境描述",
-  "imageKeywords": "用於搜索圖片的關鍵詞（英文，1-2個詞）",
+  "imagePrompt": "用於AI生成圖片的英文提示詞，描述這個單詞的視覺意義，要具體生動，50詞以內",
   "visualDescription": "這個單詞的視覺化描述，幫助記憶"
 }`;
 
@@ -850,18 +867,31 @@
             const data = await response.json();
             const wordInfo = JSON.parse(data.choices[0].message.content);
 
-            // 使用AI推荐的关键词获取图片
-            const imageKeyword = wordInfo.imageKeywords || word;
+            // 使用通义千问生成与单词意义相关的图片
+            try {
+                const imageUrl = await generateWordImage(wordInfo.imagePrompt || `A visual representation of the word "${word}"`);
+                wordInfo.imageUrls = [imageUrl];
+                wordInfo.aiGeneratedImage = true;
+            } catch (error) {
+                console.error('Image generation failed:', error);
+                // 降级使用传统图片源
+                const imageKeyword = wordInfo.imageKeywords || word;
+                wordInfo.imageUrls = [
+                    `https://source.unsplash.com/400x300/?${encodeURIComponent(imageKeyword)}`,
+                    `https://picsum.photos/400/300?random=${word.length}`
+                ];
+                wordInfo.aiGeneratedImage = false;
+            }
 
-            // 添加多媒体资源URL（使用多个来源确保可用性）
-            wordInfo.imageUrls = [
-                `https://source.unsplash.com/400x300/?${encodeURIComponent(imageKeyword)}`,
-                `https://images.unsplash.com/photo-1?q=${encodeURIComponent(imageKeyword)}&w=400&h=300&fit=crop`,
-                `https://picsum.photos/400/300?random=${word.length}`
-            ];
-
-            // 添加GIF动画URL（使用Giphy的随机GIF功能）
-            wordInfo.gifUrl = `https://media.giphy.com/media/3o7TKSjRrfIPjeiVyg/giphy.gif?tag=${encodeURIComponent(imageKeyword)}`;
+            // 生成GIF动画提示词
+            const gifPrompt = `animated illustration of ${word}, simple and clear`;
+            try {
+                const gifUrl = await generateWordImage(gifPrompt, true);
+                wordInfo.gifUrl = gifUrl;
+            } catch (error) {
+                console.error('GIF generation failed:', error);
+                wordInfo.gifUrl = null;
+            }
 
             wordInfo.audioUrls = [
                 `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`,  // 美式发音
@@ -872,6 +902,81 @@
             wordInfo.videoSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(word + ' meaning english')}`;
 
             return wordInfo;
+        }
+
+        // 使用通义千问生成图片
+        async function generateWordImage(prompt, isAnimation = false) {
+            const imageGenUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
+
+            const requestBody = {
+                model: 'wanx-v1',
+                input: {
+                    prompt: prompt,
+                    negative_prompt: 'blurry, low quality, text, watermark'
+                },
+                parameters: {
+                    style: '<sketch>',  // 素描风格，更适合教育场景
+                    size: '512*512',
+                    n: 1
+                }
+            };
+
+            const response = await fetch(imageGenUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${QWEN_API_KEY}`,
+                    'X-DashScope-Async': 'enable'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error('Image generation request failed');
+            }
+
+            const result = await response.json();
+
+            // 通义千问返回任务ID，需要轮询获取结果
+            if (result.output && result.output.task_id) {
+                return await pollImageResult(result.output.task_id);
+            } else if (result.output && result.output.results && result.output.results.length > 0) {
+                return result.output.results[0].url;
+            } else {
+                throw new Error('No image URL in response');
+            }
+        }
+
+        // 轮询图片生成结果
+        async function pollImageResult(taskId, maxAttempts = 10) {
+            const pollUrl = `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`;
+
+            for (let i = 0; i < maxAttempts; i++) {
+                await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒
+
+                const response = await fetch(pollUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${QWEN_API_KEY}`
+                    }
+                });
+
+                if (!response.ok) {
+                    continue;
+                }
+
+                const result = await response.json();
+
+                if (result.output && result.output.task_status === 'SUCCEEDED') {
+                    if (result.output.results && result.output.results.length > 0) {
+                        return result.output.results[0].url;
+                    }
+                } else if (result.output && result.output.task_status === 'FAILED') {
+                    throw new Error('Image generation failed');
+                }
+            }
+
+            throw new Error('Image generation timeout');
         }
 
         // 显示单词
@@ -903,6 +1008,15 @@
 
             // 加载图片（尝试多个来源）
             const imgElement = document.getElementById('wordImage');
+            const aiImageBadge = document.getElementById('aiImageBadge');
+
+            // 显示或隐藏AI生成标记
+            if (wordData.aiGeneratedImage) {
+                aiImageBadge.classList.remove('hidden');
+            } else {
+                aiImageBadge.classList.add('hidden');
+            }
+
             if (wordData.imageUrls && wordData.imageUrls.length > 0) {
                 loadImageWithFallback(imgElement, wordData.imageUrls, 0);
             } else if (wordData.imageUrl) {
