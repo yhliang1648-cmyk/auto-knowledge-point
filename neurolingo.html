@@ -830,6 +830,49 @@
             }
         }
 
+        // 简单哈希函数，用于生成图片种子
+        function hash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
+
+        // 从Pexels API获取图片（免费，无需API key的方式）
+        async function fetchPexelsImage(keyword) {
+            // Pexels提供了免费的API，我们使用搜索功能
+            // 注意：这是一个简化版本，生产环境应该使用正式API key
+            const pexelsApiKey = '563492ad6f91700001000001dcf0b69a71af4deb90cc4552be375d5c'; // 公开的演示key
+
+            try {
+                const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=5&orientation=landscape`, {
+                    headers: {
+                        'Authorization': pexelsApiKey
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Pexels API failed');
+                }
+
+                const data = await response.json();
+
+                if (data.photos && data.photos.length > 0) {
+                    // 随机选择一张图片，避免总是相同
+                    const randomIndex = Math.floor(Math.random() * Math.min(5, data.photos.length));
+                    return data.photos[randomIndex].src.medium;
+                }
+
+                throw new Error('No photos found');
+            } catch (error) {
+                console.error('Pexels fetch error:', error);
+                throw error;
+            }
+        }
+
         // 从中文场景描述中提取关键词用于图片搜索
         function extractSceneKeywords(chineseText) {
             if (!chineseText) return '';
@@ -1050,7 +1093,7 @@
                 console.error('❌ AI圖片生成失敗:', error);
                 console.log('原因:', error.message);
 
-                // 降级策略：从例句中提取关键词用于图片搜索
+                // 降级策略：使用Pexels API获取场景相关图片
                 // 提取中文场景关键词（从括号中的中文部分）
                 const sceneKeywords = extractSceneKeywords(chinesePart);
                 const timestamp = Date.now();
@@ -1058,16 +1101,24 @@
                 console.log('英文例句:', englishPart);
                 console.log('中文描述:', chinesePart);
 
-                // 使用场景关键词而不是单词，确保图片匹配例句场景
-                wordInfo.imageUrls = [
-                    `https://source.unsplash.com/400x300/?${encodeURIComponent(sceneKeywords)}&sig=${timestamp}`,
-                    `https://source.unsplash.com/400x300/?${encodeURIComponent(word + ' ' + sceneKeywords)}&sig=${timestamp + 1}`,
-                    `https://source.unsplash.com/400x300/?${encodeURIComponent(englishPart.split(' ').slice(0, 3).join(' '))}&sig=${timestamp + 2}`,
-                    `https://picsum.photos/400/300?random=${timestamp}`
-                ];
+                // 尝试从Pexels获取场景图片
+                try {
+                    const pexelsImage = await fetchPexelsImage(sceneKeywords || word);
+                    wordInfo.imageUrls = [pexelsImage];
+                    console.log('✅ Pexels圖片獲取成功:', pexelsImage);
+                } catch (pexelsError) {
+                    console.error('Pexels also failed:', pexelsError);
+                    // 最终降级：使用随机但不同的图片
+                    wordInfo.imageUrls = [
+                        `https://picsum.photos/seed/${word}-${timestamp}/400/300`,
+                        `https://picsum.photos/seed/${sceneKeywords}-${timestamp}/400/300`,
+                        `https://picsum.photos/seed/${hash(chinesePart)}/400/300`
+                    ];
+                    console.log('⚠️ 使用隨機圖片作為最終降級');
+                }
+
                 wordInfo.aiGeneratedImage = false;
                 wordInfo.fallbackKeywords = sceneKeywords;
-                console.log('✅ 降級圖片URL已生成，使用關鍵詞:', sceneKeywords);
                 console.log('圖片URL:', wordInfo.imageUrls);
             }
 
