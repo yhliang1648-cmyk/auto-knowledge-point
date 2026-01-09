@@ -572,7 +572,9 @@
                     <div id="loadingState" class="loading">
                         <div class="spinner"></div>
                         <p id="loadingText" style="color: #667eea; font-size: 1.1rem;">正在從通義千問獲取單詞資料...</p>
-                        <p id="loadingSubtext" style="color: #999; font-size: 0.9rem; margin-top: 10px;">正在生成專屬圖片，請稍候</p>
+                        <p id="loadingSubtext" style="color: #999; font-size: 0.9rem; margin-top: 10px;">
+                            步驟1：生成例句 → 步驟2：分析場景 → 步驟3：AI繪圖
+                        </p>
                     </div>
 
                     <!-- 单词展示 -->
@@ -830,20 +832,20 @@
 
         // 从通义千问API获取单词数据
         async function fetchWordData(word) {
-            const prompt = `請提供英文單詞 "${word}" 的詳細信息，包括圖片生成提示詞，以JSON格式返回：
+            // 第一步：生成例句
+            const step1Prompt = `請為英文單詞 "${word}" 生成一個具體的、有畫面感的例句，以JSON格式返回：
 {
   "word": "${word}",
   "phonetic": "音標",
   "definition": "中文釋義（簡潔）",
-  "example": "英文例句（附中文翻譯）",
+  "example": "英文例句（要有具體場景，附中文翻譯）",
   "context": "使用情境描述",
-  "imagePrompt": "用於AI生成圖片的英文提示詞，要根據例句的具體場景來描述，展現單詞在實際使用中的視覺情境，50詞以內，要具體生動",
   "visualDescription": "這個單詞的視覺化描述，幫助記憶"
 }
 
-重要：imagePrompt必須基於example例句的場景來生成，讓圖片能夠展現例句中描述的具體情境，而不僅僅是單詞的抽象概念。`;
+重要：例句必須包含具體的、可視化的場景描述，方便後續生成對應的圖片。`;
 
-            const response = await fetch(QWEN_API_URL, {
+            const response1 = await fetch(QWEN_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -851,53 +853,87 @@
                 },
                 body: JSON.stringify({
                     model: 'qwen-plus',
-                    messages: [
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
+                    messages: [{ role: 'user', content: step1Prompt }],
                     temperature: 0.7,
                     response_format: { type: 'json_object' }
                 })
             });
 
-            if (!response.ok) {
-                throw new Error('API request failed');
+            if (!response1.ok) {
+                throw new Error('Step 1 API request failed');
             }
 
-            const data = await response.json();
-            const wordInfo = JSON.parse(data.choices[0].message.content);
+            const data1 = await response1.json();
+            const wordInfo = JSON.parse(data1.choices[0].message.content);
 
-            // 构建更详细的图片生成提示词，结合例句场景
-            let enhancedImagePrompt = wordInfo.imagePrompt;
-            if (!enhancedImagePrompt || enhancedImagePrompt.length < 20) {
-                // 如果AI没有提供好的提示词，我们基于例句自己构建
-                const exampleText = wordInfo.example || '';
-                const chineseMatch = exampleText.match(/[（(](.+?)[)）]/);
-                const chineseDescription = chineseMatch ? chineseMatch[1] : '';
+            // 第二步：基于例句生成图片提示词
+            const exampleSentence = wordInfo.example || '';
+            const englishPart = exampleSentence.split(/[（(]/)[0].trim();
+            const chineseMatch = exampleSentence.match(/[（(](.+?)[)）]/);
+            const chinesePart = chineseMatch ? chineseMatch[1] : '';
 
-                enhancedImagePrompt = `A scene illustrating: ${chineseDescription}. ${wordInfo.definition}. Visual style: educational, clear, realistic.`;
+            const step2Prompt = `根據以下英文例句，生成一個詳細的圖片生成提示詞（英文），要完全展現例句中描述的具體場景：
+
+例句：${englishPart}
+中文：${chinesePart}
+
+請返回JSON格式：
+{
+  "imagePrompt": "詳細的英文圖片生成提示詞，要準確描述例句中的場景、人物、動作、環境等細節，100詞以內"
+}
+
+重要：imagePrompt必須完全基於例句的具體內容，描述出可以直接繪製的場景。`;
+
+            const response2 = await fetch(QWEN_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${QWEN_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'qwen-plus',
+                    messages: [{ role: 'user', content: step2Prompt }],
+                    temperature: 0.7,
+                    response_format: { type: 'json_object' }
+                })
+            });
+
+            if (!response2.ok) {
+                throw new Error('Step 2 API request failed');
             }
 
-            // 使用通义千问生成与例句场景相关的图片
+            const data2 = await response2.json();
+            const promptData = JSON.parse(data2.choices[0].message.content);
+
+            // 使用生成的详细提示词
+            let imagePrompt = promptData.imagePrompt || `A realistic scene: ${chinesePart}`;
+
+            // 输出调试信息
+            console.log('=== 圖片生成信息 ===');
+            console.log('單詞:', word);
+            console.log('例句:', exampleSentence);
+            console.log('圖片提示詞:', imagePrompt);
+
+            // 使用通义千问生成与例句场景完全匹配的图片
             try {
-                const imageUrl = await generateWordImage(enhancedImagePrompt);
+                const imageUrl = await generateWordImage(imagePrompt);
                 wordInfo.imageUrls = [imageUrl];
                 wordInfo.aiGeneratedImage = true;
+                wordInfo.imagePromptUsed = imagePrompt; // 保存使用的提示词，便于调试
+                console.log('圖片生成成功:', imageUrl);
             } catch (error) {
                 console.error('Image generation failed:', error);
                 // 降级使用传统图片源
-                const imageKeyword = wordInfo.imageKeywords || word;
                 wordInfo.imageUrls = [
-                    `https://source.unsplash.com/400x300/?${encodeURIComponent(imageKeyword)}`,
+                    `https://source.unsplash.com/400x300/?${encodeURIComponent(word)}`,
                     `https://picsum.photos/400/300?random=${word.length}`
                 ];
                 wordInfo.aiGeneratedImage = false;
+                console.log('使用降級圖片源');
             }
 
             // 生成GIF动画提示词 - 也基于例句场景
-            const gifPrompt = `animated illustration: ${enhancedImagePrompt}, simple and clear animation`;
+            const gifPrompt = `animated version: ${imagePrompt}, simple animation style`;
             try {
                 const gifUrl = await generateWordImage(gifPrompt, true);
                 wordInfo.gifUrl = gifUrl;
@@ -907,11 +943,10 @@
             }
 
             wordInfo.audioUrls = [
-                `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`,  // 美式发音
-                `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`   // 英式发音
+                `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`,
+                `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`
             ];
 
-            // 添加YouTube视频搜索链接
             wordInfo.videoSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(word + ' meaning english')}`;
 
             return wordInfo;
@@ -925,10 +960,10 @@
                 model: 'wanx-v1',
                 input: {
                     prompt: prompt,
-                    negative_prompt: 'blurry, low quality, text, watermark'
+                    negative_prompt: 'blurry, low quality, text, watermark, abstract, unclear'
                 },
                 parameters: {
-                    style: '<sketch>',  // 素描风格，更适合教育场景
+                    style: '<auto>',  // 自动风格，让AI选择最合适的风格展现场景
                     size: '512*512',
                     n: 1
                 }
