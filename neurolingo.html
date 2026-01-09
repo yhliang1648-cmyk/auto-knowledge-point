@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroLingo - 腦科學英語學習平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: #2c3e50;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部 */
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            font-size: 1.6rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 900px;
+            margin: 0 auto 30px;
+        }
+
+        /* 用户统计 */
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 35px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            margin-top: 5px;
+        }
+
+        /* 五大原则 */
+        .principles-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .section-intro {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .principle-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .principle-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .principle-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .principle-title {
+            font-size: 1.6rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .principle-desc {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .principle-example {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #666;
+            border-left: 3px solid #2ecc71;
+        }
+
+        /* 学习模块 */
+        .modules-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .module-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .module-icon {
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .module-desc {
+            color: #666;
+            text-align: center;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .module-progress {
+            background: #ecf0f1;
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .module-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        /* PK竞技系统 */
+        .arena-section {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95));
+            padding: 50px 40px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            color: white;
+            box-shadow: 0 15px 40px rgba(231, 76, 60, 0.3);
+        }
+
+        .arena-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .arena-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .arena-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .league-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+
+        /* 间隔重复系统 */
+        .srs-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .srs-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .srs-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .srs-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .srs-label {
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.05rem;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        /* 特色功能 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .feature-desc {
+            color: #666;
+            line-height: 1.7;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .subtitle { font-size: 1.2rem; }
+            .principles-grid, .modules-grid, .arena-grid { grid-template-columns: 1fr; }
+        }
+
+        /* 动画 */
+        .fade-in {
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-top: 60px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        footer p {
+            color: #7f8c8d;
+            margin: 10px 0;
+        }
+
+        /* 互动模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        /* 学习卡片 */
+        .flashcard {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .flashcard:hover {
+            transform: scale(1.02);
+        }
+
+        .flashcard-word {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .flashcard-definition {
+            font-size: 1.3rem;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .flashcard-example {
+            font-style: italic;
+            color: #999;
+            font-size: 1.05rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="fade-in">
+            <div class="logo">🧠</div>
+            <h1>NeuroLingo</h1>
+            <div class="subtitle">腦科學英語學習平台</div>
+            <p class="tagline">
+                基於神經科學與認知心理學的第一性原理，結合多鄰國式競技系統，<br>
+                讓英語學習更科學、更高效、更有趣
+            </p>
+
+            <div class="user-stats">
+                <div class="stat-card">
+                    <span class="stat-number" id="streak">15</span>
+                    <div class="stat-label">🔥 連續學習天數</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="xp">2,450</span>
+                    <div class="stat-label">⭐ 經驗值 (XP)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="words">850</span>
+                    <div class="stat-label">📚 已掌握單詞</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 五大腦科學原則 -->
+        <section class="principles-section fade-in">
+            <h2 class="section-title">🧠 五大腦科學學習原則</h2>
+            <p class="section-intro">
+                基於神經科學研究，NeuroLingo 整合了最有效的語言學習方法，<br>
+                幫助你的大腦建立更強大的神經連接
+            </p>
+
+            <div class="principles-grid">
+                <!-- 原则1 -->
+                <div class="principle-card">
+                    <div class="principle-icon">🔗</div>
+                    <h3 class="principle-title">1. 理解優先，建立關聯</h3>
+                    <p class="principle-desc">
+                        記憶的本質是聯想，理解能激活更廣泛的神經網絡，形成更穩固的記憶痕跡。
+                    </p>
+                    <div class="principle-example">
+                        <strong>實踐方法：</strong>學習詞根詞缀（如 -phobia = 恐懼），一次掌握 20+ 單詞：
+                        arachnophobia（蜘蛛恐懼症）、claustrophobia（幽閉恐懼症）
+                    </div>
+                </div>
+
+                <!-- 原则2 -->
+                <div class="principle-card">
+                    <div class="principle-icon">🎬</div>
+                    <h3 class="principle-title">2. 語境嵌入，學用一體</h3>
+                    <p class="principle-desc">
+                        語言在真實交流中是多維信號的綜合體，大腦對情境化、有意義的信息記憶更深刻。
+                    </p>
+                    <div class="principle-example">
+                        <strong>實踐方法：</strong>不背孤立單詞，而是在故事、對話、電影場景中學習。
+                        例如：通過《老友記》場景學習 "That's a moo point"（無意義的觀點）
+                    </div>
+                </div>
+
+                <!-- 原则3 -->
+                <div class="principle-card">
+                    <div class="principle-icon">📅</div>
+                    <h3 class="principle-title">3. 高頻微練，間隔重複</h3>
+                    <p class="principle-desc">
+                        大腦的神經可塑性需要通過高頻刺激來強化，遺忘曲線決定了在關鍵點復習才能鞏固記憶。
+                    </p>
+                    <div class="principle-example">
+                        <strong>實踐方法：</strong>使用 Anki 間隔重複算法：首次學習 → 1天後 → 3天後 → 7天後 → 15天後。
+                        每天只需 15 分鐘，1 年掌握 5000+ 單詞。
+                    </div>
+                </div>
+
+                <!-- 原则4 -->
+                <div class="principle-card">
+                    <div class="principle-icon">👁️👂✍️</div>
+                    <h3 class="principle-title">4. 多感官協同</h3>
+                    <p class="principle-desc">
+                        同時調動聽覺、視覺、動覺等多種感官，可以激活大腦不同區域，為記憶提供更多提取線索。
+                    </p>
+                    <div class="principle-example">
+                        <strong>實踐方法：</strong>學習 "butterfly"（蝴蝶）時：
+                        👁️ 看圖片、👂 聽發音、✍️ 手寫、🦋 模仿飛舞動作
+                    </div>
+                </div>
+
+                <!-- 原则5 -->
+                <div class="principle-card">
+                    <div class="principle-icon">💬</div>
+                    <h3 class="principle-title">5. 大膽輸出，無畏犯錯</h3>
+                    <p class="principle-desc">
+                        語言作為技能，其熟練度依賴於程序性記憶的自動化。輸出能倒逼輸入的有效整合。
+                    </p>
+                    <div class="principle-example">
+                        <strong>實踐方法：</strong>從第一天就開始說英語！犯錯是大腦進行反饋和修正的必要環節。
+                        使用 NeuroLingo 的 AI 對話練習，每天至少 5 分鐘口語輸出。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 学习模块 -->
+        <section class="modules-section fade-in">
+            <h2 class="section-title">📚 智能學習模塊</h2>
+            <p class="section-intro">
+                五大核心模塊，全方位提升聽說讀寫能力
+            </p>
+
+            <div class="modules-grid">
+                <div class="module-card" onclick="openModule('vocabulary')">
+                    <div class="module-icon">📖</div>
+                    <h3 class="module-title">詞彙記憶大師</h3>
+                    <p class="module-desc">詞根詞缀拆解 + 場景化記憶 + 間隔重複</p>
+                    <div class="module-progress">
+                        <div class="progress-bar" style="width: 65%;"></div>
+                    </div>
+                    <div class="module-stats">
+                        <span>已學：850 詞</span>
+                        <span>65% 完成</span>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="openModule('listening')">
+                    <div class="module-icon">🎧</div>
+                    <h3 class="module-title">聽力訓練營</h3>
+                    <p class="module-desc">真實對話 + 變速播放 + 精聽練習</p>
+                    <div class="module-progress">
+                        <div class="progress-bar" style="width: 45%;"></div>
+                    </div>
+                    <div class="module-stats">
+                        <span>已完成：32 課</span>
+                        <span>45% 完成</span>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="openModule('speaking')">
+                    <div class="module-icon">🗣️</div>
+                    <h3 class="module-title">口語突破站</h3>
+                    <p class="module-desc">AI 對話 + 發音糾正 + 情景模擬</p>
+                    <div class="module-progress">
+                        <div class="progress-bar" style="width: 38%;"></div>
+                    </div>
+                    <div class="module-stats">
+                        <span>練習：128 次</span>
+                        <span>38% 完成</span>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="openModule('reading')">
+                    <div class="module-icon">📰</div>
+                    <h3 class="module-title">閱讀理解王</h3>
+                    <p class="module-desc">分級閱讀 + 速讀訓練 + 邏輯分析</p>
+                    <div class="module-progress">
+                        <div class="progress-bar" style="width: 52%;"></div>
+                    </div>
+                    <div class="module-stats">
+                        <span>已讀：24 篇</span>
+                        <span>52% 完成</span>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="openModule('writing')">
+                    <div class="module-icon">✍️</div>
+                    <h3 class="module-title">寫作提升坊</h3>
+                    <p class="module-desc">句型模板 + AI 批改 + 範文學習</p>
+                    <div class="module-progress">
+                        <div class="progress-bar" style="width: 28%;"></div>
+                    </div>
+                    <div class="module-stats">
+                        <span>作文：15 篇</span>
+                        <span>28% 完成</span>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="openModule('grammar')">
+                    <div class="module-icon">📐</div>
+                    <h3 class="module-title">語法通關站</h3>
+                    <p class="module-desc">可視化講解 + 實戰練習 + 錯題本</p>
+                    <div class="module-progress">
+                        <div class="progress-bar" style="width: 70%;"></div>
+                    </div>
+                    <div class="module-stats">
+                        <span>已學：42 點</span>
+                        <span>70% 完成</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button class="btn" onclick="startLearning()">🚀 開始今日學習</button>
+            </div>
+        </section>
+
+        <!-- PK竞技系统 -->
+        <section class="arena-section fade-in">
+            <h2 class="section-title" style="color: white;">⚔️ 競技場 - 挑戰全球學習者</h2>
+            <p class="section-intro" style="color: rgba(255,255,255,0.9);">
+                多鄰國式排行榜系統，與全球學習者競技，讓學習充滿激情！
+            </p>
+
+            <div class="arena-grid">
+                <!-- 本周排行榜 -->
+                <div class="arena-card">
+                    <h3 class="arena-title">🏆 本週排行榜</h3>
+                    <div class="rank-item">
+                        <div>
+                            <span class="rank-badge">1</span>
+                            <strong style="margin-left: 10px;">John Chen</strong>
+                        </div>
+                        <span>3,850 XP</span>
+                    </div>
+                    <div class="rank-item">
+                        <div>
+                            <span class="rank-badge" style="background: #95a5a6;">2</span>
+                            <strong style="margin-left: 10px;">Mary Wong</strong>
+                        </div>
+                        <span>3,120 XP</span>
+                    </div>
+                    <div class="rank-item">
+                        <div>
+                            <span class="rank-badge" style="background: #cd7f32;">3</span>
+                            <strong style="margin-left: 10px;">David Li</strong>
+                        </div>
+                        <span>2,890 XP</span>
+                    </div>
+                    <div class="rank-item" style="background: rgba(46, 204, 113, 0.2);">
+                        <div>
+                            <span class="rank-badge" style="background: #2ecc71;">7</span>
+                            <strong style="margin-left: 10px;">你</strong>
+                        </div>
+                        <span>2,450 XP</span>
+                    </div>
+                    <p style="text-align: center; margin-top: 15px; font-size: 0.9rem;">
+                        再獲得 <strong>440 XP</strong> 晉升前三！
+                    </p>
+                </div>
+
+                <!-- 段位系统 -->
+                <div class="arena-card">
+                    <h3 class="arena-title">🥇 你的段位</h3>
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="font-size: 4rem;">💎</div>
+                        <div class="league-badge">鑽石聯盟</div>
+                        <p style="margin-top: 15px; line-height: 1.8;">
+                            擊敗 <strong>78%</strong> 的學習者<br>
+                            距離 <strong>大師聯盟</strong> 還需 <strong>1,550 XP</strong>
+                        </p>
+                        <div class="module-progress" style="margin-top: 20px;">
+                            <div class="progress-bar" style="width: 61%;"></div>
+                        </div>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">
+                            61% → 大師聯盟
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 好友挑战 -->
+                <div class="arena-card">
+                    <h3 class="arena-title">👥 好友挑戰</h3>
+                    <div class="rank-item">
+                        <div>
+                            <span style="font-size: 1.5rem;">👤</span>
+                            <strong style="margin-left: 10px;">Sarah Liu</strong>
+                        </div>
+                        <button class="btn btn-secondary" style="padding: 8px 20px; font-size: 0.9rem;">
+                            挑戰
+                        </button>
+                    </div>
+                    <div class="rank-item">
+                        <div>
+                            <span style="font-size: 1.5rem;">👤</span>
+                            <strong style="margin-left: 10px;">Tom Zhang</strong>
+                        </div>
+                        <button class="btn btn-secondary" style="padding: 8px 20px; font-size: 0.9rem;">
+                            挑戰
+                        </button>
+                    </div>
+                    <div class="rank-item">
+                        <div>
+                            <span style="font-size: 1.5rem;">👤</span>
+                            <strong style="margin-left: 10px;">Emma Wang</strong>
+                        </div>
+                        <button class="btn btn-secondary" style="padding: 8px 20px; font-size: 0.9rem;">
+                            挑戰
+                        </button>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn" style="width: 100%;">邀請好友加入</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-danger" onclick="quickBattle()" style="font-size: 1.2rem; padding: 16px 45px;">
+                    ⚡ 快速對戰（30秒極速挑戰）
+                </button>
+            </div>
+        </section>
+
+        <!-- 间隔重复系统 -->
+        <section class="srs-section fade-in">
+            <h2 class="section-title">🔄 智能間隔重複系統 (SRS)</h2>
+            <p class="section-intro">
+                基於艾賓浩斯遺忘曲線的 Anki 算法，科學安排復習時間，<br>
+                讓你用最少的時間獲得最大的記憶效果
+            </p>
+
+            <div class="srs-cards">
+                <div class="srs-card">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🆕</div>
+                    <div class="srs-number">25</div>
+                    <div class="srs-label">今日新詞</div>
+                    <button class="btn" style="margin-top: 15px;" onclick="reviewWords('new')">開始學習</button>
+                </div>
+
+                <div class="srs-card">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⏰</div>
+                    <div class="srs-number">42</div>
+                    <div class="srs-label">待復習詞彙</div>
+                    <button class="btn" style="margin-top: 15px;" onclick="reviewWords('due')">立即復習</button>
+                </div>
+
+                <div class="srs-card">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+                    <div class="srs-number">783</div>
+                    <div class="srs-label">已熟練掌握</div>
+                    <button class="btn" style="margin-top: 15px; background: linear-gradient(135deg, #95a5a6, #7f8c8d);">查看詳情</button>
+                </div>
+
+                <div class="srs-card">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">📊</div>
+                    <div class="srs-number">92%</div>
+                    <div class="srs-label">記憶準確率</div>
+                    <button class="btn" style="margin-top: 15px; background: linear-gradient(135deg, #3498db, #2980b9);">數據分析</button>
+                </div>
+            </div>
+
+            <div style="background: rgba(102, 126, 234, 0.1); padding: 30px; border-radius: 15px; margin-top: 30px;">
+                <h3 style="color: #667eea; margin-bottom: 15px; text-align: center;">📈 你的復習時間表</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; text-align: center;">
+                    <div>
+                        <div style="font-weight: 700; color: #2ecc71; font-size: 1.5rem;">15</div>
+                        <div style="color: #666;">今天</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: #3498db; font-size: 1.5rem;">28</div>
+                        <div style="color: #666;">明天</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: #9b59b6; font-size: 1.5rem;">35</div>
+                        <div style="color: #666;">3天後</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: #e67e22; font-size: 1.5rem;">42</div>
+                        <div style="color: #666;">1週後</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 特色功能 -->
+        <section class="modules-section fade-in">
+            <h2 class="section-title">✨ 獨家特色功能</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3 class="feature-title">遊戲化學習</h3>
+                    <p class="feature-desc">
+                        經驗值、段位、成就徽章、每日任務、連勝獎勵...
+                        讓學習像玩遊戲一樣上癮
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI 私人教練</h3>
+                    <p class="feature-desc">
+                        24/7 智能對話夥伴、發音糾正、寫作批改、
+                        個性化學習路徑推薦
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">真實場景模擬</h3>
+                    <p class="feature-desc">
+                        機場通關、酒店入住、商務談判、日常閒聊...
+                        在情境中學習最實用的英語
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">數據可視化</h3>
+                    <p class="feature-desc">
+                        詳細的學習報告、進度追踪、弱項分析、
+                        時間分布圖表，讓進步看得見
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 class="feature-title">社群學習</h3>
+                    <p class="feature-desc">
+                        加入學習小組、參加挑戰賽、分享學習心得、
+                        互相激勵成長
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">個性化定制</h3>
+                    <p class="feature-desc">
+                        根據你的水平、目標、興趣自動調整難度，
+                        專屬於你的學習計劃
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="fade-in">
+            <p style="font-size: 1.3rem; color: #2c3e50; font-weight: 600; margin-bottom: 15px;">
+                🧠 NeuroLingo - 用腦科學改變英語學習
+            </p>
+            <p>© 2025 香港AI教育計劃 | 基於神經科學的智能學習平台</p>
+            <p style="margin-top: 15px;">
+                <a href="https://github.com/yhliang1648-cmyk/auto-knowledge-point" style="color: #667eea; text-decoration: none;">GitHub</a> ·
+                <a href="#" style="color: #667eea; text-decoration: none;">使用指南</a> ·
+                <a href="#" style="color: #667eea; text-decoration: none;">聯繫我們</a>
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                Powered by AI · 基於第一性原理 · 間隔重複算法
+            </p>
+        </footer>
+    </div>
+
+    <!-- 学习模态框 -->
+    <div class="modal" id="learningModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">📖 詞彙學習</h2>
+
+            <div class="flashcard" id="flashcard" onclick="flipCard()">
+                <div class="flashcard-word" id="word">Serendipity</div>
+                <div class="flashcard-definition" id="definition" style="display: none;">
+                    意外發現美好事物的能力；機緣巧合
+                </div>
+                <div class="flashcard-example" id="example" style="display: none;">
+                    "Finding this hidden café was pure serendipity!"<br>
+                    （發現這家隱藏咖啡廳純屬意外之喜！）
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 30px; gap: 15px;">
+                <button class="btn btn-danger" onclick="rateCard('hard')" style="flex: 1;">😰 困難</button>
+                <button class="btn" onclick="rateCard('good')" style="flex: 1; background: linear-gradient(135deg, #f39c12, #e67e22);">😊 一般</button>
+                <button class="btn btn-secondary" onclick="rateCard('easy')" style="flex: 1;">😎 簡單</button>
+            </div>
+
+            <p style="text-align: center; margin-top: 20px; color: #999;">
+                剩餘 <strong id="cardsLeft">24</strong> 張卡片
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        let currentCard = 0;
+        let isFlipped = false;
+
+        const sampleWords = [
+            {
+                word: "Serendipity",
+                definition: "意外發現美好事物的能力；機緣巧合",
+                example: "Finding this hidden café was pure serendipity!"
+            },
+            {
+                word: "Ephemeral",
+                definition: "短暫的；朝生暮死的",
+                example: "The beauty of cherry blossoms is ephemeral."
+            },
+            {
+                word: "Ubiquitous",
+                definition: "無所不在的；普遍存在的",
+                example: "Smartphones are ubiquitous in modern society."
+            }
+        ];
+
+        // 打开模块
+        function openModule(module) {
+            if (module === 'vocabulary') {
+                document.getElementById('learningModal').classList.add('active');
+            } else {
+                alert(`${module} 模塊開發中，敬請期待！`);
+            }
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('learningModal').classList.remove('active');
+            isFlipped = false;
+            document.getElementById('definition').style.display = 'none';
+            document.getElementById('example').style.display = 'none';
+        }
+
+        // 翻卡片
+        function flipCard() {
+            isFlipped = !isFlipped;
+            document.getElementById('definition').style.display = isFlipped ? 'block' : 'none';
+            document.getElementById('example').style.display = isFlipped ? 'block' : 'none';
+        }
+
+        // 评分卡片
+        function rateCard(difficulty) {
+            let cardsLeft = parseInt(document.getElementById('cardsLeft').textContent);
+            cardsLeft--;
+
+            if (cardsLeft > 0) {
+                document.getElementById('cardsLeft').textContent = cardsLeft;
+
+                // 加载下一张卡片
+                currentCard = (currentCard + 1) % sampleWords.length;
+                const nextWord = sampleWords[currentCard];
+
+                document.getElementById('word').textContent = nextWord.word;
+                document.getElementById('definition').textContent = nextWord.definition;
+                document.getElementById('example').innerHTML = `"${nextWord.example}"`;
+
+                // 重置翻转状态
+                isFlipped = false;
+                document.getElementById('definition').style.display = 'none';
+                document.getElementById('example').style.display = 'none';
+
+                // 更新XP
+                let xp = parseInt(document.getElementById('xp').textContent.replace(',', ''));
+                xp += difficulty === 'easy' ? 10 : difficulty === 'good' ? 5 : 3;
+                document.getElementById('xp').textContent = xp.toLocaleString();
+            } else {
+                alert('🎉 恭喜完成今日學習！獲得 +100 XP');
+                closeModal();
+
+                // 更新统计
+                let words = parseInt(document.getElementById('words').textContent);
+                words += 25;
+                document.getElementById('words').textContent = words;
+            }
+        }
+
+        // 开始学习
+        function startLearning() {
+            document.getElementById('learningModal').classList.add('active');
+        }
+
+        // 复习单词
+        function reviewWords(type) {
+            if (type === 'new') {
+                alert('開始學習 25 個新詞彙！');
+                startLearning();
+            } else if (type === 'due') {
+                alert('開始復習 42 個待復習詞彙！');
+                startLearning();
+            }
+        }
+
+        // 快速对战
+        function quickBattle() {
+            alert('🔥 匹配中... 找到對手：Alex (鑽石聯盟)\n\n30秒極速單詞挑戰，準備好了嗎？');
+        }
+
+        // 页面加载动画
+        window.onload = function() {
+            // 添加滚动动画
+            const sections = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            sections.forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(30px)';
+                section.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                observer.observe(section);
+            });
+        };
+    </script>
+</body>
+</html>

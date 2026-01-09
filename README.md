@@ -9,7 +9,7 @@
 
 ## 📋 平台概述
 
-本平台整合了**九大創新教育項目**，為香港學生和教師提供全方位的AI學習與教學體驗：
+本平台整合了**十大創新教育項目**，為香港學生和教師提供全方位的AI學習與教學體驗：
 
 ### 🔍 1. DSE 考題智能檢索系統
 基於 RAG（檢索增強生成）的香港中學文憑試歷屆考題知識庫 (2012-2025)
@@ -35,8 +35,11 @@
 ### 🌟 8. 香港未來學校
 參考埃隆·馬斯克Ad Astra理念，問題導向學習、打破年級制度、項目制教學，培養星際時代的人才
 
-### ⚡ 9. 馬斯克工作流系統 ⭐ (最新)
+### ⚡ 9. 馬斯克工作流系統
 基於埃隆·馬斯克管理哲學的工作流程管理系統，第一性原理思維、五步算法、瓶頸驅動、Hardcore文化
+
+### 🧠 10. NeuroLingo 英語學習平台 ⭐ (最新)
+腦科學+認知心理學驅動的英語學習系統，間隔重複算法、多感官協同、多鄰國式PK競技，讓學習更科學更有趣
 
 ---
 
@@ -60,7 +63,8 @@
 | **教材評估系統** | [textbook-eval.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/textbook-eval.html) | 教材考點評估 |
 | **API測試系統** | [api-tester.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/api-tester.html) | API端點測試 |
 | **香港未來學校** | [future-school.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/future-school.html) | 馬斯克式教育 |
-| **馬斯克工作流** ⭐ | [musk-workflow.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/musk-workflow.html) | 工作流管理 |
+| **馬斯克工作流** | [musk-workflow.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/musk-workflow.html) | 工作流管理 |
+| **NeuroLingo** ⭐ | [neurolingo.html](https://yhliang1648-cmyk.github.io/auto-knowledge-point/neurolingo.html) | 腦科學英語學習 |
 
 ---
 
@@ -1147,7 +1151,7 @@ const questions = await api.generateSimilarQuestions(weakPoints, '數學');
 | ⭐ GitHub Stars | - |
 | 🔀 Forks | - |
 | 📊 總訪問量 | - |
-| 📚 系統數量 | 9個 |
+| 📚 系統數量 | 10個 |
 | 🎓 支援級別 | 小學-高中-大學 |
 | 👥 目標用戶 | 學生、教師、開發者 |
 | 🌍 支援語言 | 中文、英文、粵語 |
@@ -1165,9 +1169,10 @@ const questions = await api.generateSimilarQuestions(weakPoints, '數學');
 - [x] 教材試卷評估系統
 - [x] API測試系統
 - [x] 香港未來學校（Ad Astra模式）
-- [x] 馬斯克工作流系統（管理哲學） ⭐ (最新)
+- [x] 馬斯克工作流系統（管理哲學）
+- [x] NeuroLingo 英語學習平台（腦科學） ⭐ (最新)
 - [x] Cloudflare RAG後端實現
-- [x] 九個項目的展示網站
+- [x] 十個項目的展示網站
 - [x] 完整文檔和指南
 
 ### 進行中 🚧
