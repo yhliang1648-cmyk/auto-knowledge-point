@@ -830,6 +830,131 @@
             }
         }
 
+        // 从中文场景描述中提取关键词用于图片搜索
+        function extractSceneKeywords(chineseText) {
+            if (!chineseText) return '';
+
+            // 移除常见的连接词和语气词
+            const stopWords = ['的', '了', '在', '是', '和', '與', '或', '但', '為', '著', '著', '地', '得'];
+
+            // 提取关键名词和动词
+            // 优先提取：地点、人物、物品、动作
+            const keywords = [];
+
+            // 检测常见场景词（中文到英文映射）
+            const scenePatterns = {
+                // 地点
+                '村莊': 'village',
+                '村庄': 'village',
+                '城鎮': 'town',
+                '城镇': 'town',
+                '廣場': 'town square',
+                '广场': 'town square',
+                '博物館': 'museum',
+                '博物馆': 'museum',
+                '畫廊': 'gallery',
+                '画廊': 'gallery',
+                '洞穴': 'cave',
+                '山': 'mountain',
+                '湖': 'lake',
+                '森林': 'forest',
+                '海灘': 'beach',
+                '海滩': 'beach',
+                '公園': 'park',
+                '公园': 'park',
+                '學校': 'school',
+                '学校': 'school',
+                '圖書館': 'library',
+                '图书馆': 'library',
+
+                // 时间
+                '夜晚': 'night',
+                '黃昏': 'dusk',
+                '黄昏': 'dusk',
+                '日落': 'sunset',
+                '清晨': 'morning',
+                '午後': 'afternoon',
+                '午后': 'afternoon',
+
+                // 天气/天空
+                '天空': 'sky',
+                '夜空': 'night sky',
+                '星星': 'stars',
+                '月亮': 'moon',
+                '太陽': 'sun',
+                '太阳': 'sun',
+
+                // 物品
+                '燈籠': 'paper lantern',
+                '灯笼': 'paper lantern',
+                '紙燈籠': 'paper lantern',
+                '纸灯笼': 'paper lantern',
+                '書': 'book',
+                '书': 'book',
+                '畫': 'painting',
+                '画': 'painting',
+
+                // 活动/动作
+                '慶祝': 'celebration',
+                '庆祝': 'celebration',
+                '探險': 'adventure exploration',
+                '探险': 'adventure exploration',
+                '聚集': 'gathering',
+                '點亮': 'lighting',
+                '点亮': 'lighting',
+                '放飛': 'releasing',
+                '放飞': 'releasing',
+
+                // 事件
+                '收穫': 'harvest',
+                '收获': 'harvest',
+                '節日': 'festival',
+                '节日': 'festival',
+                '豐收節': 'harvest festival',
+                '丰收节': 'harvest festival',
+
+                // 艺术相关
+                '藝術': 'art',
+                '艺术': 'art',
+                '當代藝術': 'contemporary art',
+                '当代艺术': 'contemporary art',
+                '現代藝術': 'modern art',
+                '现代艺术': 'modern art',
+
+                // 人物
+                '人們': 'people',
+                '人们': 'people',
+                '整個村莊': 'whole village people',
+                '整个村庄': 'whole village people',
+                '孩子': 'children',
+                '家庭': 'family',
+                '藝術家': 'artist',
+                '艺术家': 'artist'
+            };
+
+            // 匹配场景关键词
+            for (const [chinese, english] of Object.entries(scenePatterns)) {
+                if (chineseText.includes(chinese)) {
+                    keywords.push(english);
+                }
+            }
+
+            // 如果找到了关键词，返回组合
+            if (keywords.length > 0) {
+                return keywords.slice(0, 3).join(' ');
+            }
+
+            // 如果没找到，返回整个句子的简化版（移除标点和停用词）
+            const simplified = chineseText
+                .replace(/[，。！？、；：""''（）《》【】]/g, ' ')
+                .split(' ')
+                .filter(word => word.length > 1 && !stopWords.includes(word))
+                .slice(0, 3)
+                .join(' ');
+
+            return simplified || 'scene';
+        }
+
         // 从通义千问API获取单词数据
         async function fetchWordData(word) {
             // 第一步：生成例句
@@ -920,16 +1045,30 @@
                 wordInfo.imageUrls = [imageUrl];
                 wordInfo.aiGeneratedImage = true;
                 wordInfo.imagePromptUsed = imagePrompt; // 保存使用的提示词，便于调试
-                console.log('圖片生成成功:', imageUrl);
+                console.log('✅ AI圖片生成成功:', imageUrl);
             } catch (error) {
-                console.error('Image generation failed:', error);
-                // 降级使用传统图片源
+                console.error('❌ AI圖片生成失敗:', error);
+                console.log('原因:', error.message);
+
+                // 降级策略：从例句中提取关键词用于图片搜索
+                // 提取中文场景关键词（从括号中的中文部分）
+                const sceneKeywords = extractSceneKeywords(chinesePart);
+                const timestamp = Date.now();
+                console.log('📸 使用場景關鍵詞降級:', sceneKeywords);
+                console.log('英文例句:', englishPart);
+                console.log('中文描述:', chinesePart);
+
+                // 使用场景关键词而不是单词，确保图片匹配例句场景
                 wordInfo.imageUrls = [
-                    `https://source.unsplash.com/400x300/?${encodeURIComponent(word)}`,
-                    `https://picsum.photos/400/300?random=${word.length}`
+                    `https://source.unsplash.com/400x300/?${encodeURIComponent(sceneKeywords)}&sig=${timestamp}`,
+                    `https://source.unsplash.com/400x300/?${encodeURIComponent(word + ' ' + sceneKeywords)}&sig=${timestamp + 1}`,
+                    `https://source.unsplash.com/400x300/?${encodeURIComponent(englishPart.split(' ').slice(0, 3).join(' '))}&sig=${timestamp + 2}`,
+                    `https://picsum.photos/400/300?random=${timestamp}`
                 ];
                 wordInfo.aiGeneratedImage = false;
-                console.log('使用降級圖片源');
+                wordInfo.fallbackKeywords = sceneKeywords;
+                console.log('✅ 降級圖片URL已生成，使用關鍵詞:', sceneKeywords);
+                console.log('圖片URL:', wordInfo.imageUrls);
             }
 
             // 生成GIF动画提示词 - 也基于例句场景
