@@ -1001,17 +1001,21 @@
         // 从通义千问API获取单词数据
         async function fetchWordData(word) {
             // 第一步：生成例句
-            const step1Prompt = `請為英文單詞 "${word}" 生成一個具體的、有畫面感的例句，以JSON格式返回：
+            const step1Prompt = `請為英文單詞 "${word}" 生成一個簡單、具體、有畫面感的例句，以JSON格式返回：
 {
   "word": "${word}",
   "phonetic": "音標",
-  "definition": "中文釋義（簡潔）",
-  "example": "英文例句（要有具體場景，附中文翻譯）",
-  "context": "使用情境描述",
-  "visualDescription": "這個單詞的視覺化描述，幫助記憶"
+  "definition": "中文釋義（5-10字）",
+  "example": "簡單的英文例句（10-15個詞，附中文翻譯）",
+  "context": "使用情境",
+  "visualDescription": "視覺化描述"
 }
 
-重要：例句必須包含具體的、可視化的場景描述，方便後續生成對應的圖片。`;
+重要要求：
+1. 例句必須簡單易懂，適合初學者
+2. 例句長度：10-15個英文單詞
+3. 不要使用複雜詞彙或從句
+4. 例句要有具體、清晰的場景，方便繪圖`;
 
             const response1 = await fetch(QWEN_API_URL, {
                 method: 'POST',
@@ -1090,8 +1094,9 @@
             console.log('🎨 開始生成AI圖片...');
             console.log('圖片提示詞:', imagePrompt);
 
-            // 同步方式：直接等待图片生成
+            // 尝试AI生成图片，失败则使用可靠的降级方案
             try {
+                console.log('🎨 嘗試AI生成圖片（優先）...');
                 const imageUrl = await generateWordImageSync(imagePrompt, chinesePart);
                 wordInfo.imageUrls = [imageUrl];
                 wordInfo.aiGeneratedImage = true;
@@ -1099,13 +1104,27 @@
             } catch (error) {
                 console.error('❌ AI圖片生成失敗:', error);
                 console.log('錯誤詳情:', error.message);
+                console.log('📸 切換到Pexels API降級方案...');
 
-                // 不使用不相关的图片，而是显示占位符或者不显示
-                wordInfo.imageUrls = [];
-                wordInfo.aiGeneratedImage = false;
-                wordInfo.imageGenerationFailed = true;
-                wordInfo.errorMessage = error.message;
-                console.log('⚠️ 圖片生成失敗，不顯示不相關圖片');
+                // 降级：使用Pexels API获取场景相关图片
+                const sceneKeywords = extractSceneKeywords(chinesePart);
+                console.log('場景關鍵詞:', sceneKeywords);
+
+                try {
+                    const pexelsUrl = await fetchPexelsImage(sceneKeywords || word);
+                    wordInfo.imageUrls = [pexelsUrl];
+                    wordInfo.aiGeneratedImage = false;
+                    wordInfo.pexelsImage = true;
+                    console.log('✅ Pexels圖片獲取成功:', pexelsUrl);
+                } catch (pexelsError) {
+                    console.error('❌ Pexels也失敗了:', pexelsError);
+                    // 最终降级：不显示图片
+                    wordInfo.imageUrls = [];
+                    wordInfo.aiGeneratedImage = false;
+                    wordInfo.imageGenerationFailed = true;
+                    wordInfo.errorMessage = `AI和Pexels都失敗了: ${error.message}`;
+                    console.log('⚠️ 所有圖片來源都失敗，不顯示圖片');
+                }
             }
 
             // 生成GIF动画提示词 - 也基于例句场景
@@ -1279,6 +1298,11 @@
 
             // 显示或隐藏AI生成标记
             if (wordData.aiGeneratedImage) {
+                aiImageBadge.textContent = '✨ AI生成';
+                aiImageBadge.classList.remove('hidden');
+            } else if (wordData.pexelsImage) {
+                aiImageBadge.textContent = '📸 真實照片';
+                aiImageBadge.style.background = 'linear-gradient(135deg, #f39c12, #e67e22)';
                 aiImageBadge.classList.remove('hidden');
             } else {
                 aiImageBadge.classList.add('hidden');
@@ -1288,7 +1312,7 @@
                 // 图片生成失败，显示提示信息
                 imgElement.classList.add('hidden');
                 console.warn('⚠️ 圖片生成失敗，已隱藏圖片區域');
-                showMessage('AI圖片生成中遇到問題，請繼續學習單詞', 'error');
+                // 不显示错误消息，避免干扰学习
             } else if (wordData.imageUrls && wordData.imageUrls.length > 0) {
                 loadImageWithFallback(imgElement, wordData.imageUrls, 0);
             } else if (wordData.imageUrl) {
