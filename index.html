@@ -829,26 +829,56 @@
     </div>
 
     <script>
+        // ============================================
         // 通义千问 API 配置
+        // ============================================
         const QWEN_API_KEY = 'sk-5848f54f1c3f4771b869f73e220715ca';
 
-        // 使用 CORS 代理来解决跨域问题
-        const USE_CORS_PROXY = true;
-        const CORS_PROXY = 'https://corsproxy.io/?';
-
+        // API 端点
         const QWEN_API_URL_BASE = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
         const QWEN_OCR_URL_BASE = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
 
-        // 如果使用代理，添加代理前缀
-        const QWEN_API_URL = USE_CORS_PROXY ? CORS_PROXY + encodeURIComponent(QWEN_API_URL_BASE) : QWEN_API_URL_BASE;
-        const QWEN_OCR_URL = USE_CORS_PROXY ? CORS_PROXY + encodeURIComponent(QWEN_OCR_URL_BASE) : QWEN_OCR_URL_BASE;
-
+        // 模型配置
         const QWEN_MODEL = 'qwen-plus';
         const QWEN_OCR_MODEL = 'qwen-vl-ocr';
 
-        // Cloudflare Workers API 配置 (如果已部署)
-        const CLOUDFLARE_WORKER_URL = 'https://dse-rag.YOUR_SUBDOMAIN.workers.dev'; // 请替换为实际的 Workers URL
-        const USE_CLOUDFLARE_RAG = false; // 设置为 true 以启用 Cloudflare RAG 向量检索
+        // ============================================
+        // CORS 跨域解决方案配置
+        // ============================================
+
+        // 方案 1: Cloudflare Worker 代理（推荐 - 快速稳定）
+        // 部署完成后，请填入您的 Worker URL 并设置 USE_CLOUDFLARE_WORKER = true
+        const CLOUDFLARE_WORKER_URL = '';  // 👈 部署后填入，格式: https://qwen-api-proxy.YOUR-USERNAME.workers.dev
+        const USE_CLOUDFLARE_WORKER = false;  // 👈 部署后改为 true
+
+        // 方案 2: CORS 公共代理（临时方案 - 较慢但可用）
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        const USE_CORS_PROXY = true;  // 👈 部署 Worker 后改为 false
+
+        // ============================================
+        // 自动选择最优方案
+        // ============================================
+        let QWEN_API_URL, QWEN_OCR_URL;
+
+        if (USE_CLOUDFLARE_WORKER && CLOUDFLARE_WORKER_URL) {
+            // 优先使用 Cloudflare Worker（性能最佳）
+            QWEN_API_URL = `${CLOUDFLARE_WORKER_URL}?path=/api/v1/services/aigc/text-generation/generation`;
+            QWEN_OCR_URL = `${CLOUDFLARE_WORKER_URL}?path=/api/v1/services/aigc/multimodal-generation/generation`;
+            console.log('✅ 使用 Cloudflare Worker 代理（推荐）');
+        } else if (USE_CORS_PROXY) {
+            // 使用 CORS 公共代理（临时方案）
+            QWEN_API_URL = CORS_PROXY + encodeURIComponent(QWEN_API_URL_BASE);
+            QWEN_OCR_URL = CORS_PROXY + encodeURIComponent(QWEN_OCR_URL_BASE);
+            console.log('⚠️ 使用 CORS 公共代理（临时方案，建议部署 Cloudflare Worker）');
+        } else {
+            // 直接调用（通常会因 CORS 失败）
+            QWEN_API_URL = QWEN_API_URL_BASE;
+            QWEN_OCR_URL = QWEN_OCR_URL_BASE;
+            console.warn('❌ 未配置代理，API 调用可能因 CORS 失败');
+        }
+
+        // Cloudflare RAG 向量检索（未来功能）
+        const USE_CLOUDFLARE_RAG = false;
 
         // 考題數據（將從 JSON 文件加載）
         let questionsData = [];
