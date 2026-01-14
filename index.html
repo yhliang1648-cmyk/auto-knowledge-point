@@ -555,7 +555,7 @@
             <h1>🎓 DSE 考題智能檢索系統</h1>
             <p class="subtitle">基於 AI 的香港中學文憑試歷屆考題知識庫 (2012-2025)</p>
             <p style="font-size: 0.85rem; color: #999; margin-top: 10px;">
-                版本：v2.0 - 通义千问API | 更新时间：2026-01-14 02:50
+                版本：v2.1 - 通义千问API (已修复CORS) | 更新时间：2026-01-14 03:15
             </p>
         </div>
 
@@ -831,8 +831,18 @@
     <script>
         // 通义千问 API 配置
         const QWEN_API_KEY = 'sk-5848f54f1c3f4771b869f73e220715ca';
-        const QWEN_API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
-        const QWEN_OCR_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+
+        // 使用 CORS 代理来解决跨域问题
+        const USE_CORS_PROXY = true;
+        const CORS_PROXY = 'https://corsproxy.io/?';
+
+        const QWEN_API_URL_BASE = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+        const QWEN_OCR_URL_BASE = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+
+        // 如果使用代理，添加代理前缀
+        const QWEN_API_URL = USE_CORS_PROXY ? CORS_PROXY + encodeURIComponent(QWEN_API_URL_BASE) : QWEN_API_URL_BASE;
+        const QWEN_OCR_URL = USE_CORS_PROXY ? CORS_PROXY + encodeURIComponent(QWEN_OCR_URL_BASE) : QWEN_OCR_URL_BASE;
+
         const QWEN_MODEL = 'qwen-plus';
         const QWEN_OCR_MODEL = 'qwen-vl-ocr';
 
