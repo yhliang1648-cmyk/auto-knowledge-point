@@ -1232,14 +1232,37 @@ ${context}
 
                 // 提取 PDF 文本
                 const pdfText = await extractTextFromPDF(file);
+                console.log('PDF 文本提取结果:', pdfText.substring(0, 500) + '...');
+
+                if (!pdfText || pdfText.trim().length < 50) {
+                    throw new Error('PDF 文本提取失败或内容太少。可能是扫描版PDF，请使用图片OCR上传。');
+                }
+
                 updateProgress(40, 'PDF 文本提取完成，正在使用 AI 解析...');
 
                 // 使用 AI 解析文本，提取题目信息
                 const parsedQuestions = await parseTextWithAI(pdfText, 'PDF');
+                console.log('AI 解析结果:', parsedQuestions);
                 updateProgress(80, `AI 解析完成，识别到 ${parsedQuestions.length} 道题目...`);
 
                 if (parsedQuestions.length === 0) {
-                    alert('PDF 中未识别到有效的题目信息');
+                    // 显示提取的文本前500字符，帮助用户判断问题
+                    const preview = pdfText.substring(0, 500);
+                    const shouldContinue = confirm(
+                        `PDF 中未识别到有效的题目信息。\n\n` +
+                        `提取的文本预览：\n${preview}...\n\n` +
+                        `可能原因：\n` +
+                        `1. PDF是扫描版（请使用图片OCR上传）\n` +
+                        `2. 内容格式不符合DSE考题格式\n` +
+                        `3. 文字提取不完整\n\n` +
+                        `是否查看完整提取文本？`
+                    );
+
+                    if (shouldContinue) {
+                        console.log('完整PDF文本:', pdfText);
+                        alert('完整文本已输出到浏览器控制台（按F12查看）');
+                    }
+
                     document.getElementById('uploadProgress').style.display = 'none';
                     return;
                 }
@@ -1343,14 +1366,27 @@ ${context}
 
                 // 提取 Word 文本
                 const wordText = await extractTextFromWord(file);
+                console.log('Word 文本提取结果:', wordText.substring(0, 500) + '...');
+
+                if (!wordText || wordText.trim().length < 20) {
+                    throw new Error('Word 文本提取失败或内容太少');
+                }
+
                 updateProgress(40, 'Word 文本提取完成，正在使用 AI 解析...');
 
                 // 使用 AI 解析文本，提取题目信息
                 const parsedQuestions = await parseTextWithAI(wordText, 'Word');
+                console.log('Word AI 解析结果:', parsedQuestions);
                 updateProgress(80, `AI 解析完成，识别到 ${parsedQuestions.length} 道题目...`);
 
                 if (parsedQuestions.length === 0) {
-                    alert('Word 文档中未识别到有效的题目信息');
+                    const preview = wordText.substring(0, 500);
+                    alert(
+                        `Word 文档中未识别到有效的题目信息。\n\n` +
+                        `提取的文本预览：\n${preview}...\n\n` +
+                        `建议：请检查文档格式是否包含题目内容。\n` +
+                        `详细日志请查看浏览器控制台（F12）。`
+                    );
                     document.getElementById('uploadProgress').style.display = 'none';
                     return;
                 }
@@ -1429,14 +1465,29 @@ ${context}
 
                 // 使用通义千问 OCR 识别文本
                 const ocrText = await performOCR(imageBase64);
+                console.log('OCR 识别结果:', ocrText.substring(0, 500) + '...');
+
+                if (!ocrText || ocrText.trim().length < 10) {
+                    throw new Error('OCR 识别失败或图片中文字太少。请确保图片清晰且包含文字内容。');
+                }
+
                 updateProgress(60, 'OCR 识别完成，正在使用 AI 解析...');
 
                 // 使用 AI 解析文本，提取题目信息
                 const parsedQuestions = await parseTextWithAI(ocrText, '图片OCR');
+                console.log('图片 AI 解析结果:', parsedQuestions);
                 updateProgress(85, `AI 解析完成，识别到 ${parsedQuestions.length} 道题目...`);
 
                 if (parsedQuestions.length === 0) {
-                    alert('图片中未识别到有效的题目信息');
+                    const preview = ocrText.substring(0, 500);
+                    alert(
+                        `图片中未识别到有效的题目信息。\n\n` +
+                        `OCR 识别的文本：\n${preview}...\n\n` +
+                        `建议：\n` +
+                        `1. 确保图片清晰可读\n` +
+                        `2. 图片包含完整的题目内容\n` +
+                        `3. 查看控制台（F12）了解详细信息`
+                    );
                     document.getElementById('uploadProgress').style.display = 'none';
                     return;
                 }
@@ -1540,40 +1591,48 @@ ${context}
          * 使用通义千问 AI 解析文本，提取题目信息
          */
         async function parseTextWithAI(text, sourceType = 'PDF') {
-            const prompt = `你是一位专业的香港 DSE 考题识别专家。请从以下 ${sourceType} 文本中提取 DSE 考题信息。
+            const prompt = `你是一位专业的香港 DSE 考题识别专家。请仔细分析以下文本，提取 DSE 考题信息。
 
 文本内容：
 ${text.substring(0, 8000)}
 
-请识别并提取以下信息，以 JSON 数组格式返回：
-- 年份 (year): 如 "2024"
-- 科目中文名 (subject): 如 "數學"、"英國語文"
-- 科目代码 (subjectCode): chinese/english/math/liberal/biology/chemistry/physics/history/geography/economics/bafs/ict
-- 试卷编号 (paper): 如 "Paper 1"
-- 题号 (number): 如 "1"、"2a"
-- 题目内容 (content): 完整题目文本
-- 关键词 (keywords): 数组格式，如 ["概率", "统计"]
-- 难度 (difficulty): easy/medium/hard
-- 来源 (source): 如 "HKEAA 2024"
+【重要提示】
+1. 如果文本中包含任何考题相关内容，请务必提取
+2. 如果找不到完整的年份、科目等信息，可以推测或使用默认值
+3. 年份默认值：2024
+4. 如果无法确定科目，使用 "math" 作为默认值
+5. 试卷编号默认值：Paper 1
+6. 即使只有题目文本也要提取
 
-返回格式示例：
-[
-  {
-    "year": "2024",
-    "subject": "數學",
-    "subjectCode": "math",
-    "paper": "Paper 1",
-    "number": "1",
-    "content": "题目内容...",
-    "keywords": ["关键词1", "关键词2"],
-    "difficulty": "medium",
-    "source": "HKEAA 2024"
-  }
-]
+请提取以下字段（JSON 数组格式）：
+- year: 年份，如 "2024"（必填，找不到用"2024"）
+- subject: 科目中文名，如 "數學"（必填，找不到用"通識教育"）
+- subjectCode: 科目代码（必填，可选：chinese/english/math/liberal/biology/chemistry/physics/history/geography/economics/bafs/ict，找不到用"liberal"）
+- paper: 试卷编号，如 "Paper 1"（必填，找不到用"Paper 1"）
+- number: 题号，如 "1", "2a"（必填，找不到用"1"）
+- content: 题目完整内容（必填）
+- keywords: 关键词数组，如 ["概率", "统计"]（必填，至少包含一个关键词）
+- difficulty: 难度 easy/medium/hard（必填，默认"medium"）
+- source: 来源，如 "HKEAA 2024"（必填，默认"用户上传"）
 
-只返回 JSON 数组，不要其他文字。如果无法识别到题目，返回空数组 []。`;
+【返回格式】
+必须返回一个 JSON 数组，即使只有一道题也要用数组包裹。
+
+正确示例1（找到完整信息）：
+[{"year":"2024","subject":"數學","subjectCode":"math","paper":"Paper 1","number":"1","content":"计算 3+5 的值","keywords":["加法","计算"],"difficulty":"easy","source":"HKEAA 2024"}]
+
+正确示例2（信息不完整，使用默认值）：
+[{"year":"2024","subject":"通識教育","subjectCode":"liberal","paper":"Paper 1","number":"1","content":"讨论气候变化的影响","keywords":["气候变化","环境"],"difficulty":"medium","source":"用户上传"}]
+
+错误示例（不要返回这样的内容）：
+- "无法识别"
+- "文本中没有考题"
+- null 或 undefined
+
+【重要】只返回 JSON 数组，不要任何其他文字说明。如果实在找不到任何题目内容，才返回空数组 []。`;
 
             try {
+                console.log('正在调用通义千问 API 解析文本...');
                 const response = await fetch(QWEN_API_URL, {
                     method: 'POST',
                     headers: {
@@ -1591,39 +1650,86 @@ ${text.substring(0, 8000)}
                         },
                         parameters: {
                             max_tokens: 2000,
-                            temperature: 0.3,
+                            temperature: 0.5,
                             result_format: 'message'
                         }
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error(`通义千问 API 错误: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error('API 错误响应:', errorText);
+                    throw new Error(`通义千问 API 错误 (${response.status}): ${errorText.substring(0, 200)}`);
                 }
 
                 const data = await response.json();
-                const aiResponse = data.output.choices[0].message.content;
+                console.log('API 响应数据:', data);
 
-                // 提取 JSON 部分
-                let jsonStr = aiResponse.trim();
-                if (jsonStr.startsWith('```json')) {
-                    jsonStr = jsonStr.replace(/```json\n/, '').replace(/```$/, '');
-                } else if (jsonStr.startsWith('```')) {
-                    jsonStr = jsonStr.replace(/```\n/, '').replace(/```$/, '');
+                if (!data.output || !data.output.choices || !data.output.choices[0]) {
+                    console.error('API 返回格式异常:', data);
+                    throw new Error('API 返回数据格式异常');
                 }
 
-                const parsedQuestions = JSON.parse(jsonStr);
+                const aiResponse = data.output.choices[0].message.content;
+                console.log('AI 原始响应:', aiResponse);
 
-                // 为每个题目生成 ID
-                parsedQuestions.forEach(q => {
-                    q.id = `dse-${q.year}-${q.subjectCode}-${q.paper.toLowerCase().replace(/\s+/g, '-')}-q${q.number}`;
+                // 提取 JSON 部分（支持多种格式）
+                let jsonStr = aiResponse.trim();
+
+                // 移除 markdown 代码块标记
+                if (jsonStr.startsWith('```json')) {
+                    jsonStr = jsonStr.replace(/```json\n?/, '').replace(/\n?```$/, '');
+                } else if (jsonStr.startsWith('```')) {
+                    jsonStr = jsonStr.replace(/```\n?/, '').replace(/\n?```$/, '');
+                }
+
+                // 尝试找到JSON数组
+                const jsonMatch = jsonStr.match(/\[[\s\S]*\]/);
+                if (jsonMatch) {
+                    jsonStr = jsonMatch[0];
+                }
+
+                console.log('提取的 JSON 字符串:', jsonStr);
+
+                let parsedQuestions;
+                try {
+                    parsedQuestions = JSON.parse(jsonStr);
+                } catch (parseError) {
+                    console.error('JSON 解析失败:', parseError);
+                    console.log('尝试解析的字符串:', jsonStr);
+                    throw new Error(`JSON 解析失败: ${parseError.message}。AI返回内容可能不是有效的JSON格式。`);
+                }
+
+                // 验证返回的数据格式
+                if (!Array.isArray(parsedQuestions)) {
+                    console.error('返回的不是数组:', parsedQuestions);
+                    throw new Error('AI 返回格式错误：应该是数组');
+                }
+
+                console.log(`成功解析 ${parsedQuestions.length} 道题目`);
+
+                // 为每个题目生成 ID 并验证必填字段
+                parsedQuestions.forEach((q, index) => {
+                    // 填充缺失的必填字段
+                    q.year = q.year || '2024';
+                    q.subject = q.subject || '通識教育';
+                    q.subjectCode = q.subjectCode || 'liberal';
+                    q.paper = q.paper || 'Paper 1';
+                    q.number = q.number || (index + 1).toString();
+                    q.content = q.content || '题目内容未识别';
+                    q.keywords = Array.isArray(q.keywords) && q.keywords.length > 0 ? q.keywords : ['未分类'];
+                    q.difficulty = q.difficulty || 'medium';
+                    q.source = q.source || '用户上传';
+
+                    // 生成唯一 ID
+                    q.id = `dse-${q.year}-${q.subjectCode}-${q.paper.toLowerCase().replace(/\s+/g, '-')}-q${q.number}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                     q.copyright = `${sourceType} 上传`;
                 });
 
                 return parsedQuestions;
             } catch (error) {
-                console.error('AI 解析失败:', error);
-                throw new Error(`AI 解析 ${sourceType} 文本失败：` + error.message);
+                console.error('AI 解析失败 - 详细错误:', error);
+                throw new Error(`AI 解析 ${sourceType} 文本失败：${error.message}`);
             }
         }
 
