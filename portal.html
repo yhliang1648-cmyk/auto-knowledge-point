@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 香港AI教育平台 | 九大創新教育系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #4caf50;
+            --warning: #ffc107;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #f093fb 50%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--card-color-1, #667eea), var(--card-color-2, #764ba2));
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            padding: 5px 12px;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #f093fb;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .card-link:hover {
+            gap: 15px;
+            color: #fff;
+        }
+
+        /* Featured Card (NeuroLingo) */
+        .card.featured {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(240, 147, 251, 0.2));
+            border: 2px solid rgba(240, 147, 251, 0.3);
+        }
+
+        .card.featured::before {
+            height: 6px;
+            background: linear-gradient(90deg, #f093fb, #f5576c, #ffd700);
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+        }
+
+        .footer-cta {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #f093fb;
+        }
+
+        .copyright {
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .powered-by {
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .logo {
+                font-size: 3rem;
+            }
+
+            .stats {
+                gap: 30px;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Specific Card Colors */
+        .card[data-category="dse"] { --card-color-1: #667eea; --card-color-2: #764ba2; }
+        .card[data-category="course"] { --card-color-1: #f093fb; --card-color-2: #f5576c; }
+        .card[data-category="maker"] { --card-color-1: #4facfe; --card-color-2: #00f2fe; }
+        .card[data-category="science"] { --card-color-1: #43e97b; --card-color-2: #38f9d7; }
+        .card[data-category="helper"] { --card-color-1: #fa709a; --card-color-2: #fee140; }
+        .card[data-category="teacher"] { --card-color-1: #a18cd1; --card-color-2: #fbc2eb; }
+        .card[data-category="dev"] { --card-color-1: #30cfd0; --card-color-2: #330867; }
+        .card[data-category="school"] { --card-color-1: #667eea; --card-color-2: #764ba2; }
+        .card[data-category="manager"] { --card-color-1: #f5576c; --card-color-2: #f093fb; }
+        .card[data-category="neuro"] { --card-color-1: #f093fb; --card-color-2: #f5576c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">🎓</div>
+            <h1>香港AI教育平台</h1>
+            <p class="subtitle">
+                九大創新教育系統 · 全方位AI學習體驗<br>
+                整合 DSE 智能檢索、AI 課程、創客教育、科學探索、智能刷題、教材評估、開發工具、
+                未來學校、管理哲學，為學生、教師、開發者、管理者提供完整的 AI 教育解決方案
+            </p>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">創新系統</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5+</div>
+                    <div class="stat-label">用戶群體</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">開源免費</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Cards Grid -->
+        <div class="cards-grid">
+            <!-- NeuroLingo - 新增卡片 (Featured) -->
+            <div class="card featured" data-category="neuro">
+                <span class="new-badge">⭐ 最新</span>
+                <div class="card-icon">🧠</div>
+                <h3>NeuroLingo 腦科學英語</h3>
+                <p>基於神經科學與認知心理學的第一性原理，結合通義千問AI和Cloudflare RAG，讓英語學習更科學、更高效、更有趣。間隔重複、多感官學習。</p>
+                <div class="card-tags">
+                    <span class="tag">所有學生</span>
+                    <span class="tag">間隔重複</span>
+                    <span class="tag">AI生成</span>
+                </div>
+                <a href="neurolingo.html" class="card-link">開始學習 →</a>
+            </div>
+
+            <!-- DSE 考題智能檢索 -->
+            <div class="card" data-category="dse">
+                <div class="card-icon">🔍</div>
+                <h3>DSE 考題智能檢索</h3>
+                <p>基於檢索增強生成（RAG）技術的香港中學文憑試歷屆考題知識庫（2012-2025），支持語義搜索、AI 解答、智能分類。</p>
+                <div class="card-tags">
+                    <span class="tag">DSE考生</span>
+                    <span class="tag">教師</span>
+                    <span class="tag">RAG技術</span>
+                </div>
+                <a href="index.html" class="card-link">立即使用 →</a>
+            </div>
+
+            <!-- 斯坦福AI課程 -->
+            <div class="card" data-category="course">
+                <div class="card-icon">📚</div>
+                <h3>斯坦福AI課程（香港版）</h3>
+                <p>基於斯坦福大學 CS146S 課程改編，分為小學（AI小創客）、初中（AI應用開發者）、高中（AI工程師）三個級別，系統學習 AI 開發。</p>
+                <div class="card-tags">
+                    <span class="tag">中小學生</span>
+                    <span class="tag">8-16週</span>
+                    <span class="tag">證書</span>
+                </div>
+                <a href="ai-course.html" class="card-link">查看課程 →</a>
+            </div>
+
+            <!-- AI創客小達人 -->
+            <div class="card" data-category="maker">
+                <div class="card-icon">🚀</div>
+                <h3>AI創客小達人</h3>
+                <p>項目制學習（PBL）課程，專為香港中小學生設計。視覺衝擊、即時反饋、遊戲化學習，12週打造 3-5 個可運行的 AI 應用。</p>
+                <div class="card-tags">
+                    <span class="tag">中小學生</span>
+                    <span class="tag">PBL</span>
+                    <span class="tag">作品集</span>
+                </div>
+                <a href="hk-ai-maker.html" class="card-link">開始學習 →</a>
+            </div>
+
+            <!-- 認知邊界探索者 -->
+            <div class="card" data-category="science">
+                <div class="card-icon">🌌</div>
+                <h3>認知邊界探索者</h3>
+                <p>基於吳國盛《科學的歷程》，用 AI 技術重構科學史教育。時間卷軸學習、AI 歷史導師對話、思想實驗工坊，探索 2500 年認知演進。</p>
+                <div class="card-tags">
+                    <span class="tag">中學生-大學生</span>
+                    <span class="tag">55-67學時</span>
+                    <span class="tag">認知博物館</span>
+                </div>
+                <a href="cognitive-explorer.html" class="card-link">開始探索 →</a>
+            </div>
+
+            <!-- 智能刷題助手 -->
+            <div class="card" data-category="helper">
+                <div class="card-icon">📸</div>
+                <h3>智能刷題助手</h3>
+                <p>AI 驅動的個性化學習系統，支持拍照批改、知識診斷、智能出題、可視化講解。通義千問 API 集成，移動端 App 支持。</p>
+                <div class="card-tags">
+                    <span class="tag">所有學生</span>
+                    <span class="tag">OCR識別</span>
+                    <span class="tag">Web+App</span>
+                </div>
+                <a href="exam-helper.html" class="card-link">開始刷題 →</a>
+            </div>
+
+            <!-- 教材試卷評估系統 -->
+            <div class="card" data-category="teacher">
+                <div class="card-icon">📖</div>
+                <h3>教材試卷評估系統</h3>
+                <p>教師專用 AI 評估工具，上傳教材和試卷即可獲得考點覆蓋率、難度分析、適應性評估報告。自動 OCR、向量化、RAG 知識庫建設。</p>
+                <div class="card-tags">
+                    <span class="tag">教師</span>
+                    <span class="tag">教研人員</span>
+                    <span class="tag">評估報告</span>
+                </div>
+                <a href="#" class="card-link">開始評估 →</a>
+            </div>
+
+            <!-- API測試系統 -->
+            <div class="card" data-category="dev">
+                <div class="card-icon">🧪</div>
+                <h3>API測試系統</h3>
+                <p>支持測試各類 API 端點，實時顯示響應結果、請求歷史和性能統計。多方法支持（GET/POST/PUT/DELETE），JSON 語法高亮。</p>
+                <div class="card-tags">
+                    <span class="tag">開發者</span>
+                    <span class="tag">API調試</span>
+                    <span class="tag">性能監控</span>
+                </div>
+                <a href="#" class="card-link">開始測試 →</a>
+            </div>
+
+            <!-- 香港未來學校 -->
+            <div class="card" data-category="school">
+                <div class="card-icon">🌟</div>
+                <h3>香港未來學校</h3>
+                <p>參考埃隆·馬斯克 Ad Astra/Astra Nova 理念，打破年級制度、項目制教學、第一原則思維。6 大核心課程模塊，2 年制學習路徑。</p>
+                <div class="card-tags">
+                    <span class="tag">7-16歲</span>
+                    <span class="tag">2年制</span>
+                    <span class="tag">Capstone項目</span>
+                </div>
+                <a href="#" class="card-link">了解詳情 →</a>
+            </div>
+
+            <!-- 馬斯克工作流系統 -->
+            <div class="card" data-category="manager">
+                <div class="card-icon">⚡</div>
+                <h3>馬斯克工作流系統</h3>
+                <p>深度拆解埃隆·馬斯克的成功算法，將管理哲學轉化為可執行的工作流程系統。四大維度：戰略選擇、技術突破、多公司管理、人才管理。</p>
+                <div class="card-tags">
+                    <span class="tag">管理者</span>
+                    <span class="tag">創業者</span>
+                    <span class="tag">效率提升</span>
+                </div>
+                <a href="#" class="card-link">立即體驗 →</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-cta">🚀 讓我們一起用 AI 改變教育！</div>
+            
+            <div class="footer-links">
+                <a href="https://github.com/yhliang1648-cmyk/auto-knowledge-point" target="_blank">📁 GitHub 倉庫</a>
+                <a href="README.md">📖 項目文檔</a>
+                <a href="mailto:contact@example.com">📧 聯繫我們</a>
+            </div>
+
+            <div class="copyright">
+                © 2025 香港AI教育計劃 | 讓每個孩子都能擁抱AI時代
+            </div>
+
+            <div class="powered-by">
+                Powered by Cloudflare · 通義千問 · First Principles Thinking
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 添加卡片入場動畫
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
+
