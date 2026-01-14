@@ -665,9 +665,20 @@
     </div>
 
     <script>
-        // 通义千问API配置
+        // ============================================
+        // 通义千问 API 配置
+        // ============================================
         const QWEN_API_KEY = 'sk-5848f54f1c3f4771b869f73e220715ca';
         const QWEN_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+        const QWEN_IMAGE_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
+
+        // Cloudflare Workers KV 缓存配置
+        // 注意：需要在 Cloudflare Workers 中部署一个简单的 KV 读写 API
+        const CLOUDFLARE_KV_API = 'https://neurolingo-cache.your-worker.workers.dev'; // 需要替换为实际的 Worker URL
+        const USE_CLOUDFLARE_CACHE = false; // 暂时关闭，直到 Worker 部署完成
+
+        // 本地缓存（IndexedDB）- 作为 Cloudflare KV 的本地备份
+        let wordCacheDB = null;
 
         // 当前学习状态
         let currentWordList = [];
@@ -675,14 +686,166 @@
         let todayLearnedCount = 0;
         let currentWord = null;
 
-        // 预设单词列表（按年级）
+        // 预设单词列表（按年级）- 扩展版本
         const gradeWordLists = {
-            'primary-1-3': ['apple', 'book', 'cat', 'dog', 'egg', 'fish', 'girl', 'hat', 'ice', 'juice'],
-            'primary-4-6': ['adventure', 'beautiful', 'celebrate', 'discover', 'example', 'friendly', 'garden', 'holiday', 'imagine', 'journey'],
-            'junior-1-3': ['knowledge', 'language', 'mountain', 'necessary', 'opposite', 'passion', 'quality', 'recommend', 'science', 'technology'],
-            'senior-1-3': ['achievement', 'beneficial', 'contemporary', 'demonstrate', 'enthusiastic', 'fundamental', 'generation', 'hypothesis', 'innovative', 'justify'],
-            'college': ['serendipity', 'ephemeral', 'ubiquitous', 'paradigm', 'eloquent', 'ambiguous', 'comprehensive', 'fundamental', 'substantial', 'theoretical']
+            'primary-1-3': ['apple', 'book', 'cat', 'dog', 'egg', 'fish', 'girl', 'hat', 'ice', 'juice', 'kite', 'lion', 'milk', 'nose', 'orange'],
+            'primary-4-6': ['adventure', 'beautiful', 'celebrate', 'discover', 'example', 'friendly', 'garden', 'holiday', 'imagine', 'journey', 'kitchen', 'library', 'mountain', 'nature', 'ocean'],
+            'junior-1-3': ['knowledge', 'language', 'mountain', 'necessary', 'opposite', 'passion', 'quality', 'recommend', 'science', 'technology', 'universe', 'valuable', 'weather', 'excellent', 'youth'],
+            'senior-1-3': ['achievement', 'beneficial', 'contemporary', 'demonstrate', 'enthusiastic', 'fundamental', 'generation', 'hypothesis', 'innovative', 'justify', 'knowledge', 'legitimate', 'magnificent', 'negotiation', 'observation'],
+            'college': ['serendipity', 'ephemeral', 'ubiquitous', 'paradigm', 'eloquent', 'ambiguous', 'comprehensive', 'fundamental', 'substantial', 'theoretical', 'unprecedented', 'versatile', 'wholesome', 'xenophobia', 'zealous']
         };
+
+        // ============================================
+        // IndexedDB 本地缓存初始化
+        // ============================================
+        async function initLocalCache() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('NeuroLingoCache', 1);
+
+                request.onerror = () => {
+                    console.error('❌ IndexedDB 初始化失败');
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    wordCacheDB = request.result;
+                    console.log('✅ IndexedDB 本地缓存已就绪');
+                    resolve(wordCacheDB);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('words')) {
+                        const store = db.createObjectStore('words', { keyPath: 'word' });
+                        store.createIndex('createdAt', 'createdAt', { unique: false });
+                        console.log('📦 創建 words 存儲庫');
+                    }
+                };
+            });
+        }
+
+        // ============================================
+        // 缓存读取：优先 Cloudflare KV，降级到 IndexedDB
+        // ============================================
+        async function getWordFromCache(word) {
+            const wordLower = word.toLowerCase();
+
+            // 1. 尝试 Cloudflare KV（如果启用）
+            if (USE_CLOUDFLARE_CACHE) {
+                try {
+                    const response = await fetch(`${CLOUDFLARE_KV_API}/get/${wordLower}`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.word) {
+                            console.log(`☁️ 從 Cloudflare KV 獲取: ${word}`);
+                            return data;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Cloudflare KV 讀取失敗，嘗試本地緩存:', error.message);
+                }
+            }
+
+            // 2. 降级到 IndexedDB
+            if (wordCacheDB) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        const transaction = wordCacheDB.transaction(['words'], 'readonly');
+                        const store = transaction.objectStore('words');
+                        const request = store.get(wordLower);
+
+                        request.onsuccess = () => {
+                            if (request.result) {
+                                console.log(`💾 從本地緩存獲取: ${word}`);
+                                resolve(request.result);
+                            } else {
+                                resolve(null);
+                            }
+                        };
+                        request.onerror = () => reject(request.error);
+                    });
+                } catch (error) {
+                    console.warn('⚠️ 本地緩存讀取失敗:', error.message);
+                }
+            }
+
+            return null;
+        }
+
+        // ============================================
+        // 缓存写入：同时写入 Cloudflare KV 和 IndexedDB
+        // ============================================
+        async function saveWordToCache(wordData) {
+            const wordLower = wordData.word.toLowerCase();
+            const cacheData = {
+                ...wordData,
+                word: wordLower,
+                createdAt: new Date().toISOString(),
+                version: 1
+            };
+
+            // 1. 写入 IndexedDB（本地缓存）
+            if (wordCacheDB) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const transaction = wordCacheDB.transaction(['words'], 'readwrite');
+                        const store = transaction.objectStore('words');
+                        const request = store.put(cacheData);
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject(request.error);
+                    });
+                    console.log(`💾 已保存到本地緩存: ${wordData.word}`);
+                } catch (error) {
+                    console.error('❌ 本地緩存寫入失敗:', error);
+                }
+            }
+
+            // 2. 写入 Cloudflare KV（异步，不阻塞）
+            if (USE_CLOUDFLARE_CACHE) {
+                fetch(`${CLOUDFLARE_KV_API}/set/${wordLower}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cacheData)
+                }).then(() => {
+                    console.log(`☁️ 已同步到 Cloudflare KV: ${wordData.word}`);
+                }).catch(error => {
+                    console.warn('⚠️ Cloudflare KV 寫入失敗:', error.message);
+                });
+            }
+        }
+
+        // ============================================
+        // 批量预生成单词数据（后台任务）
+        // ============================================
+        async function pregenerateWords(words) {
+            console.log(`🚀 開始預生成 ${words.length} 個單詞的數據...`);
+
+            for (const word of words) {
+                // 检查缓存
+                const cached = await getWordFromCache(word);
+                if (cached) {
+                    console.log(`⏭️ 跳過已緩存: ${word}`);
+                    continue;
+                }
+
+                // 生成新数据
+                try {
+                    console.log(`🔄 預生成: ${word}`);
+                    const wordData = await generateWordData(word);
+                    await saveWordToCache(wordData);
+
+                    // 避免 API 速率限制
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                } catch (error) {
+                    console.error(`❌ 預生成失敗 ${word}:`, error);
+                }
+            }
+
+            console.log('✅ 預生成完成！');
+        }
 
         // 处理文件上传
         async function handleFileUpload(event) {
@@ -998,24 +1161,54 @@
             return simplified || 'scene';
         }
 
-        // 从通义千问API获取单词数据
+        // ============================================
+        // 核心功能：获取单词数据（优先缓存，按需生成）
+        // ============================================
         async function fetchWordData(word) {
-            // 第一步：生成例句
-            const step1Prompt = `請為英文單詞 "${word}" 生成一個簡單、具體、有畫面感的例句，以JSON格式返回：
+            // 第一步：检查缓存
+            const cached = await getWordFromCache(word);
+            if (cached && cached.imageUrls && cached.imageUrls.length > 0) {
+                console.log(`⚡ 從緩存快速加載: ${word}`);
+                return cached;
+            }
+
+            // 第二步：生成新数据
+            console.log(`🔄 緩存未命中，開始生成: ${word}`);
+            const wordData = await generateWordData(word);
+
+            // 第三步：保存到缓存
+            await saveWordToCache(wordData);
+
+            return wordData;
+        }
+
+        // ============================================
+        // 生成单词数据（调用通义千问 API）
+        // ============================================
+        async function generateWordData(word) {
+            // 第一步：生成简单例句
+            document.getElementById('loadingText').textContent = '步驟1：生成簡單例句...';
+
+            const step1Prompt = `請為英文單詞 "${word}" 生成學習資料，以JSON格式返回：
 {
   "word": "${word}",
-  "phonetic": "音標",
-  "definition": "中文釋義（5-10字）",
-  "example": "簡單的英文例句（10-15個詞，附中文翻譯）",
-  "context": "使用情境",
-  "visualDescription": "視覺化描述"
+  "phonetic": "音標（如 /ˈæpəl/）",
+  "definition": "中文釋義（3-8個字，簡潔明了）",
+  "example": "簡單英文例句（中文翻譯）",
+  "context": "使用場景",
+  "visualDescription": "記憶技巧"
 }
 
-重要要求：
-1. 例句必須簡單易懂，適合初學者
-2. 例句長度：10-15個英文單詞
-3. 不要使用複雜詞彙或從句
-4. 例句要有具體、清晰的場景，方便繪圖`;
+【重要要求】例句必須：
+1. 非常簡單，只用基礎詞彙
+2. 長度：5-10個英文單詞
+3. 描述具體、可視化的場景（如：一個人、一個地點、一個動作）
+4. 避免抽象概念，要有畫面感
+
+例如：
+- apple → "The red apple is on the table.（紅蘋果在桌上。）"
+- celebrate → "The family celebrates with a big cake.（一家人用大蛋糕慶祝。）"
+- knowledge → "She reads books to gain knowledge.（她讀書獲取知識。）"`;
 
             const response1 = await fetch(QWEN_API_URL, {
                 method: 'POST',
@@ -1032,29 +1225,37 @@
             });
 
             if (!response1.ok) {
-                throw new Error('Step 1 API request failed');
+                throw new Error('步驟1 API請求失敗');
             }
 
             const data1 = await response1.json();
             const wordInfo = JSON.parse(data1.choices[0].message.content);
 
-            // 第二步：基于例句生成图片提示词
+            // 提取例句信息
             const exampleSentence = wordInfo.example || '';
             const englishPart = exampleSentence.split(/[（(]/)[0].trim();
             const chineseMatch = exampleSentence.match(/[（(](.+?)[)）]/);
             const chinesePart = chineseMatch ? chineseMatch[1] : '';
 
-            const step2Prompt = `根據以下英文例句，生成一個詳細的圖片生成提示詞（英文），要完全展現例句中描述的具體場景：
+            console.log('📝 例句生成完成:', exampleSentence);
+
+            // 第二步：生成图片提示词
+            document.getElementById('loadingText').textContent = '步驟2：分析場景...';
+
+            const step2Prompt = `根據這個英文例句，生成一個簡潔的圖片提示詞（英文）：
 
 例句：${englishPart}
 中文：${chinesePart}
 
-請返回JSON格式：
+返回JSON：
 {
-  "imagePrompt": "詳細的英文圖片生成提示詞，要準確描述例句中的場景、人物、動作、環境等細節，100詞以內"
+  "imagePrompt": "英文圖片提示詞（30-50詞），描述具體場景、人物、動作"
 }
 
-重要：imagePrompt必須完全基於例句的具體內容，描述出可以直接繪製的場景。`;
+要求：
+1. 提示詞要具體、可視化
+2. 使用簡單的英文描述
+3. 適合AI繪圖模型理解`;
 
             const response2 = await fetch(QWEN_API_URL, {
                 method: 'POST',
@@ -1071,78 +1272,49 @@
             });
 
             if (!response2.ok) {
-                throw new Error('Step 2 API request failed');
+                throw new Error('步驟2 API請求失敗');
             }
 
             const data2 = await response2.json();
             const promptData = JSON.parse(data2.choices[0].message.content);
+            const imagePrompt = promptData.imagePrompt || `A simple illustration of: ${englishPart}`;
 
-            // 使用生成的详细提示词
-            let imagePrompt = promptData.imagePrompt || `A realistic scene: ${chinesePart}`;
+            console.log('🎨 圖片提示詞:', imagePrompt);
 
-            // 输出调试信息
-            console.log('=== 圖片生成信息 ===');
-            console.log('單詞:', word);
-            console.log('例句:', exampleSentence);
-            console.log('圖片提示詞:', imagePrompt);
+            // 第三步：生成图片
+            document.getElementById('loadingText').textContent = '步驟3：AI繪圖中...';
 
-            // 直接使用通义千问的多模态绘图API生成图片
-            // 不进行降级，确保图片与例句完全匹配
-            wordInfo.imageGenerating = true;
-            wordInfo.imagePromptUsed = imagePrompt;
-
-            console.log('🎨 開始生成AI圖片...');
-            console.log('圖片提示詞:', imagePrompt);
-
-            // 尝试AI生成图片，失败则使用可靠的降级方案
             try {
-                console.log('🎨 嘗試AI生成圖片（優先）...');
+                console.log('🎨 調用通義千問文生圖 API...');
                 const imageUrl = await generateWordImageSync(imagePrompt, chinesePart);
                 wordInfo.imageUrls = [imageUrl];
                 wordInfo.aiGeneratedImage = true;
                 console.log('✅ AI圖片生成成功:', imageUrl);
             } catch (error) {
-                console.error('❌ AI圖片生成失敗:', error);
-                console.log('錯誤詳情:', error.message);
-                console.log('📸 切換到Pexels API降級方案...');
+                console.error('❌ AI圖片生成失敗:', error.message);
 
-                // 降级：使用Pexels API获取场景相关图片
-                const sceneKeywords = extractSceneKeywords(chinesePart);
-                console.log('場景關鍵詞:', sceneKeywords);
-
+                // 降级方案：Pexels
                 try {
-                    const pexelsUrl = await fetchPexelsImage(sceneKeywords || word);
+                    const sceneKeywords = extractSceneKeywords(chinesePart) || word;
+                    const pexelsUrl = await fetchPexelsImage(sceneKeywords);
                     wordInfo.imageUrls = [pexelsUrl];
                     wordInfo.aiGeneratedImage = false;
                     wordInfo.pexelsImage = true;
-                    console.log('✅ Pexels圖片獲取成功:', pexelsUrl);
+                    console.log('📸 Pexels降級成功:', pexelsUrl);
                 } catch (pexelsError) {
-                    console.error('❌ Pexels也失敗了:', pexelsError);
-                    // 最终降级：不显示图片
+                    console.error('❌ Pexels也失敗:', pexelsError.message);
                     wordInfo.imageUrls = [];
-                    wordInfo.aiGeneratedImage = false;
                     wordInfo.imageGenerationFailed = true;
-                    wordInfo.errorMessage = `AI和Pexels都失敗了: ${error.message}`;
-                    console.log('⚠️ 所有圖片來源都失敗，不顯示圖片');
                 }
             }
 
-            // 生成GIF动画提示词 - 也基于例句场景
-            const gifPrompt = `animated version: ${imagePrompt}, simple animation style`;
-            try {
-                const gifUrl = await generateWordImage(gifPrompt, true);
-                wordInfo.gifUrl = gifUrl;
-            } catch (error) {
-                console.error('GIF generation failed:', error);
-                wordInfo.gifUrl = null;
-            }
-
+            // 添加音频和视频链接
             wordInfo.audioUrls = [
                 `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`,
                 `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`
             ];
-
             wordInfo.videoSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(word + ' meaning english')}`;
+            wordInfo.gifUrl = null; // GIF 可选
 
             return wordInfo;
         }
@@ -1471,10 +1643,85 @@
             }, 300);
         }
 
+        // ============================================
         // 页面加载时初始化
-        window.onload = function() {
-            console.log('NeuroLingo initialized with Qwen API');
+        // ============================================
+        window.onload = async function() {
+            console.log('🧠 NeuroLingo 初始化中...');
+            console.log('🔑 API Key: sk-****' + QWEN_API_KEY.slice(-4));
+
+            // 初始化本地缓存
+            try {
+                await initLocalCache();
+                console.log('✅ 本地緩存初始化成功');
+
+                // 显示缓存统计
+                if (wordCacheDB) {
+                    const transaction = wordCacheDB.transaction(['words'], 'readonly');
+                    const store = transaction.objectStore('words');
+                    const countRequest = store.count();
+                    countRequest.onsuccess = () => {
+                        console.log(`📊 本地緩存已有 ${countRequest.result} 個單詞`);
+                    };
+                }
+            } catch (error) {
+                console.warn('⚠️ 本地緩存初始化失敗:', error);
+            }
+
+            console.log('✅ NeuroLingo 就緒！');
         };
+
+        // ============================================
+        // 管理员功能：批量预生成单词数据
+        // ============================================
+        async function adminPregenerate() {
+            const allWords = [
+                ...gradeWordLists['primary-1-3'],
+                ...gradeWordLists['primary-4-6'],
+                ...gradeWordLists['junior-1-3'],
+                ...gradeWordLists['senior-1-3'],
+                ...gradeWordLists['college']
+            ];
+
+            console.log(`🚀 管理員模式：開始預生成 ${allWords.length} 個單詞...`);
+            showMessage(`開始預生成 ${allWords.length} 個單詞，請勿關閉頁面...`, 'success');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < allWords.length; i++) {
+                const word = allWords[i];
+                document.getElementById('loadingText').textContent = `預生成中 (${i + 1}/${allWords.length}): ${word}`;
+
+                try {
+                    const cached = await getWordFromCache(word);
+                    if (cached && cached.imageUrls && cached.imageUrls.length > 0) {
+                        console.log(`⏭️ 已緩存: ${word}`);
+                        successCount++;
+                        continue;
+                    }
+
+                    const wordData = await generateWordData(word);
+                    await saveWordToCache(wordData);
+                    successCount++;
+                    console.log(`✅ (${i + 1}/${allWords.length}) 預生成成功: ${word}`);
+
+                    // 避免 API 速率限制
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                } catch (error) {
+                    failCount++;
+                    console.error(`❌ 預生成失敗: ${word}`, error);
+                }
+            }
+
+            const message = `🎉 預生成完成！成功: ${successCount}, 失敗: ${failCount}`;
+            console.log(message);
+            showMessage(message, 'success');
+        }
+
+        // 将管理员函数暴露到全局
+        window.adminPregenerate = adminPregenerate;
     </script>
 </body>
 </html>
+
