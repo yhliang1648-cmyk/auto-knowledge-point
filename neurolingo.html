@@ -656,10 +656,14 @@
             <p>© 2025 香港AI教育計劃 | 基於神經科學的智能學習平台</p>
             <p style="margin-top: 15px;">
                 <a href="portal.html" style="color: #667eea; text-decoration: none;">返回主頁</a> ·
+                <a href="neurolingo-admin.html" style="color: #667eea; text-decoration: none;">管理員面板</a> ·
                 <a href="https://github.com/yhliang1648-cmyk/auto-knowledge-point" style="color: #667eea; text-decoration: none;">GitHub</a>
             </p>
             <p style="margin-top: 10px; font-size: 0.9rem;">
-                Powered by 通義千問 AI · Cloudflare RAG · 間隔重複算法
+                Powered by 通義千問 AI · IndexedDB 緩存 · 間隔重複算法
+            </p>
+            <p style="margin-top: 5px; font-size: 0.8rem; color: #999;">
+                💡 提示：使用「管理員面板」預生成單詞數據，學習時可秒級加載
             </p>
         </footer>
     </div>
@@ -671,14 +675,15 @@
         const QWEN_API_KEY = 'sk-5848f54f1c3f4771b869f73e220715ca';
         const QWEN_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
         const QWEN_IMAGE_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
+        const QWEN_TASK_URL = 'https://dashscope.aliyuncs.com/api/v1/tasks';
 
-        // Cloudflare Workers KV 缓存配置
-        // 注意：需要在 Cloudflare Workers 中部署一个简单的 KV 读写 API
-        const CLOUDFLARE_KV_API = 'https://neurolingo-cache.your-worker.workers.dev'; // 需要替换为实际的 Worker URL
-        const USE_CLOUDFLARE_CACHE = false; // 暂时关闭，直到 Worker 部署完成
-
-        // 本地缓存（IndexedDB）- 作为 Cloudflare KV 的本地备份
+        // 本地缓存（IndexedDB）
+        // 注意：使用 neurolingo-admin.html 预生成数据后，会自动保存到 IndexedDB
+        // 学习时直接从 IndexedDB 加载，无需再次调用 API
         let wordCacheDB = null;
+        
+        // 缓存状态
+        let cacheStats = { total: 0, cached: 0 };
 
         // 当前学习状态
         let currentWordList = [];
@@ -697,10 +702,12 @@
 
         // ============================================
         // IndexedDB 本地缓存初始化
+        // 与 neurolingo-admin.html 共享同一个数据库
         // ============================================
         async function initLocalCache() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('NeuroLingoCache', 1);
+                // 使用与 admin 页面相同的数据库名称，共享预生成的数据
+                const request = indexedDB.open('NeuroLingoAdmin', 1);
 
                 request.onerror = () => {
                     console.error('❌ IndexedDB 初始化失败');
@@ -709,7 +716,8 @@
 
                 request.onsuccess = () => {
                     wordCacheDB = request.result;
-                    console.log('✅ IndexedDB 本地缓存已就绪');
+                    console.log('✅ IndexedDB 本地緩存已就緒');
+                    updateCacheStats();
                     resolve(wordCacheDB);
                 };
 
@@ -717,11 +725,33 @@
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains('words')) {
                         const store = db.createObjectStore('words', { keyPath: 'word' });
-                        store.createIndex('createdAt', 'createdAt', { unique: false });
                         console.log('📦 創建 words 存儲庫');
                     }
                 };
             });
+        }
+
+        // 更新缓存统计
+        async function updateCacheStats() {
+            if (!wordCacheDB) return;
+            
+            try {
+                const transaction = wordCacheDB.transaction(['words'], 'readonly');
+                const store = transaction.objectStore('words');
+                const countRequest = store.count();
+                
+                countRequest.onsuccess = () => {
+                    cacheStats.cached = countRequest.result;
+                    console.log(`📊 本地緩存: ${cacheStats.cached} 個單詞`);
+                    
+                    // 如果缓存为空，提示用户使用管理员页面预生成
+                    if (cacheStats.cached === 0) {
+                        console.log('💡 提示：使用 neurolingo-admin.html 預生成單詞數據，學習時可快速加載！');
+                    }
+                };
+            } catch (error) {
+                console.warn('緩存統計失敗:', error);
+            }
         }
 
         // ============================================
@@ -1319,21 +1349,21 @@
             return wordInfo;
         }
 
-        // 同步生成图片 - 直接调用通义千问，确保图片与例句匹配
+        // ============================================
+        // 图片生成函数（通义千问 wanx 模型）
+        // ============================================
         async function generateWordImageSync(imagePrompt, chineseDescription) {
-            const imageGenUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
-
-            // 增强提示词，确保与例句场景匹配
-            const enhancedPrompt = `${imagePrompt}. Scene description: ${chineseDescription}. Educational illustration style, clear and detailed.`;
+            // 增强提示词
+            const enhancedPrompt = `${imagePrompt}. Educational illustration, clear and colorful.`;
 
             console.log('📤 發送圖片生成請求...');
-            console.log('增強提示詞:', enhancedPrompt);
+            console.log('提示詞:', enhancedPrompt);
 
             const requestBody = {
                 model: 'wanx-v1',
                 input: {
                     prompt: enhancedPrompt,
-                    negative_prompt: 'blurry, low quality, text, watermark, abstract, unclear, unrelated'
+                    negative_prompt: 'blurry, low quality, text, watermark'
                 },
                 parameters: {
                     style: '<auto>',
@@ -1343,15 +1373,14 @@
             };
 
             try {
-                const response = await fetch(imageGenUrl, {
+                const response = await fetch(QWEN_IMAGE_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${QWEN_API_KEY}`,
                         'X-DashScope-Async': 'enable'
                     },
-                    body: JSON.stringify(requestBody),
-                    timeout: 30000  // 30秒超时
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
@@ -1365,7 +1394,7 @@
 
                 // 检查是否有任务ID需要轮询
                 if (result.output && result.output.task_id) {
-                    console.log('🔄 任務ID:', result.output.task_id, '- 開始輪詢...');
+                    console.log('🔄 任務ID:', result.output.task_id);
                     return await pollImageResult(result.output.task_id);
                 }
 
@@ -1374,67 +1403,50 @@
                     return result.output.results[0].url;
                 }
 
-                throw new Error('API返回格式錯誤：無任務ID也無圖片URL');
+                throw new Error('API返回格式錯誤');
 
             } catch (error) {
-                console.error('圖片生成請求失敗:', error);
-                throw new Error(`圖片生成失敗: ${error.message}`);
+                console.error('圖片生成失敗:', error);
+                throw error;
             }
         }
 
-        // 保留旧的函数用于GIF生成
-        async function generateWordImage(prompt, isAnimation = false) {
-            return generateWordImageSync(prompt, '');
-        }
-
-        // 轮询图片生成结果 - 增强版，提供详细日志
-        async function pollImageResult(taskId, maxAttempts = 15) {
-            const pollUrl = `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`;
-
-            console.log(`🔍 開始輪詢任務 ${taskId}，最多嘗試 ${maxAttempts} 次...`);
+        // 轮询图片生成结果
+        async function pollImageResult(taskId, maxAttempts = 30) {
+            console.log(`🔍 開始輪詢任務 ${taskId}...`);
 
             for (let i = 0; i < maxAttempts; i++) {
-                await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒
-
-                console.log(`📡 輪詢第 ${i + 1}/${maxAttempts} 次...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
                 try {
-                    const response = await fetch(pollUrl, {
+                    const response = await fetch(`${QWEN_TASK_URL}/${taskId}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${QWEN_API_KEY}`
                         }
                     });
 
-                    if (!response.ok) {
-                        console.warn(`⚠️ 輪詢請求失敗 (HTTP ${response.status})，繼續重試...`);
-                        continue;
-                    }
+                    if (!response.ok) continue;
 
                     const result = await response.json();
-                    console.log(`📊 任務狀態:`, result.output?.task_status);
+                    const status = result.output?.task_status;
+                    console.log(`📡 第 ${i + 1} 次輪詢，狀態: ${status}`);
 
-                    if (result.output && result.output.task_status === 'SUCCEEDED') {
-                        if (result.output.results && result.output.results.length > 0) {
+                    if (status === 'SUCCEEDED') {
+                        if (result.output.results?.[0]?.url) {
                             const imageUrl = result.output.results[0].url;
-                            console.log('🎉 圖片生成成功！URL:', imageUrl);
+                            console.log('🎉 圖片生成成功:', imageUrl);
                             return imageUrl;
                         }
-                    } else if (result.output && result.output.task_status === 'FAILED') {
-                        const errorMsg = result.output.message || '未知錯誤';
-                        console.error('❌ 任務失敗:', errorMsg);
-                        throw new Error(`圖片生成任務失敗: ${errorMsg}`);
-                    } else if (result.output && result.output.task_status === 'RUNNING') {
-                        console.log('⏳ 任務進行中，繼續等待...');
+                    } else if (status === 'FAILED') {
+                        throw new Error(result.output.message || '圖片生成失敗');
                     }
                 } catch (error) {
-                    console.error(`輪詢第 ${i + 1} 次出錯:`, error);
                     if (i === maxAttempts - 1) throw error;
                 }
             }
 
-            console.error('❌ 輪詢超時，已達最大嘗試次數');
-            throw new Error(`圖片生成超時：已輪詢 ${maxAttempts} 次，任務仍未完成`);
+            throw new Error('圖片生成超時');
         }
 
         // 显示单词
@@ -1655,20 +1667,23 @@
                 await initLocalCache();
                 console.log('✅ 本地緩存初始化成功');
 
-                // 显示缓存统计
-                if (wordCacheDB) {
-                    const transaction = wordCacheDB.transaction(['words'], 'readonly');
-                    const store = transaction.objectStore('words');
-                    const countRequest = store.count();
-                    countRequest.onsuccess = () => {
-                        console.log(`📊 本地緩存已有 ${countRequest.result} 個單詞`);
-                    };
+                // 显示缓存统计和提示
+                if (cacheStats.cached > 0) {
+                    console.log(`📊 本地緩存已有 ${cacheStats.cached} 個單詞，可快速加載！`);
+                } else {
+                    console.log('💡 提示：訪問 neurolingo-admin.html 預生成單詞數據');
+                    console.log('   預生成後，學習時可直接從緩存加載，無需等待 API');
                 }
             } catch (error) {
                 console.warn('⚠️ 本地緩存初始化失敗:', error);
             }
 
             console.log('✅ NeuroLingo 就緒！');
+            console.log('');
+            console.log('📚 使用指南：');
+            console.log('   1. 先用 neurolingo-admin.html 預生成單詞數據');
+            console.log('   2. 預生成完成後，回到此頁面學習');
+            console.log('   3. 從緩存加載的單詞會顯示 "⚡ 從緩存快速加載"');
         };
 
         // ============================================
@@ -1724,4 +1739,5 @@
     </script>
 </body>
 </html>
+
 

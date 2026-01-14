@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroLingo 管理員 - 預生成單詞數據</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            color: #f093fb;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .log-container {
+            background: #0a0a15;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .log-success { color: #2ecc71; }
+        .log-error { color: #e74c3c; }
+        .log-info { color: #3498db; }
+        .log-warning { color: #f39c12; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(102, 126, 234, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f093fb;
+        }
+
+        .stat-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+
+        .word-preview {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .word-preview img {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .api-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .api-config { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 NeuroLingo 管理員面板</h1>
+
+        <!-- API 配置 -->
+        <div class="card">
+            <h2>⚙️ API 配置</h2>
+            <div class="api-config">
+                <div class="form-group">
+                    <label>通義千問 API Key</label>
+                    <input type="password" id="apiKey" value="sk-5848f54f1c3f4771b869f73e220715ca" placeholder="sk-xxx">
+                </div>
+                <div class="form-group">
+                    <label>Cloudflare Worker URL（可選）</label>
+                    <input type="text" id="workerUrl" placeholder="https://neurolingo-api.xxx.workers.dev">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="testApi()">🔍 測試 API 連接</button>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📊 緩存統計</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number" id="statTotal">0</div>
+                    <div class="stat-label">總單詞數</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statCached">0</div>
+                    <div class="stat-label">已緩存</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statPending">0</div>
+                    <div class="stat-label">待生成</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statFailed">0</div>
+                    <div class="stat-label">失敗</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="refreshStats()">🔄 刷新統計</button>
+        </div>
+
+        <!-- 预生成区域 -->
+        <div class="card">
+            <h2>🚀 批量預生成</h2>
+            <div class="form-group">
+                <label>選擇年級</label>
+                <select id="gradeSelect">
+                    <option value="all">所有年級（全部單詞）</option>
+                    <option value="primary-1-3">小學 1-3 年級</option>
+                    <option value="primary-4-6">小學 4-6 年級</option>
+                    <option value="junior-1-3">初中 1-3 年級</option>
+                    <option value="senior-1-3">高中 1-3 年級</option>
+                    <option value="college">大學/雅思/托福</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>或輸入自定義單詞（每行一個）</label>
+                <textarea id="customWords" placeholder="apple&#10;book&#10;celebrate&#10;..."></textarea>
+            </div>
+
+            <div class="progress-container" id="progressContainer" style="display:none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                </div>
+                <p id="progressText" style="margin-top: 10px; text-align: center;">準備中...</p>
+            </div>
+
+            <button class="btn btn-success" id="btnStart" onclick="startGeneration()">▶️ 開始預生成</button>
+            <button class="btn btn-danger" id="btnStop" onclick="stopGeneration()" style="display:none;">⏹️ 停止</button>
+        </div>
+
+        <!-- 日志 -->
+        <div class="card">
+            <h2>📝 生成日誌</h2>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">系統就緒，等待操作...</div>
+            </div>
+            <button class="btn btn-primary" onclick="clearLog()" style="margin-top: 15px;">🗑️ 清空日誌</button>
+            <button class="btn btn-primary" onclick="exportLog()">📥 導出日誌</button>
+        </div>
+
+        <!-- 单词预览 -->
+        <div class="card">
+            <h2>👁️ 單詞預覽</h2>
+            <div class="form-group">
+                <label>輸入單詞查看緩存數據</label>
+                <input type="text" id="previewWord" placeholder="apple">
+            </div>
+            <button class="btn btn-primary" onclick="previewWordData()">🔍 查看</button>
+            <div class="word-preview" id="wordPreview" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 配置
+        // ============================================
+        const QWEN_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+        const QWEN_IMAGE_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
+        const QWEN_TASK_URL = 'https://dashscope.aliyuncs.com/api/v1/tasks';
+
+        // 预设单词列表
+        const gradeWordLists = {
+            'primary-1-3': ['apple', 'book', 'cat', 'dog', 'egg', 'fish', 'girl', 'hat', 'ice', 'juice', 'kite', 'lion', 'milk', 'nose', 'orange'],
+            'primary-4-6': ['adventure', 'beautiful', 'celebrate', 'discover', 'example', 'friendly', 'garden', 'holiday', 'imagine', 'journey', 'kitchen', 'library', 'mountain', 'nature', 'ocean'],
+            'junior-1-3': ['knowledge', 'language', 'necessary', 'opposite', 'passion', 'quality', 'recommend', 'science', 'technology', 'universe', 'valuable', 'weather', 'excellent', 'youth', 'zero'],
+            'senior-1-3': ['achievement', 'beneficial', 'contemporary', 'demonstrate', 'enthusiastic', 'fundamental', 'generation', 'hypothesis', 'innovative', 'justify', 'legitimate', 'magnificent', 'negotiation', 'observation', 'perspective'],
+            'college': ['serendipity', 'ephemeral', 'ubiquitous', 'paradigm', 'eloquent', 'ambiguous', 'comprehensive', 'substantial', 'theoretical', 'unprecedented', 'versatile', 'wholesome', 'paradox', 'nuance', 'pragmatic']
+        };
+
+        let isGenerating = false;
+        let shouldStop = false;
+        let wordCache = {}; // 本地缓存（IndexedDB 的简化版）
+
+        // ============================================
+        // IndexedDB 初始化
+        // ============================================
+        let db = null;
+
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('NeuroLingoAdmin', 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains('words')) {
+                        database.createObjectStore('words', { keyPath: 'word' });
+                    }
+                };
+            });
+        }
+
+        async function getFromDB(word) {
+            if (!db) return null;
+            return new Promise((resolve) => {
+                const transaction = db.transaction(['words'], 'readonly');
+                const store = transaction.objectStore('words');
+                const request = store.get(word.toLowerCase());
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => resolve(null);
+            });
+        }
+
+        async function saveToDB(wordData) {
+            if (!db) return;
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['words'], 'readwrite');
+                const store = transaction.objectStore('words');
+                const request = store.put({ ...wordData, word: wordData.word.toLowerCase() });
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getAllFromDB() {
+            if (!db) return [];
+            return new Promise((resolve) => {
+                const transaction = db.transaction(['words'], 'readonly');
+                const store = transaction.objectStore('words');
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => resolve([]);
+            });
+        }
+
+        // ============================================
+        // 日志功能
+        // ============================================
+        function log(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry log-info">日誌已清空</div>';
+        }
+
+        function exportLog() {
+            const logs = document.getElementById('logContainer').innerText;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `neurolingo-log-${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+        }
+
+        // ============================================
+        // API 测试
+        // ============================================
+        async function testApi() {
+            const apiKey = document.getElementById('apiKey').value;
+            log('測試 API 連接...', 'info');
+
+            try {
+                const response = await fetch(QWEN_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'qwen-plus',
+                        messages: [{ role: 'user', content: 'Hello' }],
+                        max_tokens: 10
+                    })
+                });
+
+                if (response.ok) {
+                    log('✅ API 連接成功！', 'success');
+                } else {
+                    const error = await response.text();
+                    log(`❌ API 連接失敗: ${response.status} - ${error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ API 連接錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        // ============================================
+        // 统计刷新
+        // ============================================
+        async function refreshStats() {
+            const allWords = getAllWords();
+            const cached = await getAllFromDB();
+            const cachedWords = cached.filter(w => w.imageUrls && w.imageUrls.length > 0);
+
+            document.getElementById('statTotal').textContent = allWords.length;
+            document.getElementById('statCached').textContent = cachedWords.length;
+            document.getElementById('statPending').textContent = allWords.length - cachedWords.length;
+            document.getElementById('statFailed').textContent = cached.filter(w => w.error).length;
+
+            log(`統計刷新: 總 ${allWords.length}, 已緩存 ${cachedWords.length}`, 'info');
+        }
+
+        function getAllWords() {
+            let allWords = [];
+            for (const grade in gradeWordLists) {
+                allWords = allWords.concat(gradeWordLists[grade]);
+            }
+            return [...new Set(allWords)]; // 去重
+        }
+
+        // ============================================
+        // 预生成主函数
+        // ============================================
+        async function startGeneration() {
+            if (isGenerating) return;
+
+            const grade = document.getElementById('gradeSelect').value;
+            const customWords = document.getElementById('customWords').value.trim();
+            const apiKey = document.getElementById('apiKey').value;
+
+            let words = [];
+
+            if (customWords) {
+                words = customWords.split('\n').map(w => w.trim()).filter(w => w);
+            } else if (grade === 'all') {
+                words = getAllWords();
+            } else {
+                words = gradeWordLists[grade] || [];
+            }
+
+            if (words.length === 0) {
+                log('❌ 沒有單詞需要生成', 'error');
+                return;
+            }
+
+            isGenerating = true;
+            shouldStop = false;
+
+            document.getElementById('btnStart').style.display = 'none';
+            document.getElementById('btnStop').style.display = 'inline-block';
+            document.getElementById('progressContainer').style.display = 'block';
+
+            log(`🚀 開始預生成 ${words.length} 個單詞...`, 'info');
+
+            let completed = 0;
+            let success = 0;
+            let failed = 0;
+            let skipped = 0;
+
+            for (const word of words) {
+                if (shouldStop) {
+                    log('⏹️ 用戶停止生成', 'warning');
+                    break;
+                }
+
+                // 检查是否已缓存
+                const cached = await getFromDB(word);
+                if (cached && cached.imageUrls && cached.imageUrls.length > 0) {
+                    log(`⏭️ 跳過已緩存: ${word}`, 'info');
+                    skipped++;
+                    completed++;
+                    updateProgress(completed, words.length);
+                    continue;
+                }
+
+                // 生成数据
+                try {
+                    log(`🔄 生成中: ${word}`, 'info');
+                    document.getElementById('progressText').textContent = `正在生成: ${word}`;
+
+                    const wordData = await generateWordData(word, apiKey);
+                    await saveToDB(wordData);
+                    
+                    success++;
+                    log(`✅ 成功: ${word}`, 'success');
+                } catch (error) {
+                    failed++;
+                    log(`❌ 失敗: ${word} - ${error.message}`, 'error');
+                    await saveToDB({ word: word, error: error.message });
+                }
+
+                completed++;
+                updateProgress(completed, words.length);
+
+                // 避免 API 速率限制
+                await sleep(3000);
+            }
+
+            isGenerating = false;
+            document.getElementById('btnStart').style.display = 'inline-block';
+            document.getElementById('btnStop').style.display = 'none';
+
+            log(`🎉 完成！成功: ${success}, 失敗: ${failed}, 跳過: ${skipped}`, 'success');
+            refreshStats();
+        }
+
+        function stopGeneration() {
+            shouldStop = true;
+            log('正在停止...', 'warning');
+        }
+
+        function updateProgress(current, total) {
+            const percent = Math.round((current / total) * 100);
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressFill').textContent = percent + '%';
+        }
+
+        // ============================================
+        // 生成单词数据
+        // ============================================
+        async function generateWordData(word, apiKey) {
+            // 步骤1：生成例句
+            const step1Prompt = `请为英文单词 "${word}" 生成学习资料，以JSON格式返回：
+{
+  "word": "${word}",
+  "phonetic": "音标",
+  "definition": "中文释义（3-8字）",
+  "example": "简单英文例句（中文翻译）",
+  "context": "使用场景",
+  "visualDescription": "记忆技巧"
+}
+
+【重要】例句要求：
+1. 非常简单，5-10个英文单词
+2. 描述具体、可视化的场景
+3. 适合绘图的画面感
+
+示例：
+- apple → "The red apple is on the table.（红苹果在桌上。）"
+- celebrate → "The family celebrates with a cake.（一家人用蛋糕庆祝。）"`;
+
+            const response1 = await fetch(QWEN_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'qwen-plus',
+                    messages: [{ role: 'user', content: step1Prompt }],
+                    temperature: 0.7,
+                    response_format: { type: 'json_object' }
+                })
+            });
+
+            if (!response1.ok) {
+                throw new Error(`例句生成失败: ${response1.status}`);
+            }
+
+            const data1 = await response1.json();
+            const wordInfo = JSON.parse(data1.choices[0].message.content);
+
+            // 提取例句
+            const exampleSentence = wordInfo.example || '';
+            const englishPart = exampleSentence.split(/[（(]/)[0].trim();
+
+            log(`📝 例句: ${exampleSentence}`, 'info');
+
+            // 步骤2：生成图片
+            const imagePrompt = `A simple educational illustration: ${englishPart}. Clear, colorful, easy to understand.`;
+
+            try {
+                log(`🎨 生成圖片: ${word}`, 'info');
+                const imageUrl = await generateImage(imagePrompt, apiKey);
+                wordInfo.imageUrls = [imageUrl];
+                wordInfo.aiGeneratedImage = true;
+                log(`🖼️ 圖片完成: ${word}`, 'success');
+            } catch (error) {
+                log(`⚠️ 圖片失敗，使用降級: ${error.message}`, 'warning');
+                // 降级方案
+                wordInfo.imageUrls = [`https://source.unsplash.com/400x300/?${encodeURIComponent(word)}`];
+                wordInfo.aiGeneratedImage = false;
+            }
+
+            // 添加音频
+            wordInfo.audioUrls = [
+                `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`,
+                `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`
+            ];
+
+            wordInfo.generatedAt = new Date().toISOString();
+
+            return wordInfo;
+        }
+
+        // ============================================
+        // 图片生成
+        // ============================================
+        async function generateImage(prompt, apiKey) {
+            const response = await fetch(QWEN_IMAGE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'X-DashScope-Async': 'enable'
+                },
+                body: JSON.stringify({
+                    model: 'wanx-v1',
+                    input: {
+                        prompt: prompt,
+                        negative_prompt: 'blurry, low quality, text, watermark'
+                    },
+                    parameters: {
+                        style: '<auto>',
+                        size: '512*512',
+                        n: 1
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`圖片API失敗: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.output && result.output.task_id) {
+                return await pollImageTask(result.output.task_id, apiKey);
+            }
+
+            throw new Error('無法獲取任務ID');
+        }
+
+        async function pollImageTask(taskId, apiKey) {
+            for (let i = 0; i < 30; i++) {
+                await sleep(2000);
+
+                const response = await fetch(`${QWEN_TASK_URL}/${taskId}`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
+                });
+
+                if (!response.ok) continue;
+
+                const result = await response.json();
+
+                if (result.output?.task_status === 'SUCCEEDED') {
+                    if (result.output.results?.[0]?.url) {
+                        return result.output.results[0].url;
+                    }
+                } else if (result.output?.task_status === 'FAILED') {
+                    throw new Error(result.output.message || '圖片生成失敗');
+                }
+            }
+
+            throw new Error('圖片生成超時');
+        }
+
+        // ============================================
+        // 单词预览
+        // ============================================
+        async function previewWordData() {
+            const word = document.getElementById('previewWord').value.trim();
+            if (!word) return;
+
+            const cached = await getFromDB(word);
+            const previewDiv = document.getElementById('wordPreview');
+
+            if (cached) {
+                previewDiv.style.display = 'block';
+                previewDiv.innerHTML = `
+                    <h3>${cached.word}</h3>
+                    <p><strong>音標:</strong> ${cached.phonetic || 'N/A'}</p>
+                    <p><strong>釋義:</strong> ${cached.definition || 'N/A'}</p>
+                    <p><strong>例句:</strong> ${cached.example || 'N/A'}</p>
+                    <p><strong>場景:</strong> ${cached.context || 'N/A'}</p>
+                    <p><strong>記憶技巧:</strong> ${cached.visualDescription || 'N/A'}</p>
+                    ${cached.imageUrls && cached.imageUrls[0] ? `<img src="${cached.imageUrls[0]}" alt="${cached.word}">` : '<p>無圖片</p>'}
+                    <p style="margin-top: 15px; color: rgba(255,255,255,0.5); font-size: 0.8rem;">
+                        AI生成: ${cached.aiGeneratedImage ? '是' : '否'} | 
+                        生成時間: ${cached.generatedAt || 'N/A'}
+                    </p>
+                `;
+            } else {
+                previewDiv.style.display = 'block';
+                previewDiv.innerHTML = '<p>該單詞尚未緩存</p>';
+            }
+        }
+
+        // ============================================
+        // 工具函数
+        // ============================================
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ============================================
+        // 页面初始化
+        // ============================================
+        window.onload = async function() {
+            await initDB();
+            log('IndexedDB 初始化完成', 'success');
+            await refreshStats();
+        };
+    </script>
+</body>
+</html>
+
