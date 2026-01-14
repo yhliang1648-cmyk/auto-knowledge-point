@@ -7,20 +7,3 @@ compatibility_date = "2024-01-01"
 
 # Worker 类型和路由
 workers_dev = true
-
-# 账户信息（部署时需要填写）
-# account_id = "YOUR_ACCOUNT_ID"  # 从 Cloudflare Dashboard 获取
-
-# 环境变量（可选）
-[env.production]
-name = "qwen-api-proxy"
-workers_dev = true
-
-# 绑定和资源限制
-[build]
-command = ""
-
-# CORS 和路由配置
-[[routes]]
-pattern = "*/*"
-zone_name = ""
