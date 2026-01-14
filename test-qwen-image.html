@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>测试通义千问图片生成API</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 900px; margin: 0 auto; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; }
+        button { padding: 12px 24px; font-size: 16px; margin: 10px 0; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #5568d3; }
+        textarea { width: 100%; padding: 10px; font-size: 14px; border: 2px solid #e0e0e0; border-radius: 5px; font-family: monospace; }
+        #result { background: #f9f9f9; padding: 15px; margin-top: 20px; border-radius: 5px; border-left: 4px solid #667eea; }
+        .log { padding: 5px 0; font-size: 14px; font-family: monospace; }
+        .log.error { color: #e74c3c; }
+        .log.success { color: #2ecc71; }
+        .log.info { color: #666; }
+        img { max-width: 100%; margin-top: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .status { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .status.success { background: #2ecc71; color: white; }
+        .status.failed { background: #e74c3c; color: white; }
+        .status.running { background: #f39c12; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 通义千问图片生成API诊断工具</h1>
+        <p style="color: #666;">此工具用于测试NeuroLingo使用的图片生成API是否正常工作</p>
+
+        <div style="margin: 20px 0;">
+            <label><strong>测试场景：</strong></label><br>
+            <select id="testScenario" onchange="updatePrompt()" style="padding: 8px; width: 100%; margin-top: 5px;">
+                <option value="village">村庄庆典场景 (celebrate单词)</option>
+                <option value="museum">博物馆艺术场景 (contemporary单词)</option>
+                <option value="cave">洞穴探险场景 (adventure单词)</option>
+                <option value="custom">自定义提示词</option>
+            </select>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <label><strong>图片生成提示词：</strong></label><br>
+            <textarea id="prompt" rows="4">A village celebration scene with paper lanterns at dusk, people gathering in town square, festival atmosphere, warm lighting, Chinese lanterns shaped like stars</textarea>
+        </div>
+
+        <button onclick="testImageGeneration()">🚀 开始测试</button>
+        <button onclick="clearLogs()" style="background: #95a5a6;">🗑️ 清空日志</button>
+
+        <div id="result"></div>
+        <div id="logs"></div>
+        <img id="generatedImage" style="display:none;">
+
+        <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 5px;">
+            <strong>⚠️ 常见问题诊断：</strong>
+            <ul style="margin: 10px 0;">
+                <li>如果看到 <code>HTTP 403</code> 或 <code>HTTP 401</code>: API key无效或无权限</li>
+                <li>如果看到 <code>HTTP 429</code>: API配额已用完</li>
+                <li>如果任务一直 <code>RUNNING</code>: 图片生成队列繁忙</li>
+                <li>如果任务 <code>FAILED</code>: 提示词可能违反内容政策或格式错误</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const QWEN_API_KEY = 'sk-5848f54f1c3f4771b869f73e220715ca';
+        const QWEN_IMAGE_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
+
+        const scenarios = {
+            village: 'A village celebration scene with paper lanterns at dusk, people gathering in town square, festival atmosphere, warm lighting, Chinese lanterns shaped like stars',
+            museum: 'Modern art museum interior, contemporary artworks displayed on white walls, people viewing art, minimalist gallery space, bright natural lighting',
+            cave: 'People exploring a hidden cave with flashlights, adventure scene, rocky underground environment, mysterious atmosphere, natural cave formations',
+            custom: ''
+        };
+
+        function updatePrompt() {
+            const scenario = document.getElementById('testScenario').value;
+            if (scenario !== 'custom') {
+                document.getElementById('prompt').value = scenarios[scenario];
+            } else {
+                document.getElementById('prompt').value = '';
+                document.getElementById('prompt').focus();
+            }
+        }
+
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = 'log ' + type;
+            const timestamp = new Date().toLocaleTimeString();
+            div.innerHTML = `[${timestamp}] ${message}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('generatedImage').style.display = 'none';
+        }
+
+        async function testImageGeneration() {
+            const prompt = document.getElementById('prompt').value.trim();
+            if (!prompt) {
+                alert('请输入图片提示词');
+                return;
+            }
+
+            const result = document.getElementById('result');
+            const img = document.getElementById('generatedImage');
+
+            clearLogs();
+            result.innerHTML = '<div class="log info">⏳ 开始测试图片生成...</div>';
+            img.style.display = 'none';
+
+            try {
+                log('🔑 使用API Key: ' + QWEN_API_KEY.substring(0, 20) + '...', 'info');
+                log('📤 发送图片生成请求...', 'info');
+
+                const requestBody = {
+                    model: 'wanx-v1',
+                    input: {
+                        prompt: prompt,
+                        negative_prompt: 'blurry, low quality, text, watermark, abstract, unclear'
+                    },
+                    parameters: {
+                        style: '<auto>',
+                        size: '512*512',
+                        n: 1
+                    }
+                };
+
+                log('📋 请求参数: ' + JSON.stringify(requestBody, null, 2), 'info');
+
+                const startTime = Date.now();
+                const response = await fetch(QWEN_IMAGE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${QWEN_API_KEY}`,
+                        'X-DashScope-Async': 'enable'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const elapsed = Date.now() - startTime;
+                log(`📥 收到响应 (耗时: ${elapsed}ms)`, 'info');
+                log(`HTTP状态码: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log('❌ API调用失败', 'error');
+                    log('错误响应: ' + errorText, 'error');
+                    result.innerHTML = `
+                        <div class="log error">❌ <strong>API调用失败</strong></div>
+                        <div>HTTP状态: ${response.status}</div>
+                        <div>错误信息: ${errorText}</div>
+                        <hr>
+                        <div><strong>可能原因：</strong></div>
+                        <ul>
+                            <li>API key无效或过期</li>
+                            <li>没有开通图片生成服务权限</li>
+                            <li>配额已用完</li>
+                        </ul>
+                    `;
+                    return;
+                }
+
+                const data = await response.json();
+                log('✅ API调用成功', 'success');
+                log('响应数据: ' + JSON.stringify(data, null, 2), 'info');
+
+                // 检查任务ID
+                if (data.output && data.output.task_id) {
+                    const taskId = data.output.task_id;
+                    log(`🆔 任务ID: ${taskId}`, 'success');
+                    log('🔄 开始轮询任务状态...', 'info');
+
+                    result.innerHTML = `
+                        <div class="log success">✅ 任务创建成功</div>
+                        <div>任务ID: <code>${taskId}</code></div>
+                        <div>正在轮询结果<span class="status running">RUNNING</span></div>
+                    `;
+
+                    const imageUrl = await pollTask(taskId);
+
+                    if (imageUrl) {
+                        log('🎉 图片生成成功!', 'success');
+                        log('图片URL: ' + imageUrl, 'success');
+                        result.innerHTML = `
+                            <div class="log success">🎉 <strong>图片生成成功！</strong><span class="status success">SUCCESS</span></div>
+                            <div style="margin-top: 10px;">
+                                <strong>图片URL:</strong><br>
+                                <a href="${imageUrl}" target="_blank" style="word-break: break-all; color: #667eea;">${imageUrl}</a>
+                            </div>
+                        `;
+                        img.src = imageUrl;
+                        img.style.display = 'block';
+                    }
+                } else if (data.output && data.output.results && data.output.results.length > 0) {
+                    const imageUrl = data.output.results[0].url;
+                    log('✅ 直接获得图片URL', 'success');
+                    log('图片URL: ' + imageUrl, 'success');
+                    result.innerHTML = `
+                        <div class="log success">✅ <strong>图片生成成功（同步）</strong></div>
+                        <div>图片URL: <a href="${imageUrl}" target="_blank">${imageUrl}</a></div>
+                    `;
+                    img.src = imageUrl;
+                    img.style.display = 'block';
+                } else {
+                    log('⚠️ 响应格式异常', 'error');
+                    result.innerHTML = `
+                        <div class="log error">⚠️ 响应格式异常</div>
+                        <div>未找到task_id或results</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+
+            } catch (error) {
+                log('❌ 发生异常: ' + error.message, 'error');
+                result.innerHTML = `
+                    <div class="log error">❌ <strong>发生异常</strong></div>
+                    <div>${error.message}</div>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+
+        async function pollTask(taskId) {
+            const pollUrl = `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`;
+            const maxAttempts = 20;
+
+            for (let i = 0; i < maxAttempts; i++) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                log(`📡 轮询 ${i + 1}/${maxAttempts}...`, 'info');
+
+                try {
+                    const response = await fetch(pollUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${QWEN_API_KEY}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        log(`⚠️ 轮询请求失败 HTTP ${response.status}`, 'error');
+                        continue;
+                    }
+
+                    const result = await response.json();
+                    const status = result.output?.task_status;
+                    const progress = result.output?.task_metrics?.TOTAL || 0;
+
+                    log(`📊 任务状态: ${status} (进度: ${progress}%)`, 'info');
+
+                    if (status === 'SUCCEEDED') {
+                        if (result.output.results && result.output.results.length > 0) {
+                            log('✅ 任务完成', 'success');
+                            return result.output.results[0].url;
+                        }
+                    } else if (status === 'FAILED') {
+                        const msg = result.output?.message || result.output?.code || '未知错误';
+                        log('❌ 任务失败: ' + msg, 'error');
+                        throw new Error('任务失败: ' + msg);
+                    } else if (status === 'RUNNING' || status === 'PENDING') {
+                        // 继续等待
+                    }
+                } catch (error) {
+                    log('轮询异常: ' + error.message, 'error');
+                    if (i === maxAttempts - 1) throw error;
+                }
+            }
+
+            log('❌ 轮询超时', 'error');
+            throw new Error(`轮询超时：已尝试${maxAttempts}次`);
+        }
+    </script>
+</body>
+</html>
