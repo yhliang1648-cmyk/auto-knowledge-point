@@ -11,6 +11,9 @@
     <!-- jsPDF for generating PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+    <!-- Mammoth.js for reading Word documents -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -662,9 +665,9 @@
 
             <!-- Upload Area -->
             <div class="upload-area" id="uploadArea">
-                <input type="file" id="fileInput" accept=".json,.pdf" onchange="handleFileUpload(event)">
+                <input type="file" id="fileInput" accept=".json,.pdf,.doc,.docx,image/*" onchange="handleFileUpload(event)" multiple>
                 <p style="font-size: 1.1rem; margin-bottom: 15px;">📁 上传考题文件</p>
-                <p style="color: #666; margin-bottom: 20px;">支持格式：JSON 或 PDF</p>
+                <p style="color: #666; margin-bottom: 20px;">支持格式：JSON、PDF、Word (.doc/.docx)、图片 (OCR识别)</p>
                 <button class="submit-btn" onclick="document.getElementById('fileInput').click()">
                     选择文件
                 </button>
@@ -806,7 +809,10 @@
         </div>
 
         <footer>
-            <p>© 2025 DSE RAG System | Powered by DeepSeek AI</p>
+            <p>© 2025 DSE RAG System | Powered by 通义千问 (Qwen AI) + Cloudflare</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">
+                支持：PDF/Word/图片上传 · OCR识别 · 向量检索 · AI智能解答
+            </p>
             <p style="margin-top: 10px; opacity: 0.8;">
                 <a href="https://github.com/yhliang1648-cmyk/auto-knowledge-point"
                    style="color: white; text-decoration: none;">
@@ -817,10 +823,16 @@
     </div>
 
     <script>
-        // DeepSeek API 配置
-        const DEEPSEEK_API_KEY = 'sk-ab5d12636e6742ae8a0b5d539f1378c6';
-        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-        const DEEPSEEK_MODEL = 'deepseek-chat';
+        // 通义千问 API 配置
+        const QWEN_API_KEY = 'sk-5848f54f1c3f4771b869f73e220715ca';
+        const QWEN_API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+        const QWEN_OCR_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+        const QWEN_MODEL = 'qwen-plus';
+        const QWEN_OCR_MODEL = 'qwen-vl-ocr';
+
+        // Cloudflare Workers API 配置 (如果已部署)
+        const CLOUDFLARE_WORKER_URL = 'https://dse-rag.YOUR_SUBDOMAIN.workers.dev'; // 请替换为实际的 Workers URL
+        const USE_CLOUDFLARE_RAG = false; // 设置为 true 以启用 Cloudflare RAG 向量检索
 
         // 考題數據（將從 JSON 文件加載）
         let questionsData = [];
@@ -857,7 +869,7 @@
         }
 
         /**
-         * 使用 DeepSeek 生成 AI 回答
+         * 使用通义千问生成 AI 回答
          */
         async function generateAIAnswer(query, relatedQuestions) {
             const context = relatedQuestions.slice(0, 3).map((q, i) =>
@@ -878,30 +890,36 @@ ${context}
 
 請用繁體中文回答，語氣要專業且易於理解。回答要簡潔，控制在 200 字以內。`;
 
-            const response = await fetch(DEEPSEEK_API_URL, {
+            const response = await fetch(QWEN_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    'Authorization': `Bearer ${QWEN_API_KEY}`,
+                    'X-DashScope-SSE': 'disable'
                 },
                 body: JSON.stringify({
-                    model: DEEPSEEK_MODEL,
-                    messages: [{
-                        role: 'user',
-                        content: prompt
-                    }],
-                    max_tokens: 500,
-                    temperature: 0.7
+                    model: QWEN_MODEL,
+                    input: {
+                        messages: [{
+                            role: 'user',
+                            content: prompt
+                        }]
+                    },
+                    parameters: {
+                        max_tokens: 500,
+                        temperature: 0.7,
+                        result_format: 'message'
+                    }
                 })
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`DeepSeek API 錯誤: ${response.status} - ${errorText}`);
+                throw new Error(`通义千问 API 錯誤: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
-            return data.choices[0].message.content;
+            return data.output.choices[0].message.content;
         }
 
         // 主搜索函數
@@ -919,34 +937,42 @@ ${context}
             showLoading();
 
             try {
-                // 1. 計算與所有題目的相似度（使用文本匹配）
-                console.log('計算與考題的相似度...');
-                const scoredQuestions = [];
+                let topQuestions;
 
-                for (const question of questionsData) {
-                    // 應用篩選
-                    if (subjectFilter !== 'all' && question.subjectCode !== subjectFilter) continue;
-                    if (yearFilter !== 'all' && question.year !== yearFilter) continue;
+                // 如果启用了 Cloudflare RAG，使用向量检索
+                if (USE_CLOUDFLARE_RAG) {
+                    console.log('使用 Cloudflare RAG 向量检索...');
+                    topQuestions = await searchWithCloudflareRAG(query, subjectFilter, yearFilter);
+                } else {
+                    // 使用本地文本匹配检索
+                    console.log('使用本地文本相似度检索...');
+                    const scoredQuestions = [];
 
-                    // 計算文本相似度
-                    const questionText = `${question.subject} ${question.content} ${question.keywords.join(' ')}`;
-                    const similarity = calculateTextSimilarity(query, questionText);
+                    for (const question of questionsData) {
+                        // 應用篩選
+                        if (subjectFilter !== 'all' && question.subjectCode !== subjectFilter) continue;
+                        if (yearFilter !== 'all' && question.year !== yearFilter) continue;
 
-                    scoredQuestions.push({
-                        ...question,
-                        similarity: similarity
-                    });
+                        // 計算文本相似度
+                        const questionText = `${question.subject} ${question.content} ${question.keywords.join(' ')}`;
+                        const similarity = calculateTextSimilarity(query, questionText);
+
+                        scoredQuestions.push({
+                            ...question,
+                            similarity: similarity
+                        });
+                    }
+
+                    // 按相似度排序
+                    scoredQuestions.sort((a, b) => b.similarity - a.similarity);
+                    topQuestions = scoredQuestions.slice(0, 5);
                 }
 
-                // 2. 按相似度排序
-                scoredQuestions.sort((a, b) => b.similarity - a.similarity);
-                const topQuestions = scoredQuestions.slice(0, 5);
-
-                // 3. 生成 AI 回答
+                // 生成 AI 回答
                 console.log('生成 AI 回答...');
                 const aiAnswer = await generateAIAnswer(query, topQuestions);
 
-                // 4. 顯示結果
+                // 顯示結果
                 displayResults({
                     aiAnswer: aiAnswer,
                     questions: topQuestions
@@ -955,6 +981,38 @@ ${context}
             } catch (error) {
                 console.error('搜索錯誤:', error);
                 showError('搜索失敗：' + error.message);
+            }
+        }
+
+        /**
+         * 使用 Cloudflare RAG 进行向量检索
+         */
+        async function searchWithCloudflareRAG(query, subjectFilter, yearFilter) {
+            try {
+                const response = await fetch(`${CLOUDFLARE_WORKER_URL}/api/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        subject: subjectFilter !== 'all' ? subjectFilter : null,
+                        year: yearFilter !== 'all' ? yearFilter : null,
+                        limit: 5
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Cloudflare RAG API 错误: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.results || [];
+            } catch (error) {
+                console.error('Cloudflare RAG 检索失败:', error);
+                console.log('回退到本地文本检索...');
+                // 如果 Cloudflare RAG 失败，回退到本地检索
+                return null;
             }
         }
 
@@ -1079,21 +1137,32 @@ ${context}
         }
 
         /**
-         * 处理文件上传
+         * 处理文件上传（支持多文件）
          */
         async function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
 
-            const fileType = file.name.split('.').pop().toLowerCase();
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileType = file.name.split('.').pop().toLowerCase();
 
-            if (fileType === 'json') {
-                handleJSONUpload(file, event);
-            } else if (fileType === 'pdf') {
-                await handlePDFUpload(file, event);
-            } else {
-                alert('请上传 JSON 或 PDF 格式文件');
-                return;
+                try {
+                    if (fileType === 'json') {
+                        await handleJSONUpload(file, event);
+                    } else if (fileType === 'pdf') {
+                        await handlePDFUpload(file, event);
+                    } else if (fileType === 'doc' || fileType === 'docx') {
+                        await handleWordUpload(file, event);
+                    } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileType)) {
+                        await handleImageUpload(file, event);
+                    } else {
+                        alert(`不支持的文件格式: ${fileType}`);
+                    }
+                } catch (error) {
+                    console.error(`处理文件 ${file.name} 失败:`, error);
+                    alert(`处理文件 ${file.name} 失败: ${error.message}`);
+                }
             }
         }
 
@@ -1163,7 +1232,7 @@ ${context}
                 updateProgress(40, 'PDF 文本提取完成，正在使用 AI 解析...');
 
                 // 使用 AI 解析文本，提取题目信息
-                const parsedQuestions = await parsePDFTextWithAI(pdfText);
+                const parsedQuestions = await parseTextWithAI(pdfText, 'PDF');
                 updateProgress(80, `AI 解析完成，识别到 ${parsedQuestions.length} 道题目...`);
 
                 if (parsedQuestions.length === 0) {
@@ -1261,13 +1330,217 @@ ${context}
         }
 
         /**
-         * 使用 DeepSeek AI 解析 PDF 文本，提取题目信息
+         * 处理 Word 文件上传
          */
-        async function parsePDFTextWithAI(pdfText) {
-            const prompt = `你是一位专业的香港 DSE 考题识别专家。请从以下 PDF 文本中提取 DSE 考题信息。
+        async function handleWordUpload(file, event) {
+            try {
+                // 显示进度条
+                document.getElementById('uploadProgress').style.display = 'block';
+                updateProgress(10, '正在读取 Word 文件...');
 
-PDF 文本：
-${pdfText.substring(0, 8000)}
+                // 提取 Word 文本
+                const wordText = await extractTextFromWord(file);
+                updateProgress(40, 'Word 文本提取完成，正在使用 AI 解析...');
+
+                // 使用 AI 解析文本，提取题目信息
+                const parsedQuestions = await parseTextWithAI(wordText, 'Word');
+                updateProgress(80, `AI 解析完成，识别到 ${parsedQuestions.length} 道题目...`);
+
+                if (parsedQuestions.length === 0) {
+                    alert('Word 文档中未识别到有效的题目信息');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    return;
+                }
+
+                // 合并数据（去重）
+                const existingIds = new Set(questionsData.map(q => q.id));
+                const newQuestions = parsedQuestions.filter(q => !existingIds.has(q.id));
+
+                if (newQuestions.length === 0) {
+                    alert('Word 文档中的题目都已存在，没有新题目需要添加');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    return;
+                }
+
+                // 添加新题目
+                questionsData = questionsData.concat(newQuestions);
+
+                // 保存到本地存储
+                localStorage.setItem('questionsData', JSON.stringify(questionsData));
+
+                // 更新上传计数
+                const currentCount = parseInt(localStorage.getItem('uploadedCount') || '0');
+                localStorage.setItem('uploadedCount', (currentCount + newQuestions.length).toString());
+
+                // 更新统计
+                updateStats();
+                updateProgress(100, '上传完成！');
+
+                setTimeout(() => {
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    alert(`✅ 成功从 Word 文档中提取并上传 ${newQuestions.length} 道新题目！\n总题目数：${questionsData.length}`);
+                }, 1000);
+
+                console.log(`✅ Word 上传成功: ${newQuestions.length} 道新题目`);
+            } catch (error) {
+                console.error('Word 处理失败:', error);
+                document.getElementById('uploadProgress').style.display = 'none';
+                alert('Word 处理失败：' + error.message);
+            }
+        }
+
+        /**
+         * 从 Word 文件提取文本
+         */
+        async function extractTextFromWord(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = async function(e) {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                        resolve(result.value);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        /**
+         * 处理图片文件上传（OCR 识别）
+         */
+        async function handleImageUpload(file, event) {
+            try {
+                // 显示进度条
+                document.getElementById('uploadProgress').style.display = 'block';
+                updateProgress(10, '正在读取图片文件...');
+
+                // 将图片转换为 Base64
+                const imageBase64 = await fileToBase64(file);
+                updateProgress(30, '图片读取完成，正在使用通义千问 OCR 识别...');
+
+                // 使用通义千问 OCR 识别文本
+                const ocrText = await performOCR(imageBase64);
+                updateProgress(60, 'OCR 识别完成，正在使用 AI 解析...');
+
+                // 使用 AI 解析文本，提取题目信息
+                const parsedQuestions = await parseTextWithAI(ocrText, '图片OCR');
+                updateProgress(85, `AI 解析完成，识别到 ${parsedQuestions.length} 道题目...`);
+
+                if (parsedQuestions.length === 0) {
+                    alert('图片中未识别到有效的题目信息');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    return;
+                }
+
+                // 合并数据（去重）
+                const existingIds = new Set(questionsData.map(q => q.id));
+                const newQuestions = parsedQuestions.filter(q => !existingIds.has(q.id));
+
+                if (newQuestions.length === 0) {
+                    alert('图片中的题目都已存在，没有新题目需要添加');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    return;
+                }
+
+                // 添加新题目
+                questionsData = questionsData.concat(newQuestions);
+
+                // 保存到本地存储
+                localStorage.setItem('questionsData', JSON.stringify(questionsData));
+
+                // 更新上传计数
+                const currentCount = parseInt(localStorage.getItem('uploadedCount') || '0');
+                localStorage.setItem('uploadedCount', (currentCount + newQuestions.length).toString());
+
+                // 更新统计
+                updateStats();
+                updateProgress(100, '上传完成！');
+
+                setTimeout(() => {
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    alert(`✅ 成功从图片中提取并上传 ${newQuestions.length} 道新题目！\n总题目数：${questionsData.length}`);
+                }, 1000);
+
+                console.log(`✅ 图片 OCR 上传成功: ${newQuestions.length} 道新题目`);
+            } catch (error) {
+                console.error('图片处理失败:', error);
+                document.getElementById('uploadProgress').style.display = 'none';
+                alert('图片处理失败：' + error.message);
+            }
+        }
+
+        /**
+         * 将文件转换为 Base64
+         */
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /**
+         * 使用通义千问 qwen-vl-ocr 进行 OCR 识别
+         */
+        async function performOCR(imageBase64) {
+            try {
+                const response = await fetch(QWEN_OCR_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${QWEN_API_KEY}`,
+                        'X-DashScope-SSE': 'disable'
+                    },
+                    body: JSON.stringify({
+                        model: QWEN_OCR_MODEL,
+                        input: {
+                            messages: [{
+                                role: 'user',
+                                content: [
+                                    {
+                                        image: `data:image/jpeg;base64,${imageBase64}`
+                                    },
+                                    {
+                                        text: '请识别这张图片中的所有文字内容，包括题目、题号、选项等。请完整准确地输出所有文字。'
+                                    }
+                                ]
+                            }]
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`通义千问 OCR API 错误: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                return data.output.choices[0].message.content[0].text;
+            } catch (error) {
+                console.error('OCR 识别失败:', error);
+                throw new Error('OCR 识别失败：' + error.message);
+            }
+        }
+
+        /**
+         * 使用通义千问 AI 解析文本，提取题目信息
+         */
+        async function parseTextWithAI(text, sourceType = 'PDF') {
+            const prompt = `你是一位专业的香港 DSE 考题识别专家。请从以下 ${sourceType} 文本中提取 DSE 考题信息。
+
+文本内容：
+${text.substring(0, 8000)}
 
 请识别并提取以下信息，以 JSON 数组格式返回：
 - 年份 (year): 如 "2024"
@@ -1298,29 +1571,35 @@ ${pdfText.substring(0, 8000)}
 只返回 JSON 数组，不要其他文字。如果无法识别到题目，返回空数组 []。`;
 
             try {
-                const response = await fetch(DEEPSEEK_API_URL, {
+                const response = await fetch(QWEN_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${QWEN_API_KEY}`,
+                        'X-DashScope-SSE': 'disable'
                     },
                     body: JSON.stringify({
-                        model: DEEPSEEK_MODEL,
-                        messages: [{
-                            role: 'user',
-                            content: prompt
-                        }],
-                        max_tokens: 2000,
-                        temperature: 0.3
+                        model: QWEN_MODEL,
+                        input: {
+                            messages: [{
+                                role: 'user',
+                                content: prompt
+                            }]
+                        },
+                        parameters: {
+                            max_tokens: 2000,
+                            temperature: 0.3,
+                            result_format: 'message'
+                        }
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error(`DeepSeek API 错误: ${response.status}`);
+                    throw new Error(`通义千问 API 错误: ${response.status}`);
                 }
 
                 const data = await response.json();
-                const aiResponse = data.choices[0].message.content;
+                const aiResponse = data.output.choices[0].message.content;
 
                 // 提取 JSON 部分
                 let jsonStr = aiResponse.trim();
@@ -1335,13 +1614,13 @@ ${pdfText.substring(0, 8000)}
                 // 为每个题目生成 ID
                 parsedQuestions.forEach(q => {
                     q.id = `dse-${q.year}-${q.subjectCode}-${q.paper.toLowerCase().replace(/\s+/g, '-')}-q${q.number}`;
-                    q.copyright = 'PDF 上传';
+                    q.copyright = `${sourceType} 上传`;
                 });
 
                 return parsedQuestions;
             } catch (error) {
                 console.error('AI 解析失败:', error);
-                throw new Error('AI 解析 PDF 文本失败：' + error.message);
+                throw new Error(`AI 解析 ${sourceType} 文本失败：` + error.message);
             }
         }
 
@@ -1593,20 +1872,26 @@ ${pdfText.substring(0, 8000)}
             try {
                 const startTime = Date.now();
 
-                // 測試 DeepSeek API (使用簡短的文本測試)
-                const response = await fetch(DEEPSEEK_API_URL, {
+                // 測試通义千问 API
+                const response = await fetch(QWEN_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${QWEN_API_KEY}`,
+                        'X-DashScope-SSE': 'disable'
                     },
                     body: JSON.stringify({
-                        model: DEEPSEEK_MODEL,
-                        messages: [{
-                            role: 'user',
-                            content: 'Hi'
-                        }],
-                        max_tokens: 10
+                        model: QWEN_MODEL,
+                        input: {
+                            messages: [{
+                                role: 'user',
+                                content: 'Hi'
+                            }]
+                        },
+                        parameters: {
+                            max_tokens: 10,
+                            result_format: 'message'
+                        }
                     })
                 });
 
@@ -1621,19 +1906,19 @@ ${pdfText.substring(0, 8000)}
                 // 測試成功
                 const data = await response.json();
                 statusDot.className = 'status-dot success';
-                statusText.textContent = '✅ DeepSeek API 運行正常';
-                statusDetails.textContent = `響應時間: ${latency}ms | 模型: ${DEEPSEEK_MODEL} | 最後檢測: ${new Date().toLocaleTimeString('zh-HK')}`;
+                statusText.textContent = '✅ 通义千问 API 運行正常';
+                statusDetails.textContent = `響應時間: ${latency}ms | 模型: ${QWEN_MODEL} | 支持 OCR、文本生成 | 最後檢測: ${new Date().toLocaleTimeString('zh-HK')}`;
 
                 console.log('✅ API 測試成功:', {
                     latency: `${latency}ms`,
-                    model: DEEPSEEK_MODEL,
+                    model: QWEN_MODEL,
                     timestamp: new Date().toISOString()
                 });
 
             } catch (error) {
                 // 測試失敗
                 statusDot.className = 'status-dot error';
-                statusText.textContent = '❌ DeepSeek API 連接失敗';
+                statusText.textContent = '❌ 通义千问 API 連接失敗';
 
                 let errorMsg = error.message;
                 let troubleshooting = '';
@@ -1653,7 +1938,7 @@ ${pdfText.substring(0, 8000)}
                     errorMsg = '網絡連接失敗';
                 }
 
-                statusDetails.innerHTML = `${errorMsg} | ${troubleshooting} | <a href="https://www.deepseek.com/" target="_blank" style="color: #667eea; text-decoration: underline;">DeepSeek 官網</a>`;
+                statusDetails.innerHTML = `${errorMsg} | ${troubleshooting} | <a href="https://dashscope.aliyun.com/" target="_blank" style="color: #667eea; text-decoration: underline;">通义千问控制台</a>`;
 
                 console.error('❌ API 測試失敗:', {
                     error: error.message,
@@ -1667,7 +1952,15 @@ ${pdfText.substring(0, 8000)}
         // 頁面加載時初始化
         window.addEventListener('load', async () => {
             console.log('🚀 DSE RAG 系統啟動中...');
-            console.log('🔑 DeepSeek API 已配置');
+            console.log('🔑 通义千问 API 已配置 (Qwen-Plus + Qwen-VL-OCR)');
+            console.log('📦 支持格式：JSON、PDF、Word (.doc/.docx)、图片 (OCR)');
+
+            if (USE_CLOUDFLARE_RAG) {
+                console.log('🌐 Cloudflare RAG 向量检索已启用');
+            } else {
+                console.log('💾 使用本地文本相似度检索');
+                console.log('💡 提示：部署 Cloudflare Workers 可启用向量检索');
+            }
 
             // 測試 API 狀態
             await testAPIStatus();
@@ -1679,8 +1972,7 @@ ${pdfText.substring(0, 8000)}
             setupDragAndDrop();
 
             console.log('✅ 系統就緒！');
-            console.log('💡 提示：搜索使用關鍵詞匹配 + DeepSeek AI 生成智能解答');
-            console.log('📊 数据管理功能已启用：上传、下载、添加考题');
+            console.log('🎯 功能：智能检索 + 多模态识别 + RAG 向量库 + AI 解答');
         });
     </script>
 </body>
